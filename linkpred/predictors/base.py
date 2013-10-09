@@ -1,0 +1,137 @@
+from .util import neighbourhood
+
+__all__ = ["Predictor",
+           "all_predictors"]
+
+
+class Predictor(object):
+    """
+    Predictor based on graph structure
+
+    This can also be used for bipartite networks or other networks
+    involving nodes that should not be included in the predictions.
+    To distinguish between 'eligible' and 'non-eligible' nodes, the
+    graph can set a node attribute that returns true for eligible
+    nodes and false for non-eligible ones.
+
+    For instance:
+
+    >>> B = nx.Graph()
+    >>> B.add_nodes_from([1,2,3,4], bipartite=0) # Add the node attribute "bipartite"
+    >>> B.add_nodes_from(['a','b','c'], bipartite=1)
+    >>> B.add_edges_from([(1,'a'), (1,'b'), (2,'b'), (2,'c'), (3,'c'), (4,'a')])
+    >>> p = Predictor(B, eligible='bipartite')
+    >>> p.eligible_node(1)
+    0
+    >>> sorted(p.eligible_nodes())
+    ['a', 'b', 'c']
+
+    """
+    def __init__(self, G, eligible=None, only_new=False):
+        """
+        Initialize predictor
+
+        Arguments
+        ---------
+        G : nx.Graph
+            a graph
+
+        eligible : a string or None
+            If this is a string, it is used to distinguish between eligible
+            and non-eligible nodes. We only try to predict links between
+            two eligible nodes.
+
+        only_new : True|False
+            If True, this ensures that we only predict 'new' links that are not
+            yet present in G. Otherwise, we predict all links, regardless of whether
+            or not they are in G.
+
+        """
+        self.G = G
+        self.eligible_attr = eligible
+        self.only_new = only_new
+
+        # Add a decorator to predict(), to do the necessary postprocessing for
+        # filtering out new links if only_new is False. We do this in __init__() such
+        # that child classes need not be changed.
+        def add_postprocessing(func):
+            def predict_and_postprocess(*args, **kwargs):
+                scoresheet = func(*args, **kwargs)
+                if self.only_new:
+                    for u, v in self.G.edges_iter():
+                        try:
+                            del scoresheet[(u, v)]
+                        except KeyError:
+                            pass
+                return scoresheet
+            predict_and_postprocess.__name__ = func.__name__
+            predict_and_postprocess.__doc__ = func.__doc__
+            predict_and_postprocess.__dict__.update(func.__dict__)
+            return predict_and_postprocess
+
+        self.predict = add_postprocessing(self.predict)
+
+    def __str__(self):
+        if not self.name:
+            self.name = self.__class__.__name__
+        return self.name
+
+    def __call__(self, *args, **kwargs):
+        return self.predict(*args, **kwargs)
+
+    def predict(self, *args, **kwargs):
+        raise NotImplementedError
+
+    @classmethod
+    def arguments(cls):
+        import inspect
+
+        eligible = lambda x: isinstance(x, (int, float, bool)) or x == 'weight'
+        a = inspect.getargspec(cls.predict)
+        if a.defaults:
+            args = {k: v for k, v in zip(a.args[1:], a.defaults) if eligible(v)}
+        else:
+            args = {}
+
+        return args
+
+    def eligible(self, u, v):
+        return self.eligible_node(u) and self.eligible_node(v) and u != v
+
+    def eligible_node(self, v):
+        if self.eligible_attr is None:
+            return True
+        return self.G.node[v][self.eligible_attr]
+
+    def eligible_nodes(self):
+        return [v for v in self.G if self.eligible_node(v)]
+
+    def likely_pairs(self, k=2):
+        """
+        Yield node pairs from the same neighbourhood
+
+        Arguments
+        ---------
+        k : int
+            size of the neighbourhood (e.g., if k = 2, the neighbourhood
+            consists of all nodes that are two links away)
+
+        """
+        for a in self.G.nodes_iter():
+            if not self.eligible_node(a):
+                continue
+            for b in neighbourhood(self.G, a, k):
+                if not self.eligible_node(b):
+                    continue
+                yield (a, b)
+
+
+def all_predictors():
+    """
+    Returns a list of all subclasses of `Predictor`
+    """
+    from linkpred.util import itersubclasses
+    from operator import itemgetter
+
+    predictors = sorted([(s, s.__name__) for s in itersubclasses(Predictor)], key=itemgetter(1))
+    return zip(*predictors)[0]

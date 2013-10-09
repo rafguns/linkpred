@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+"""linkpred main script"""
+
+import os
+import sys
+
+# LIBDIR trick start (marker for removal on platforms that don't need it)
+# This trick is inspired by Nikola
+# <https://github.com/getnikola/nikola/blob/master/scripts/nikola>.
+# It allows running from a direct checkout as well as a 'properly' installed
+# package.
+libdir = '@LIBDIR@'
+
+# Two cases:
+if libdir != '@' 'LIBDIR' '@':
+    # Changed by our distutils hook, then use the given path.
+
+    if not os.path.isabs(libdir):
+        libdir = os.path.join(os.path.dirname(
+            os.path.realpath(__file__)), libdir)
+        libdir = os.path.abspath(libdir)
+else:
+    # Unchanged, running from checkout,
+    # use the parent directory, the linkpred package ought be there.
+    libdir = os.path.join(os.path.dirname(__file__), "..")
+
+sys.path.insert(0, libdir)
+
+if "PYTHONPATH" not in os.environ:
+    os.environ["PYTHONPATH"] = libdir
+else:
+    os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"] + ":" + libdir
+
+# LIBDIR trick end (marker for removal on platforms that don't need it)
+
+from linkpred.cli import get_profile
+from linkpred.core import training_test_data, predict, evaluate
+from linkpred.evaluation import DataSet
+
+
+def main():
+    profile = get_profile(choose_interpolation=True, choose_filetype=True)
+    only_new = profile.get("only_new", False)
+    filetype = profile.get('filetype', 'pdf')
+    steps = profile.get('steps', 1)
+    interpolate = profile.get('interpolation', True)
+    label = profile['training']['name']
+
+    training, test = training_test_data(profile)
+    predictions = predict(training, profile, only_new, eligible="eligible")
+    exclude = set(training.network.edges_iter()) if only_new else set()
+    dataset = DataSet(label, predictions, test, exclude=exclude, steps=steps)
+    evaluate(dataset, label, filetype, interpolate, steps)
+
+if __name__ == "__main__":
+    main()

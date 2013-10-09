@@ -1,0 +1,38 @@
+from nose.tools import assert_dict_equal, assert_equal, assert_not_in
+import networkx as nx
+
+from linkpred.evaluation import Pair
+from linkpred.predictors.neighbour import CommonNeighbours
+from linkpred.predictors.misc import Copy
+
+
+def test_bipartite_common_neighbour():
+    B = nx.Graph()
+    B.add_nodes_from(range(1, 5), eligible=0)
+    B.add_nodes_from('abc', eligible=1)
+    B.add_edges_from([(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'), (2, 'c'),
+                      (3, 'c'), (4, 'a')])
+
+    expected = {Pair('a', 'b'): 2, Pair('b', 'c'): 1, Pair('a', 'c'): 1}
+    assert_dict_equal(CommonNeighbours(B, eligible='eligible').predict(), expected)
+
+
+def test_bipartite_common_neighbours_equivalent_projection():
+    B     = nx.bipartite_random_graph(30, 50, 0.1)
+    nodes = [v for v in B if B.node[v]['bipartite']]
+    G     = nx.bipartite.weighted_projected_graph(B, nodes)
+
+    expected = CommonNeighbours(B, eligible='bipartite')()
+    assert_dict_equal(Copy(G).predict(weight='weight'), expected)
+
+
+def test_postprocessing():
+    G = nx.karate_club_graph()
+    prediction_all_links = CommonNeighbours(G)()
+    prediction_only_new_links = CommonNeighbours(G, only_new=True)()
+
+    for link, score in prediction_all_links.iteritems():
+        if G.has_edge(*link):
+            assert_not_in(link, prediction_only_new_links)
+        else:
+            assert_equal(score, prediction_only_new_links[link])
