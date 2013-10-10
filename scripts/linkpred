@@ -35,23 +35,42 @@ else:
 # LIBDIR trick end (marker for removal on platforms that don't need it)
 
 from linkpred.cli import get_profile
-from linkpred.core import training_test_data, predict, evaluate
+from linkpred.core import read_network, filter_low_degree_nodes, \
+    predict_all, evaluate
 from linkpred.evaluation import DataSet
 
 
 def main():
-    profile = get_profile(choose_interpolation=True, choose_filetype=True)
+    profile = get_profile()
+    training = profile.read_network('training')
+    test = profile.read_network('test')
+    if test:
+        filter_low_degree_nodes([training, test], minimum=min_degree)
+
+    predictions = profile.predict_all(only_new)
+
     only_new = profile.get("only_new", False)
     filetype = profile.get('filetype', 'pdf')
     steps = profile.get('steps', 1)
-    interpolate = profile.get('interpolation', True)
-    label = profile['training']['name']
+    interpolate = profile.get('interpolation', False)
+    training_fname = profile['training']
+    test_fname = profile['test']
+    label = "TODO"  # TODO
+    min_degree = profile.get("min_degree", 1)
 
-    training, test = training_test_data(profile)
-    predictions = predict(training, profile, only_new, eligible="eligible")
-    exclude = set(training.network.edges_iter()) if only_new else set()
-    dataset = DataSet(label, predictions, test, exclude=exclude, steps=steps)
-    evaluate(dataset, label, filetype, interpolate, steps)
+    training = read_network(training_fname)
+    if test_fname:
+        test = read_network(test_fname)
+        filter_low_degree_nodes([training, test], minimum=min_degree)
+
+    predictions = predict_all(training, profile, only_new)
+    exclude = set(training.edges_iter()) if only_new else set()
+
+    if test_fname:
+        # XXX But we may want to use the listener for all predictions, even if
+        # there is no test network!
+        dataset = DataSet(label, predictions, test, exclude=exclude, steps=steps)
+        evaluate(dataset, label, filetype, interpolate, steps=steps)
 
 if __name__ == "__main__":
     main()
