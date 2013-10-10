@@ -1,7 +1,7 @@
-from .ranked import ranked_evaluation
+from ..util import log
 from .signals import new_evaluation, datagroup_finished,\
     dataset_finished, run_finished
-from ..util import log
+from .static import StaticEvaluation
 
 __all__ = ["DataSet", "Comparison"]
 
@@ -18,6 +18,29 @@ class DataSet(object):
         self.num_universe = nnodes * (nnodes - 1) / 2 - len(exclude)
         log.logger.debug("Constructed dataset '%s': "
                          "num_universe = %d" % (self.name, self.num_universe))
+
+
+def ranked_evaluation(retrieved, relevant, n=None, **kwargs):
+    """Generator for ranked evaluation of IR
+
+    Arguments
+    ---------
+    retrieved : a Scoresheet
+        score sheet of ranked retrieved results
+
+    relevant : a set
+        set of relevant results
+
+    n : an integer
+        At each step, the next n items on the retrieved score sheet are
+        added to the set of retrieved items that are compared to the relevant
+        ones.
+
+    """
+    evaluation = StaticEvaluation(relevant=relevant, **kwargs)
+    for ret in retrieved.successive_sets(n=n):
+        evaluation.update_retrieved(ret)
+        yield evaluation
 
 
 class Comparison(object):
