@@ -1,4 +1,5 @@
 import networkx as nx
+
 from . import predictors
 from .evaluation import Comparison, signals, listeners
 from .network import read_pajek
@@ -20,38 +21,32 @@ def filter_low_degree_nodes(networks, minimum=1, eligible=None):
 
     """
     def low_degree(G, threshold):
-        """
-        Find low-degree nodes
-
-        Parameters
-        ----------
-        threshold : int
-            Only nodes whose degree is below the threshold are retained
-
-        """
+        """Get eligible nodes whose degree is below the threshold"""
         if eligible is None:
             return [n for n, d in G.degree_iter() if d < threshold]
         else:
             return [n for n, d in G.degree_iter()
                     if d < threshold and G.node[n][eligible]]
 
-    def items_outside(G, container):
+    def items_outside(G, nbunch):
+        """Get eligible nodes outside nbunch"""
         if eligible is None:
-            return [n for n in G.nodes_iter() if n not in container]
+            return [n for n in G.nodes_iter() if n not in nbunch]
         else:
             return [n for n in G.nodes_iter()
-                    if G.node[n][eligible] and n not in container]
+                    if G.node[n][eligible] and n not in nbunch]
 
     log.logger.info("Filtering low degree nodes...")
     for G in networks:
         to_remove = low_degree(G, minimum)
         G.remove_nodes_from(to_remove)
-        log.logger.info("Removed %d items" % len(to_remove))
+        log.logger.info("Removed %d nodes "
+                        "(degree < %d)" % (len(to_remove), minimum))
     common = set.intersection(*[set(G) for G in networks])
     for G in networks:
         to_remove = items_outside(G, common)
         G.remove_nodes_from(to_remove)
-        log.logger.info("Removed %d items" % len(to_remove))
+        log.logger.info("Removed %d nodes (not common)" % len(to_remove))
     log.logger.info("Finished filtering low degree nodes.")
 
 
@@ -92,27 +87,44 @@ def read_network(fname):
             log.logger.info("Reading file '%s'..." % fname)
             network = read(fname)
             log.logger.info("Successfully read file.")
-
-    return network
+            return network
 
 
 class LinkPred(object):
 
     def __init__(self, config={}):
-        self.config = {}  # default config
+        # default config
+        self.config = {
+            'chart_filetype': 'pdf',
+            'eligible':       None,
+            'interpolation':  False,
+            'min_degree':     1,
+            'only_new':       False,
+            'output':         ['recall-precision'],
+            'predictors':     [],
+            'test':           None,
+            'training':       None
+        }
         self.config.update(config)
+        log.logger.debug(u"Config: %s" % unicode(config))
 
         self.training = self.network('training')
         self.test = self.network('test')
-        if self.test:
-            filter_low_degree_nodes([self.training, self.test],
-                                    minimum=self.config['min_degree'])
 
-        self.excluded = set(self.training.edges_iter()) \
+    @property
+    def excluded(self):
+        return set(self.training.edges_iter()) \
             if self.config['only_new'] else set()
 
     def network(self, key):
-        return read_network(self.config[key])
+        return read_network(self.config[key]) if key else None
+
+    def preprocess(self):
+        networks = [self.training]
+        if self.test:
+            networks.append(self.test)
+
+        filter_low_degree_nodes(networks, minimum=self.config['min_degree'])
 
     def do_predict_all(self):
         """Generator that yields predictions on the basis of training network G
@@ -142,7 +154,12 @@ class LinkPred(object):
 
     def predict_all(self):
         self.predictions = self.do_predict_all()
+        return self.predictions
 
     def process_predictions(self):
         # Evaluations etc.
+        for prediction in self.predictions:
+            pass
+        Comparison
+        listeners
         pass

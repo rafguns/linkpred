@@ -41,6 +41,7 @@ from linkpred.linkpred import LinkPred
 def main():
     profile = get_profile()
     linkpred = LinkPred(profile)
+    linkpred.preprocess()
     linkpred.predict_all()
     linkpred.process_predictions()
 
