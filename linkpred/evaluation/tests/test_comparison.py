@@ -2,7 +2,6 @@ import networkx as nx
 from nose.tools import assert_equal
 
 from linkpred.evaluation.comparison import DataSet
-from linkpred.result import Result
 
 
 def test_dataset_init():
@@ -10,7 +9,7 @@ def test_dataset_init():
     predictions = {("a", "b"): 1, ("b", "c"): 2}
     test_network = nx.Graph()
     test_network.add_edges_from([("a", "b"), ("b", "c"), ("c", "d"), ("c", "e")])
-    test = Result(test_network, eligible=None)
+    test = test_network
     steps = 5
 
     d = DataSet(name, predictions, test, steps=steps)

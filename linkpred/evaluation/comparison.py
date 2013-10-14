@@ -1,4 +1,5 @@
 from ..util import log
+from .scoresheet import Pair
 from .signals import new_evaluation, datagroup_finished,\
     dataset_finished, run_finished
 from .static import StaticEvaluation
@@ -6,11 +7,21 @@ from .static import StaticEvaluation
 __all__ = ["DataSet", "Comparison"]
 
 
+def for_comparison(G, exclude=[]):
+    """Return the result in a format, suitable for comparison.
+
+    In practice this means we return it as a set of Pairs.
+
+    """
+    exclude = set(Pair(u, v) for u, v in exclude)
+    return set(Pair(u, v) for u, v in G.edges_iter()) - exclude
+
+
 class DataSet(object):
     def __init__(self, name, predictions, test, exclude=set(), steps=1):
         self.name = name
         self.predictions = predictions
-        self.test = test.for_comparison(exclude=exclude)
+        self.test = for_comparison(test, exclude=exclude)
         self.steps = steps
         nnodes = len(test)
         # Universe = all possible edges, except for the ones that we no longer
