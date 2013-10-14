@@ -28,21 +28,19 @@ def load_profile(fname):
 
 def get_profile():
     args = handle_arguments()
-    profile = load_profile(args.profile) if args.profile else {}
+    try:
+        profile = load_profile(args.profile)
+    except AttributeError:
+        profile = {}
 
-    arg_names = ["output", "chart_filetype", "interpolation", "only_new",
-                 "training", "test"]
-    for arg_name in arg_names:
-        try:
-            arg = getattr(args, arg_name)
-        except AttributeError:
-            continue
-        profile[arg_name] = arg
-
-    if hasattr(args, 'predictors') and args.predictors:
-        profile['predictors'] = []
-        for p in args.predictors:
-            profile['predictors'].append({'name': p})
+    for k, v in args.iteritems():
+        # Handle predictors separately
+        if k == "predictors":
+            profile[k] = []
+            for predictor in v:
+                profile[k].append({"name": predictor})
+        else:
+            profile[k] = v
 
     return profile
 
