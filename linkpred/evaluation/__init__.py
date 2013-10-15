@@ -1,5 +1,6 @@
 """Module for evaluating link prediction results"""
+from . import listeners
+from . import signals
 from .comparison import Comparison, DataSet
-from .listeners import *
 from .scoresheet import *
-from .signals import *
+from .static import StaticEvaluation

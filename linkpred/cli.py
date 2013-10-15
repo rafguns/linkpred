@@ -7,10 +7,6 @@ from .util import log
 __all__ = ["load_profile", "get_profile", "handle_arguments"]
 
 
-class Profile(object):
-    pass
-
-
 def load_profile(fname):
     profile = {}
     try:
@@ -96,4 +92,5 @@ def handle_arguments():
     else:
         log.logger.setLevel(log.logging.INFO)
 
+    # Return as plain dictionary
     return vars(results)

@@ -130,7 +130,7 @@ def all_predictors():
     """
     Returns a list of all subclasses of `Predictor`
     """
-    from linkpred.util import itersubclasses
+    from ..util import itersubclasses
     from operator import itemgetter
 
     predictors = sorted([(s, s.__name__) for s in itersubclasses(Predictor)], key=itemgetter(1))
