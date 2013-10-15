@@ -1,9 +1,14 @@
 import networkx as nx
+import os
 
 from . import predictors
-from .evaluation import Comparison, signals, listeners
+from .evaluation import Comparison, DataSet, signals, listeners
 from .network import read_pajek
 from .util import log
+
+
+class LinkPredError(Exception):
+    pass
 
 
 def filter_low_degree_nodes(networks, minimum=1, eligible=None):
@@ -66,14 +71,6 @@ def predict(G, predictor, eligible=None, only_new=False, **kwargs):
     return scoresheet
 
 
-def connect_signals(listeners):
-    for listener in listeners:
-        signals.new_evaluation.connect(listener.on_new_evaluation)
-        signals.datagroup_finished.connect(listener.on_datagroup_finished)
-        signals.dataset_finished.connect(listener.on_dataset_finished)
-        signals.run_finished.connect(listener.on_run_finished)
-
-
 def read_network(fname):
     filetype_readers = {'net': read_pajek,
                         'gml': nx.read_gml,
@@ -98,18 +95,24 @@ class LinkPred(object):
             'chart_filetype': 'pdf',
             'eligible':       None,
             'interpolation':  False,
+            'label':          '',
             'min_degree':     1,
             'only_new':       False,
             'output':         ['recall-precision'],
             'predictors':     [],
+            'steps':          1,
             'test':           None,
             'training':       None
         }
         self.config.update(config)
         log.logger.debug(u"Config: %s" % unicode(config))
 
+        if not self.config['predictors']:
+            raise LinkPredError("No predictor specified. Aborting...")
+
         self.training = self.network('training')
         self.test = self.network('test')
+        self.label = os.path.splitext(self.config['training'])[0]
 
     @property
     def excluded(self):
@@ -157,9 +160,30 @@ class LinkPred(object):
         return self.predictions
 
     def process_predictions(self):
-        # Evaluations etc.
-        for prediction in self.predictions:
-            pass
-        Comparison
-        listeners
-        pass
+        filetype = self.config['chart_filetype']
+        interpolate = self.config['interpolation']  # XXX
+        steps = self.config['steps']  # ??
+
+        # XXX Need to supply right arguments to the listeners!
+        output_listener = {
+            'recall-precision': listeners.RecallPrecisionPlotter(
+                self.label, filetype=filetype, interpolate=interpolate),
+            'f-score': listeners.FScorePlotter(self.label, filetype=filetype,
+                                               xlabel="# predictions",
+                                               steps=steps),
+            'roc': listeners.ROCPlotter(self.label, filetype=filetype),
+            'fmax': listeners.FMaxListener(self.label),
+            'cache': listeners.CachingListener()
+        }
+        for output in self.config['output']:
+            listener = output_listener[output.lower()]
+            signals.new_evaluation.connect(listener.on_new_evaluation)
+            signals.datagroup_finished.connect(listener.on_datagroup_finished)
+            signals.dataset_finished.connect(listener.on_dataset_finished)
+            signals.run_finished.connect(listener.on_run_finished)
+
+        dataset = DataSet(self.label, self.predictions, self.test,
+                          exclude=self.excluded, steps=steps)
+        comp = Comparison()
+        comp.register_dataset(dataset)
+        comp.run()

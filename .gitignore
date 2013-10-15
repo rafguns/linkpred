@@ -1,6 +1,9 @@
 *.py[cod]
 *.swp
 
+examples/*.pdf
+examples/*.png
+
 # C extensions
 *.so
 

@@ -57,11 +57,13 @@ def handle_arguments():
     parser.add_argument("-q", "--quiet", action="store_true", dest="quiet",
                         default=False, help="Don't show info messages")
 
+    # TODO allow case-insensitive match
     output_types = ["recall-precision", "F-score", "ROC"]
     output_help = "Type of output(s) to produce (default: %(default)s)"
     parser.add_argument("-o", "--output", help=output_help, action="append",
-                        choices=output_types, default=output_types[0])
+                        choices=output_types, default=output_types[0:1])
 
+    # TODO allow case-insensitive match
     parser.add_argument("-f", "--chart-filetype", default="pdf",
                         help="File type for charts (default: %(default)s)")
 
@@ -69,6 +71,7 @@ def handle_arguments():
                         help="Interpolate recall-precision charts",
                         action="store_true", default=False)
 
+    # TODO allow case-insensitive match
     predictors = [p.__name__ for p in all_predictors()]
     parser.add_argument("-p", "--predictor", action="append",
                         dest="predictors", choices=predictors, default=[],
