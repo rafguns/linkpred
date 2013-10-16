@@ -123,7 +123,10 @@ class LinkPred(object):
             if self.config['only_new'] else set()
 
     def network(self, key):
-        return read_network(self.config[key]) if key else None
+        try:
+            return read_network(self.config[key])
+        except (KeyError, AttributeError):
+            pass
 
     def preprocess(self):
         networks = [self.training]
