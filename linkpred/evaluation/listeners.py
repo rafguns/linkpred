@@ -15,6 +15,9 @@ class Listener(object):
     def on_new_evaluation(self, sender, **kwargs):
         pass
 
+    def on_new_prediction(self, sender, **kwargs):
+        pass
+
     def on_datagroup_finished(self, sender, **kwargs):
         pass
 
@@ -52,6 +55,27 @@ class CachingListener(Listener):
             return
         self.cachefile.close()
         self.cachefile = None
+
+
+class PredictionCache(CachingListener):
+    def on_new_evaluation(self, sender, **kwargs):
+        pass
+
+    def on_new_prediction(self, sender, **kwargs):
+        predictions, dataset, predictor = kwargs['prediction'], \
+            kwargs['dataset'], kwargs['predictor']
+
+        if not self.cachefile:
+            fname = "%s-%s-cache.txt" % (dataset.name, predictor)
+            self.cachefile = open(fname, 'w')
+            # Header row
+            self.writeline('u', 'v', 'W(u, v)')
+        # TODO XXX `predictions` is actually a set of predictions
+        # Problems:
+        # - we can only handle one prediction at a time
+        # - we need a dict rather than a set, becaause we need the score as
+        #   well
+        self.writeline()
 
 
 class FMaxListener(Listener):

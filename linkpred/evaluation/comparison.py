@@ -1,6 +1,6 @@
 from ..util import log
 from .scoresheet import Pair
-from .signals import new_evaluation, datagroup_finished,\
+from .signals import new_prediction, new_evaluation, datagroup_finished,\
     dataset_finished, run_finished
 from .static import StaticEvaluation
 
@@ -21,17 +21,21 @@ class DataSet(object):
     def __init__(self, name, predictions, test, exclude=set(), steps=1):
         self.name = name
         self.predictions = predictions
-        self.test = for_comparison(test, exclude=exclude)
         self.steps = steps
-        nnodes = len(test)
-        # Universe = all possible edges, except for the ones that we no longer
-        # consider (because they're already in the training network)
-        self.num_universe = nnodes * (nnodes - 1) / 2 - len(exclude)
-        log.logger.debug("Constructed dataset '%s': "
-                         "num_universe = %d" % (self.name, self.num_universe))
+        if test:
+            self.test = for_comparison(test, exclude=exclude)
+            nnodes = len(test)
+            # Universe = all possible edges, except for the ones that we no
+            # longer consider (because they're already in the training network)
+            self.num_universe = nnodes * (nnodes - 1) / 2 - len(exclude)
+            log.logger.debug("Constructed dataset '%s': num_universe = %d" %
+                             (self.name, self.num_universe))
+        else:
+            self.test = None
+            log.logger.debug("Constructed dataset '%s': " % self.name)
 
 
-def ranked_evaluation(retrieved, relevant, n=None, **kwargs):
+def prediction_evaluation(retrieved, relevant, n=None, **kwargs):
     """Generator for ranked evaluation of IR
 
     Arguments
@@ -51,7 +55,7 @@ def ranked_evaluation(retrieved, relevant, n=None, **kwargs):
     evaluation = StaticEvaluation(relevant=relevant, **kwargs)
     for ret in retrieved.successive_sets(n=n):
         evaluation.update_retrieved(ret)
-        yield evaluation
+        yield ret, evaluation
 
 
 class Comparison(object):
@@ -65,16 +69,16 @@ class Comparison(object):
     def register_dataset(self, dataset):
         self.datasets.append(dataset)
 
-    def register_datasets(self, datasets):
-        for d in datasets:
-            self.register_dataset(d)
-
     def run(self):
+        # XXX Do we need to support multiple datasets?
+        # If not we could remove Comparison and move this function to DataSet
         for d in self.datasets:
+            # The following loop actually executes the predictors
             for predictorname, scoresheet in d.predictions:
-                for evaluation in ranked_evaluation(scoresheet, d.test,
-                                                    n=d.steps,
-                                                    universe=d.num_universe):
+                for prediction, evaluation in prediction_evaluation(
+                        scoresheet, d.test, n=d.steps, universe=d.num_universe):
+                    new_prediction.send(sender=self, prediction=prediction,
+                                        dataset=d, predictor=predictorname)
                     new_evaluation.send(sender=self, evaluation=evaluation,
                                         dataset=d.name, predictor=predictorname)
                 datagroup_finished.send(sender=self, dataset=d.name,
