@@ -46,7 +46,7 @@ def handle_arguments():
 
     parser = argparse.ArgumentParser(
         version="0.1", description="Easy link prediction tool",
-        usage="%(prog)s [options] training [test]")
+        usage="%(prog)s training-file [test-file] [options]")
 
     parser.add_argument("--debug", action="store_true", dest="debug",
                         default=False, help="Show debug messages")
@@ -55,9 +55,11 @@ def handle_arguments():
 
     # TODO allow case-insensitive match
     output_types = ["recall-precision", "F-score", "ROC"]
-    output_help = "Type of output(s) to produce (default: %(default)s)"
-    parser.add_argument("-o", "--output", help=output_help, action="append",
-                        choices=output_types, default=output_types[0:1])
+    output_help = "Type of output(s) to produce (default: recall-precision). "\
+                  "Allowed values are: " + ", ".join(output_types)
+    parser.add_argument("-o", "--output", help=output_help, nargs="*",
+                        choices=output_types, default=output_types[0:1],
+                        metavar="OUTPUT")
 
     # TODO allow case-insensitive match
     parser.add_argument("-f", "--chart-filetype", default="pdf",
@@ -69,9 +71,10 @@ def handle_arguments():
 
     # TODO allow case-insensitive match
     predictors = [p.__name__ for p in all_predictors()]
-    parser.add_argument("-p", "--predictor", action="append",
-                        dest="predictors", choices=predictors, default=[],
-                        help="Predictor(s) to use for link prediction")
+    predictor_help = "Predictor(s) to use for link prediction. "\
+                     "Allowed values are: " + ", ".join(predictors)
+    parser.add_argument("-p", "--predictors", nargs="*", choices=predictors,
+                        default=[], help=predictor_help, metavar="PREDICTOR")
 
     all_help = "Predict all links, "\
                "including ones present in the training network"
