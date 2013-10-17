@@ -6,7 +6,7 @@ from .evaluation import Comparison, DataSet, signals, listeners
 from .network import read_pajek
 from .util import log
 
-__all__ = ["LinkPredError", "LinkPred", "filter_low_degree_nodes", "predict",
+__all__ = ["LinkPredError", "LinkPred", "filter_low_degree_nodes",
            "read_network"]
 
 
@@ -66,12 +66,6 @@ def pretty_print(name, params={}):
     pretty_params = ", ".join("%s = %s" % (k, str(v))
                               for k, v in params.iteritems())
     return "%s (%s)" % (name, pretty_params)
-
-
-def predict(G, predictor, eligible=None, only_new=False, **kwargs):
-    scoresheet = predictor(G, eligible=eligible,
-                           only_new=only_new).predict(**kwargs)
-    return scoresheet
 
 
 def read_network(fname):
@@ -145,14 +139,15 @@ class LinkPred(object):
         for predictor_profile in self.config['predictors']:
             params = predictor_profile.get('parameters', {})
             name = predictor_profile['name']
-            predictor = getattr(predictors, name)
+            predictor_class = getattr(predictors, name)
             label = predictor_profile.get('displayname',
                                           pretty_print(name, params))
 
             log.logger.info("Executing %s..." % label)
-            scoresheet = predict(self.training, predictor,
-                                 self.config['eligible'],
-                                 self.config['only_new'], **params)
+            predictor = predictor_class(self.training,
+                                        eligible=self.config['eligible'],
+                                        only_new=self.config['only_new'])
+            scoresheet = predictor.predict(**params)
             log.logger.info("Finished executing %s." % label)
 
             # XXX TODO Do we need label?
