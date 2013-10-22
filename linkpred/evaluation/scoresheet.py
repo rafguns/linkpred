@@ -40,7 +40,7 @@ class BaseScoresheet(defaultdict):
         """Can be overridden by child classes"""
         return data
 
-    def sets(self, n=None, threshold=None, successive=False, as_dict=False):
+    def sets(self, n=None, threshold=None, successive=False):
         """Return sets of items on the scoresheet in decreasing order
 
         Arguments
@@ -70,20 +70,14 @@ class BaseScoresheet(defaultdict):
         # We use the tmp structure because it is much faster than
         # itemgetter(1, 0).
         tmp = ((score, key) for key, score in self.iteritems())
-        if as_dict:
-            ranked_data = [(key, score) for score,
-                           key in sorted(tmp, reverse=True)]
-        else:
-            ranked_data = [key for _, key in sorted(tmp, reverse=True)]
+        ranked_data = [(key, score) for score, key in
+                       sorted(tmp, reverse=True)]
         size = len(ranked_data)
 
         for begin, end in _boundaries(0, n, threshold, successive):
             if begin >= size:
                 raise StopIteration
-            if as_dict:
-                yield dict(ranked_data[begin:end])
-            else:
-                yield set(ranked_data[begin:end])
+            yield dict(ranked_data[begin:end])
 
     def successive_sets(self, n=None, threshold=None):
         return self.sets(n, threshold, True)
