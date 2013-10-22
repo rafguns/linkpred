@@ -9,7 +9,7 @@ from ..util import interpolate, log
 
 __all__ = ["EvaluatingListener",
            "CachePredictionListener",
-           "EvaluationListener",
+           "Listener",
            "Plotter",
            "CacheEvaluationListener",
            "FMaxListener",
@@ -24,7 +24,18 @@ def _timestamped_filename(basename, ext):
     return basename + strftime("_%Y-%m-%d_%H.%M.", localtime()) + ext
 
 
-class EvaluatingListener(object):
+class Listener(object):
+    def on_datagroup_finished(self, sender, **kwargs):
+        pass
+
+    def on_dataset_finished(self, sender, **kwargs):
+        pass
+
+    def on_run_finished(self, sender, **kwargs):
+        pass
+
+
+class EvaluatingListener(Listener):
     def __init__(self, **kwargs):
         self.params = kwargs
         self.evaluation = None
@@ -44,7 +55,7 @@ class EvaluatingListener(object):
         self.evaluation = None
 
 
-class CachePredictionListener(object):
+class CachePredictionListener(Listener):
     def __init__(self):
         self.cachefile = None
 
@@ -57,7 +68,7 @@ class CachePredictionListener(object):
             kwargs['dataset'], kwargs['predictor']
 
         if not self.cachefile:
-            fname = "%s-%s-%s-cache.txt" % (dataset, predictor)
+            fname = "%s-%s-cache.txt" % (dataset, predictor)
             self.cachefile = open(fname, 'w')
             # Header row
             self.writeline('u', 'v', 'W(u,v)')
@@ -73,22 +84,7 @@ class CachePredictionListener(object):
         self.cachefile = None
 
 
-class EvaluationListener(object):
-
-    def on_new_evaluation(self, sender, **kwargs):
-        pass
-
-    def on_datagroup_finished(self, sender, **kwargs):
-        pass
-
-    def on_dataset_finished(self, sender, **kwargs):
-        pass
-
-    def on_run_finished(self, sender, **kwargs):
-        pass
-
-
-class CacheEvaluationListener(EvaluationListener):
+class CacheEvaluationListener(Listener):
 
     def __init__(self):
         self.cachefile = None
@@ -117,7 +113,7 @@ class CacheEvaluationListener(EvaluationListener):
         self.cachefile = None
 
 
-class FMaxListener(EvaluationListener):
+class FMaxListener(Listener):
     def __init__(self, name, beta=1):
         self.beta = beta
         self.reset_data()
@@ -142,7 +138,7 @@ class FMaxListener(EvaluationListener):
         print status
 
 
-class PrecisionAtKListener(EvaluationListener):
+class PrecisionAtKListener(Listener):
     def __init__(self, name, k=10, steps=1):
         self.k = k
         self.steps = steps
@@ -180,7 +176,7 @@ GENERIC_CHART_LOOKS = ['k-', 'k--', 'k.-', 'k:',
                        'y-', 'y--', 'y.-', 'y:']
 
 
-class Plotter(EvaluationListener):
+class Plotter(Listener):
     def __init__(self, name, xlabel="", ylabel="", filetype="pdf",
                  chart_looks=[]):
         self.name = name
