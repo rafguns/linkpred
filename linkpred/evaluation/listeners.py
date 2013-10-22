@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 from time import localtime, strftime
 
-from . import StaticEvaluation, new_evaluation
+from .signals import new_evaluation
+from .static import StaticEvaluation
 from ..util import interpolate
 
 __all__ = ["EvaluatingListener",
@@ -17,6 +18,10 @@ __all__ = ["EvaluatingListener",
            "ROCPlotter",
            "PrecisionAtKListener",
            "MarkednessPlotter"]
+
+
+def _timestamped_filename(basename, ext):
+    return "%s" + strftime("_%Y-%m-%d_%H.%M.", localtime()) + ext
 
 
 class EvaluatingListener(object):
@@ -53,7 +58,7 @@ class CachePredictionListener(object):
         (u, v), W = prediction.iteritems().next()  # XXX Assumes that n=1
 
         if not self.cachefile:
-            fname = "%s-%s-cache.txt" % (dataset, predictor)
+            fname = "%s-%s-%s-cache.txt" % (dataset, predictor)
             self.cachefile = open(fname, 'w')
             # Header row
             self.writeline('u', 'v', 'W(u,v)')
@@ -114,8 +119,7 @@ class FMaxListener(EvaluationListener):
     def __init__(self, name, beta=1):
         self.beta = beta
         self.reset_data()
-        self.fname = "%s-Fmax" % name + \
-            strftime("_%Y-%m-%d_%H.%M.txt", localtime())
+        self.fname = _timestamped_filename("%s-Fmax" % name, "txt")
 
     def reset_data(self):
         self._f = []
@@ -142,8 +146,8 @@ class PrecisionAtKListener(EvaluationListener):
         self.steps = steps
         self.reset_data()
 
-        self.fname = "%s-precision-at-%d" % (name, self.k) + \
-            strftime("_%Y-%m-%d_%H.%M.txt", localtime())
+        self.fname = _timestamped_filename(
+            "%s-precision-at-%d" % (name, self.k), "txt")
 
     def reset_data(self):
         self.precision = 0.0
@@ -212,8 +216,8 @@ class Plotter(EvaluationListener):
             ax.legend(**self._legend_props)
 
         # Save to file
-        fname = "%s-%s" % (self.name, self._charttype) + \
-            strftime("_%Y-%m-%d_%H.%M.", localtime()) + self.filetype
+        fname = _timestamped_filename("%s-%s" % (self.name, self._charttype),
+                                      self.filetype)
         self.fig.savefig(fname)
 
 
