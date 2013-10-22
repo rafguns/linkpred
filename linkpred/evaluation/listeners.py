@@ -55,14 +55,16 @@ class CachePredictionListener(object):
     def on_new_prediction(self, sender, **kwargs):
         prediction, dataset, predictor = kwargs['prediction'], \
             kwargs['dataset'], kwargs['predictor']
-        (u, v), W = prediction.iteritems().next()  # XXX Assumes that n=1
 
         if not self.cachefile:
             fname = "%s-%s-%s-cache.txt" % (dataset, predictor)
             self.cachefile = open(fname, 'w')
             # Header row
             self.writeline('u', 'v', 'W(u,v)')
-        self.writeline(u, v, W)
+        # If we take steps larger than 1, this may write lines in 'wrong'
+        # (non-descending) order.
+        for (u, v), W in prediction.iteritems():
+            self.writeline(u, v, W)
 
     def on_datagroup_finished(self, sender, **kwargs):
         if not self.cachefile:
@@ -170,7 +172,7 @@ class PrecisionAtKListener(EvaluationListener):
         self.reset_data()
 
 
-generic_chart_looks = ['k-', 'k--', 'k.-', 'k:',
+GENERIC_CHART_LOOKS = ['k-', 'k--', 'k.-', 'k:',
                        'r-', 'r--', 'r.-', 'r:',
                        'b-', 'b--', 'b.-', 'b:',
                        'g-', 'g--', 'g.-', 'g:',
@@ -179,7 +181,8 @@ generic_chart_looks = ['k-', 'k--', 'k.-', 'k:',
 
 
 class Plotter(EvaluationListener):
-    def __init__(self, name, xlabel="", ylabel="", filetype="pdf", chart_looks=[]):
+    def __init__(self, name, xlabel="", ylabel="", filetype="pdf",
+                 chart_looks=[]):
         self.name = name
         self.filetype = filetype
         self.chart_looks = chart_looks
@@ -193,15 +196,15 @@ class Plotter(EvaluationListener):
         self._x = []
         self._y = []
 
-    def add_line(self, dataset="", predictor="", default_look=generic_chart_looks):
+    def add_line(self, dataset="", predictor=""):
         label = self.build_label(dataset, predictor)
         ax = self.fig.axes[0]
-        ax.plot(self._x, self._y, self.chart_look(default_look), label=label)
+        ax.plot(self._x, self._y, self.chart_look(), label=label)
 
     def build_label(self, dataset="", predictor=""):
         return predictor
 
-    def chart_look(self, default):
+    def chart_look(self, default=GENERIC_CHART_LOOKS):
         if not self.chart_looks:
             self.chart_looks = copy.copy(default)
         return self.chart_looks.pop(0)
@@ -246,7 +249,8 @@ class RecallPrecisionPlotter(Plotter):
 
 
 class FScorePlotter(Plotter):
-    def __init__(self, name, xlabel="#", ylabel="F-score", beta=1, steps=1, **kwargs):
+    def __init__(self, name, xlabel="#", ylabel="F-score",
+                 beta=1, steps=1, **kwargs):
         Plotter.__init__(self, name, xlabel, ylabel, **kwargs)
         self._charttype = "F-Score"
         self.beta = beta
