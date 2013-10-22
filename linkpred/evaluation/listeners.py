@@ -5,7 +5,7 @@ from time import localtime, strftime
 
 from .signals import new_evaluation
 from .static import StaticEvaluation
-from ..util import interpolate
+from ..util import interpolate, log
 
 __all__ = ["EvaluatingListener",
            "CachePredictionListener",
@@ -200,6 +200,11 @@ class Plotter(EvaluationListener):
         label = self.build_label(dataset, predictor)
         ax = self.fig.axes[0]
         ax.plot(self._x, self._y, self.chart_look(), label=label)
+
+        log.logger.debug("Added line with %d points: "
+                         "start = (%.2f, %.2f), end = (%.2f, %.2f)" %
+                         (len(self._x), self._x[0], self._y[0],
+                          self._x[-1], self._y[-1]))
 
     def build_label(self, dataset="", predictor=""):
         return predictor

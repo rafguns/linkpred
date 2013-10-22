@@ -210,6 +210,7 @@ class LinkPred(object):
                 if not self.evaluator:
                     self.evaluator = listeners.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
+                signals.new_prediction.connect(self.evaluator.on_new_prediction)
             else:
                 # We assume that if it's not an evaluation listener, it must
                 # be a prediction listener
@@ -220,13 +221,20 @@ class LinkPred(object):
             signals.dataset_finished.connect(listener.on_dataset_finished)
             signals.run_finished.connect(listener.on_run_finished)
 
+            log.logger.debug("Added listener for '%s'" % output)
+
         # The following loop actually executes the predictors
         for predictorname, scoresheet in self.predictions:
+
+            log.logger.debug("Predictor '%s' yields %d predictions" % (
+                predictorname, len(scoresheet)))
+
             for prediction in scoresheet.successive_sets(n=steps):
                 signals.new_prediction.send(sender=self, prediction=prediction,
                                             dataset=self.label,
                                             predictor=predictorname)
             signals.datagroup_finished.send(sender=self, dataset=self.label,
                                             predictor=predictorname)
+
         signals.dataset_finished.send(sender=self, dataset=self.label)
         signals.run_finished.send(sender=self)
