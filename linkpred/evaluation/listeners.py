@@ -21,7 +21,7 @@ __all__ = ["EvaluatingListener",
 
 
 def _timestamped_filename(basename, ext):
-    return "%s" + strftime("_%Y-%m-%d_%H.%M.", localtime()) + ext
+    return basename + strftime("_%Y-%m-%d_%H.%M.", localtime()) + ext
 
 
 class EvaluatingListener(object):

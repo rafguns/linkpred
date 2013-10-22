@@ -2,7 +2,7 @@ import networkx as nx
 import os
 
 from . import predictors
-from .evaluation import DataSet, signals, listeners
+from .evaluation import Pair, signals, listeners
 from .network import read_pajek
 from .util import log
 
@@ -56,6 +56,16 @@ def filter_low_degree_nodes(networks, minimum=1, eligible=None):
         G.remove_nodes_from(to_remove)
         log.logger.info("Removed %d nodes (not common)" % len(to_remove))
     log.logger.info("Finished filtering low degree nodes.")
+
+
+def for_comparison(G, exclude=[]):
+    """Return the result in a format, suitable for comparison.
+
+    In practice this means we return it as a set of Pairs.
+
+    """
+    exclude = set(Pair(u, v) for u, v in exclude)
+    return set(Pair(u, v) for u, v in G.edges_iter()) - exclude
 
 
 def pretty_print(name, params={}):
@@ -116,6 +126,7 @@ class LinkPred(object):
         self.training = self.network('training')
         self.test = self.network('test')
         self.label = os.path.splitext(self.config['training'])[0]
+        self.evaluator = None
 
     @property
     def excluded(self):
@@ -167,16 +178,11 @@ class LinkPred(object):
 
     def process_predictions(self):
         filetype = self.config['chart_filetype']
-        interpolate = self.config['interpolation']  # XXX
-        steps = self.config['steps']  # ??
+        interpolate = self.config['interpolation']
+        steps = self.config['steps']
 
-        # TODO: We should set up a system like this:
-        # Comparison -> signal new_prediction
-        # CacheAllListener -> on_new_prediction -> write to cache file
-        # Evaluator -> on_new_prediction -> new evaluation
-        # listeners -> on_new_evaluation -> plot etc.
-        output_listeners = {
-            'cacheall': listeners.CacheAllListener()
+        prediction_listeners = {
+            'cache-predictions': listeners.CachePredictionListener()
         }
         evaluation_listeners = {
             'recall-precision': listeners.RecallPrecisionPlotter(
@@ -186,17 +192,46 @@ class LinkPred(object):
                                                steps=steps),
             'roc': listeners.ROCPlotter(self.label, filetype=filetype),
             'fmax': listeners.FMaxListener(self.label),
-            'cache': listeners.CachingListener()
+            'cache-evaluation': listeners.CacheEvaluationListener()
         }
-        # TODO: if we have evaluation listeners, set up Evaluator to determine
-        #evalautions and redirect to eval. listeners
+
         for output in self.config['output']:
-            listener = evaluation_listeners[output.lower()]
-            signals.new_evaluation.connect(listener.on_new_evaluation)
+            name = output.lower()
+            if name in evaluation_listeners:
+                # We're evaluating!
+                listener = evaluation_listeners[name]
+                signals.new_evaluation.connect(listener.on_new_evaluation)
+
+                if not self.test:
+                    raise LinkPredError("Cannot evaluate (%s) without "
+                                        "test network" % output)
+
+                test_set = for_comparison(self.test, exclude=self.excluded)
+                nnodes = len(self.test)
+                # Universe = all possible edges, except for the ones that we no
+                # longer consider (because they're already in the training network)
+                num_universe = nnodes * (nnodes - 1) / 2 - len(self.excluded)
+
+                if not self.evaluator:
+                    self.evaluator = listeners.EvaluatingListener(
+                        relevant=test_set, universe=num_universe)
+            else:
+                # We assume that if it's not an evaluation listener, it must
+                # be a prediction listener
+                listener = prediction_listeners[name]
+                signals.new_prediction.connect(listener.on_new_prediction)
+
             signals.datagroup_finished.connect(listener.on_datagroup_finished)
             signals.dataset_finished.connect(listener.on_dataset_finished)
             signals.run_finished.connect(listener.on_run_finished)
 
-        dataset = DataSet(self.label, self.predictions, self.test,
-                          exclude=self.excluded, steps=steps)
-        dataset.run()
+        # The following loop actually executes the predictors
+        for predictorname, scoresheet in self.predictions:
+            for prediction in scoresheet.successive_sets(n=steps):
+                signals.new_prediction.send(sender=self, prediction=prediction,
+                                            dataset=self.label,
+                                            predictor=predictorname)
+            signals.datagroup_finished.send(sender=self, dataset=self.label,
+                                            predictor=predictorname)
+        signals.dataset_finished.send(sender=self, dataset=self.label)
+        signals.run_finished.send(sender=self)
