@@ -3,19 +3,72 @@ import matplotlib.pyplot as plt
 
 from time import localtime, strftime
 
+from . import StaticEvaluation, new_evaluation
 from ..util import interpolate
 
-__all__ = ["Listener", "Plotter", "CachingListener", "FMaxListener",
-           "RecallPrecisionPlotter", "FScorePlotter", "ROCPlotter",
-           "PrecisionAtKListener", "MarkednessPlotter"]
+__all__ = ["EvaluatingListener",
+           "CachePredictionListener",
+           "EvaluationListener",
+           "Plotter",
+           "CacheEvaluationListener",
+           "FMaxListener",
+           "RecallPrecisionPlotter",
+           "FScorePlotter",
+           "ROCPlotter",
+           "PrecisionAtKListener",
+           "MarkednessPlotter"]
 
 
-class Listener(object):
-
-    def on_new_evaluation(self, sender, **kwargs):
-        pass
+class EvaluatingListener(object):
+    def __init__(self, **kwargs):
+        self.params = kwargs
+        self.evaluation = None
 
     def on_new_prediction(self, sender, **kwargs):
+        if not self.evaluation:
+            self.evaluation = StaticEvaluation(**self.params)
+
+        prediction, dataset, predictor = \
+            kwargs['prediction'], kwargs['dataset'], kwargs['predictor']
+        self.evaluation.update_retrieved(prediction)
+
+        new_evaluation.send(sender=self, evaluation=self.evaluation,
+                            dataset=dataset, predictor=predictor)
+
+    def on_datagroup_finished(self, sender, **kwargs):
+        self.evaluation = None
+
+
+class CachePredictionListener(object):
+    def __init__(self):
+        self.cachefile = None
+
+    def writeline(self, *args):
+        line = "\t".join(map(str, args))
+        self.cachefile.write("%s\n" % line)
+
+    def on_new_prediction(self, sender, **kwargs):
+        prediction, dataset, predictor = kwargs['prediction'], \
+            kwargs['dataset'], kwargs['predictor']
+        (u, v), W = prediction.iteritems().next()  # XXX Assumes that n=1
+
+        if not self.cachefile:
+            fname = "%s-%s-cache.txt" % (dataset, predictor)
+            self.cachefile = open(fname, 'w')
+            # Header row
+            self.writeline('u', 'v', 'W(u,v)')
+        self.writeline(u, v, W)
+
+    def on_datagroup_finished(self, sender, **kwargs):
+        if not self.cachefile:
+            return
+        self.cachefile.close()
+        self.cachefile = None
+
+
+class EvaluationListener(object):
+
+    def on_new_evaluation(self, sender, **kwargs):
         pass
 
     def on_datagroup_finished(self, sender, **kwargs):
@@ -28,7 +81,7 @@ class Listener(object):
         pass
 
 
-class CachingListener(Listener):
+class CacheEvaluationListener(EvaluationListener):
 
     def __init__(self):
         self.cachefile = None
@@ -57,28 +110,7 @@ class CachingListener(Listener):
         self.cachefile = None
 
 
-class PredictionCache(CachingListener):
-    def on_new_evaluation(self, sender, **kwargs):
-        pass
-
-    def on_new_prediction(self, sender, **kwargs):
-        predictions, dataset, predictor = kwargs['prediction'], \
-            kwargs['dataset'], kwargs['predictor']
-
-        if not self.cachefile:
-            fname = "%s-%s-cache.txt" % (dataset.name, predictor)
-            self.cachefile = open(fname, 'w')
-            # Header row
-            self.writeline('u', 'v', 'W(u, v)')
-        # TODO XXX `predictions` is actually a set of predictions
-        # Problems:
-        # - we can only handle one prediction at a time
-        # - we need a dict rather than a set, becaause we need the score as
-        #   well
-        self.writeline()
-
-
-class FMaxListener(Listener):
+class FMaxListener(EvaluationListener):
     def __init__(self, name, beta=1):
         self.beta = beta
         self.reset_data()
@@ -104,7 +136,7 @@ class FMaxListener(Listener):
         print status
 
 
-class PrecisionAtKListener(Listener):
+class PrecisionAtKListener(EvaluationListener):
     def __init__(self, name, k=10, steps=1):
         self.k = k
         self.steps = steps
@@ -142,7 +174,7 @@ generic_chart_looks = ['k-', 'k--', 'k.-', 'k:',
                        'y-', 'y--', 'y.-', 'y:']
 
 
-class Plotter(Listener):
+class Plotter(EvaluationListener):
     def __init__(self, name, xlabel="", ylabel="", filetype="pdf", chart_looks=[]):
         self.name = name
         self.filetype = filetype

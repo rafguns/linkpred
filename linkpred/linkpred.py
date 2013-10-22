@@ -2,7 +2,7 @@ import networkx as nx
 import os
 
 from . import predictors
-from .evaluation import Comparison, DataSet, signals, listeners
+from .evaluation import DataSet, signals, listeners
 from .network import read_pajek
 from .util import log
 
@@ -170,8 +170,15 @@ class LinkPred(object):
         interpolate = self.config['interpolation']  # XXX
         steps = self.config['steps']  # ??
 
-        # XXX Need to supply right arguments to the listeners!
-        output_listener = {
+        # TODO: We should set up a system like this:
+        # Comparison -> signal new_prediction
+        # CacheAllListener -> on_new_prediction -> write to cache file
+        # Evaluator -> on_new_prediction -> new evaluation
+        # listeners -> on_new_evaluation -> plot etc.
+        output_listeners = {
+            'cacheall': listeners.CacheAllListener()
+        }
+        evaluation_listeners = {
             'recall-precision': listeners.RecallPrecisionPlotter(
                 self.label, filetype=filetype, interpolate=interpolate),
             'f-score': listeners.FScorePlotter(self.label, filetype=filetype,
@@ -181,8 +188,10 @@ class LinkPred(object):
             'fmax': listeners.FMaxListener(self.label),
             'cache': listeners.CachingListener()
         }
+        # TODO: if we have evaluation listeners, set up Evaluator to determine
+        #evalautions and redirect to eval. listeners
         for output in self.config['output']:
-            listener = output_listener[output.lower()]
+            listener = evaluation_listeners[output.lower()]
             signals.new_evaluation.connect(listener.on_new_evaluation)
             signals.datagroup_finished.connect(listener.on_datagroup_finished)
             signals.dataset_finished.connect(listener.on_dataset_finished)
@@ -190,6 +199,4 @@ class LinkPred(object):
 
         dataset = DataSet(self.label, self.predictions, self.test,
                           exclude=self.excluded, steps=steps)
-        comp = Comparison()
-        comp.register_dataset(dataset)
-        comp.run()
+        dataset.run()
