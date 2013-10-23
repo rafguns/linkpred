@@ -78,20 +78,26 @@ def pretty_print(name, params={}):
     return "%s (%s)" % (name, pretty_params)
 
 
-def read_network(fname):
-    filetype_readers = {'net': read_pajek,
-                        'gml': nx.read_gml,
-                        'graphml': nx.read_graphml,
-                        'gexf': nx.read_gexf,
-                        'edgelist': nx.read_edgelist,
-                        'adjlist': nx.read_adjlist}
+FILETYPE_READERS = {'.net': read_pajek,
+                    '.gml': nx.read_gml,
+                    '.graphml': nx.read_graphml,
+                    '.gexf': nx.read_gexf,
+                    '.edgelist': nx.read_edgelist,
+                    '.adjlist': nx.read_adjlist}
 
-    for ext, read in filetype_readers.iteritems():
-        if fname.lower().endswith(ext):
-            log.logger.info("Reading file '%s'..." % fname)
-            network = read(fname)
-            log.logger.info("Successfully read file.")
-            return network
+
+def read_network(fh):
+    fname = fh.name
+    ext = os.path.splitext(fname.lower())[1]
+    try:
+        read = FILETYPE_READERS[ext]
+    except KeyError:
+        raise LinkPredError("File '%s' is of an unknown type" % fname)
+
+    log.logger.info("Reading file '%s'..." % fname)
+    network = read(fname)
+    log.logger.info("Successfully read file.")
+    return network
 
 
 class LinkPred(object):
@@ -108,8 +114,8 @@ class LinkPred(object):
             'output':         ['recall-precision'],
             'predictors':     [],
             'steps':          1,
-            'test':           None,
-            'training':       None
+            'test-file':      None,
+            'training-file':  None
         }
         self.config.update(config)
         log.logger.debug(u"Config: %s" % unicode(config))
@@ -117,9 +123,10 @@ class LinkPred(object):
         if not self.config['predictors']:
             raise LinkPredError("No predictor specified. Aborting...")
 
-        self.training = self.network('training')
-        self.test = self.network('test')
-        self.label = os.path.splitext(self.config['training'])[0]
+        self.label = self.config['label'] or \
+            os.path.splitext(self.config['training-file'].name)[0]
+        self.training = self.network('training-file')
+        self.test = self.network('test-file')
         self.evaluator = None
 
     @property
