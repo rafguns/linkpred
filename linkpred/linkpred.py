@@ -173,7 +173,7 @@ class LinkPred(object):
 
     def process_predictions(self):
         filetype = self.config['chart_filetype']
-        interpolate = self.config['interpolation']
+        interpolation = self.config['interpolation']
         steps = self.config['steps']
 
         prediction_listeners = {
@@ -181,13 +181,13 @@ class LinkPred(object):
         }
         evaluation_listeners = {
             'recall-precision': listeners.RecallPrecisionPlotter(
-                self.label, filetype=filetype, interpolate=interpolate),
+                self.label, filetype=filetype, interpolation=interpolation),
             'f-score': listeners.FScorePlotter(self.label, filetype=filetype,
                                                xlabel="# predictions",
                                                steps=steps),
             'roc': listeners.ROCPlotter(self.label, filetype=filetype),
             'fmax': listeners.FMaxListener(self.label),
-            'cache-evaluation': listeners.CacheEvaluationListener()
+            'cache-evaluations': listeners.CacheEvaluationListener()
         }
 
         for output in self.config['output']:

@@ -222,10 +222,10 @@ class Plotter(Listener):
 
 class RecallPrecisionPlotter(Plotter):
     def __init__(self, name, xlabel="Recall", ylabel="Precision",
-                 interpolate=True, **kwargs):
+                 interpolation=True, **kwargs):
         Plotter.__init__(self, name, xlabel, ylabel, **kwargs)
         self._charttype = "recall-precision"
-        self.interpolate = interpolate
+        self.interpolation = interpolation
 
     def reset_data(self):
         # Make sure that we always start in the top-left corner
@@ -233,7 +233,7 @@ class RecallPrecisionPlotter(Plotter):
         self._y = [1.]
 
     def add_line(self, dataset="", predictor=""):
-        if self.interpolate:
+        if self.interpolation:
             self._y = interpolate(self._y)
         Plotter.add_line(self, dataset, predictor)
 
