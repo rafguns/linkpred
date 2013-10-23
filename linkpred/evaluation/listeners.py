@@ -55,7 +55,7 @@ class EvaluatingListener(Listener):
         self.evaluation = None
 
 
-class CachePredictionListener(Listener):
+class CacheMixin(object):
     def __init__(self):
         self.cachefile = None
 
@@ -63,36 +63,36 @@ class CachePredictionListener(Listener):
         line = "\t".join(map(str, args))
         self.cachefile.write("%s\n" % line)
 
+    def ensure_cache(self, fname):
+        if not self.cachefile:
+            self.cachefile = open(fname, 'w')
+
+    def close_cache(self):
+        try:
+            self.cachefile.close()
+            log.logger.debug("Closing file '%s'" % self.cachefile.name)
+            self.cachefile = None
+        except AttributeError:
+            pass
+
+
+class CachePredictionListener(Listener, CacheMixin):
     def on_new_prediction(self, sender, **kwargs):
         prediction, dataset, predictor = kwargs['prediction'], \
             kwargs['dataset'], kwargs['predictor']
 
-        if not self.cachefile:
-            fname = _timestamped_filename("%s-%s-cache" % (dataset, predictor))
-            self.cachefile = open(fname, 'w')
-            # Header row
-            self.writeline('u', 'v', 'W(u,v)')
+        self.ensure_cache(_timestamped_filename(
+            "%s-%s-predictions" % (dataset, predictor)))
         # If we take steps larger than 1, this may write lines in 'wrong'
         # (non-descending) order.
         for (u, v), W in prediction.iteritems():
             self.writeline(u, v, W)
 
     def on_datagroup_finished(self, sender, **kwargs):
-        if not self.cachefile:
-            return
-        log.logger.debug("Closing file '%s'" % self.cachefile.name)
-        self.cachefile.close()
-        self.cachefile = None
+        self.close_cache()
 
 
-class CacheEvaluationListener(Listener):
-
-    def __init__(self):
-        self.cachefile = None
-
-    def writeline(self, *args):
-        line = "\t".join(map(str, args))
-        self.cachefile.write("%s\n" % line)
+class CacheEvaluationListener(Listener, CacheMixin):
 
     def on_new_evaluation(self, sender, **kwargs):
         evaluation, dataset, predictor = kwargs['evaluation'], \
@@ -100,18 +100,12 @@ class CacheEvaluationListener(Listener):
         tp, fp, fn, tn = evaluation.num_tp, evaluation.num_fp, \
             evaluation.num_fn, evaluation.num_tn
 
-        if not self.cachefile:
-            fname = "%s-%s-cache.txt" % (dataset, predictor)
-            self.cachefile = open(fname, 'w')
-            # Header row
-            self.writeline('tp', 'fp', 'fn', 'tn')
+        self.ensure_cache(_timestamped_filename(
+            "%s-%s-evaluations" % (dataset, predictor)))
         self.writeline(tp, fp, fn, tn)
 
     def on_datagroup_finished(self, sender, **kwargs):
-        if not self.cachefile:
-            return
-        self.cachefile.close()
-        self.cachefile = None
+        self.close_cache()
 
 
 class FMaxListener(Listener):
