@@ -20,7 +20,7 @@ __all__ = ["EvaluatingListener",
            "MarkednessPlotter"]
 
 
-def _timestamped_filename(basename, ext):
+def _timestamped_filename(basename, ext="txt"):
     return basename + strftime("_%Y-%m-%d_%H.%M.", localtime()) + ext
 
 
@@ -68,7 +68,7 @@ class CachePredictionListener(Listener):
             kwargs['dataset'], kwargs['predictor']
 
         if not self.cachefile:
-            fname = "%s-%s-cache.txt" % (dataset, predictor)
+            fname = _timestamped_filename("%s-%s-cache" % (dataset, predictor))
             self.cachefile = open(fname, 'w')
             # Header row
             self.writeline('u', 'v', 'W(u,v)')
@@ -80,6 +80,7 @@ class CachePredictionListener(Listener):
     def on_datagroup_finished(self, sender, **kwargs):
         if not self.cachefile:
             return
+        log.logger.debug("Closing file '%s'" % self.cachefile.name)
         self.cachefile.close()
         self.cachefile = None
 
@@ -117,7 +118,7 @@ class FMaxListener(Listener):
     def __init__(self, name, beta=1):
         self.beta = beta
         self.reset_data()
-        self.fname = _timestamped_filename("%s-Fmax" % name, "txt")
+        self.fname = _timestamped_filename("%s-Fmax" % name)
 
     def reset_data(self):
         self._f = []
@@ -145,7 +146,7 @@ class PrecisionAtKListener(Listener):
         self.reset_data()
 
         self.fname = _timestamped_filename(
-            "%s-precision-at-%d" % (name, self.k), "txt")
+            "%s-precision-at-%d" % (name, self.k))
 
     def reset_data(self):
         self.precision = 0.0
