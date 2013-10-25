@@ -48,10 +48,11 @@ def handle_arguments():
         version="0.1", description="Easy link prediction tool",
         usage="%(prog)s training-file [test-file] [options]")
 
-    parser.add_argument("--debug", action="store_true", dest="debug",
-                        default=False, help="Show debug messages")
-    parser.add_argument("-q", "--quiet", action="store_true", dest="quiet",
-                        default=False, help="Don't show info messages")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--debug", action="store_true", dest="debug",
+                       default=False, help="Show debug messages")
+    group.add_argument("-q", "--quiet", action="store_true", dest="quiet",
+                       default=False, help="Don't show info messages")
 
     # TODO allow case-insensitive match
     output_types = ["recall-precision", "f-score", "roc", "cache-predictions",
