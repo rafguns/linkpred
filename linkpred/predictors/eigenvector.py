@@ -20,7 +20,6 @@ class RootedPageRank(Predictor):
             PageRank probability that we will advance to a neighbour of the
             current node in a random walk
 
-
         beta : float or int
             Normally, we return to the root node with probability 1 - alpha.
             With this parameter, we can also advance to a random other node in the
