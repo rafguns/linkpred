@@ -111,9 +111,6 @@ class TestFlorentineFamily:
     def test_association_strength_weighted(self):
         pass
 
-    def test_chi_square(self):
-        pass
-
     def test_common_neighbours(self):
         answer = {
             Pair('Ridolfi', 'Barbadori'): 1.0,
@@ -163,65 +160,6 @@ class TestFlorentineFamily:
 
     def test_common_neighbours_alpha(self):
         pass
-
-    def test_common_k_neighbours(self):
-        answer = {
-            Pair('Ridolfi', 'Barbadori'): 0.010812,
-            Pair('Medici', 'Guadagni'): 0.020512000000000002,
-            Pair('Peruzzi', 'Bischeri'): 0.010409,
-            Pair('Lamberteschi', 'Bischeri'): 0.010307999999999999,
-            Pair('Salviati', 'Albizzi'): 0.01051,
-            Pair('Lamberteschi', 'Guadagni'): 0.00030800000000000001,
-            Pair('Lamberteschi', 'Albizzi'): 0.010307999999999999,
-            Pair('Peruzzi', 'Guadagni'): 0.010309,
-            Pair('Salviati', 'Pazzi'): 0.000106,
-            Pair('Strozzi', 'Medici'): 0.010511000000000001,
-            Pair('Pazzi', 'Medici'): 0.010106,
-            Pair('Strozzi', 'Barbadori'): 0.01051,
-            Pair('Strozzi', 'Ridolfi'): 0.00071100000000000004,
-            Pair('Tornabuoni', 'Lamberteschi'): 0.010307999999999999,
-            Pair('Tornabuoni', 'Salviati'): 0.01051,
-            Pair('Ridolfi', 'Acciaiuoli'): 0.01051,
-            Pair('Strozzi', 'Guadagni'): 0.010511000000000001,
-            Pair('Medici', 'Acciaiuoli'): 0.00051000000000000004,
-            Pair('Guadagni', 'Ginori'): 0.010209000000000001,
-            Pair('Castellani', 'Barbadori'): 0.00041000000000000005,
-            Pair('Guadagni', 'Bischeri'): 0.00061000000000000008,
-            Pair('Ridolfi', 'Albizzi'): 0.010713,
-            Pair('Barbadori', 'Albizzi'): 0.010512000000000001,
-            Pair('Medici', 'Barbadori'): 0.00071199999999999996,
-            Pair('Peruzzi', 'Barbadori'): 0.010307999999999999,
-            Pair('Strozzi', 'Bischeri'): 0.010509000000000001,
-            Pair('Albizzi', 'Acciaiuoli'): 0.01051,
-            Pair('Tornabuoni', 'Medici'): 0.010713,
-            Pair('Guadagni', 'Albizzi'): 0.00061200000000000002,
-            Pair('Ridolfi', 'Medici'): 0.010813000000000001,
-            Pair('Peruzzi', 'Castellani'): 0.010407999999999999,
-            Pair('Tornabuoni', 'Strozzi'): 0.010511000000000001,
-            Pair('Tornabuoni', 'Bischeri'): 0.01051,
-            Pair('Medici', 'Albizzi'): 0.00071299999999999998,
-            Pair('Castellani', 'Bischeri'): 0.020308000000000003,
-            Pair('Salviati', 'Barbadori'): 0.01051,
-            Pair('Ridolfi', 'Guadagni'): 0.010612,
-            Pair('Ridolfi', 'Bischeri'): 0.01061,
-            Pair('Ridolfi', 'Peruzzi'): 0.010509000000000001,
-            Pair('Tornabuoni', 'Guadagni'): 0.00061200000000000002,
-            Pair('Bischeri', 'Albizzi'): 0.010409999999999999,
-            Pair('Ridolfi', 'Castellani'): 0.01051,
-            Pair('Medici', 'Ginori'): 0.010209000000000001,
-            Pair('Salviati', 'Ridolfi'): 0.01051,
-            Pair('Tornabuoni', 'Barbadori'): 0.010612,
-            Pair('Salviati', 'Acciaiuoli'): 0.01051,
-            Pair('Strozzi', 'Castellani'): 0.01051,
-            Pair('Salviati', 'Medici'): 0.00061000000000000008,
-            Pair('Strozzi', 'Peruzzi'): 0.020508999999999999,
-            Pair('Tornabuoni', 'Ridolfi'): 0.010813000000000001,
-            Pair('Tornabuoni', 'Albizzi'): 0.020812999999999998,
-            Pair('Barbadori', 'Acciaiuoli'): 0.01051,
-            Pair('Medici', 'Castellani'): 0.01031,
-            Pair('Tornabuoni', 'Acciaiuoli'): 0.01051,
-            Pair('Ginori', 'Albizzi'): 0.00020900000000000001}
-        assert_dict_equal(CommonKNeighbours(self.G).predict(), answer)
 
     def test_cosine(self):
         answer = {
@@ -385,57 +323,6 @@ class TestFlorentineFamily:
     def test_degree_product_weighted(self):
         pass
 
-    def test_minkowski(self):
-        pass
-
-    def test_euclidean(self):
-        pass
-
-    def test_hirsch_core(self):
-        answer = {
-            Pair('Ridolfi', 'Barbadori'): 0.25,
-            Pair('Medici', 'Guadagni'): 0.5,
-            Pair('Peruzzi', 'Bischeri'): 0.20000000000000001,
-            Pair('Lamberteschi', 'Bischeri'): 0.33333333333333331,
-            Pair('Salviati', 'Albizzi'): 0.33333333333333331,
-            Pair('Lamberteschi', 'Albizzi'): 0.5,
-            Pair('Peruzzi', 'Guadagni'): 0.20000000000000001,
-            Pair('Strozzi', 'Medici'): 0.16666666666666666,
-            Pair('Ridolfi', 'Albizzi'): 0.25,
-            Pair('Tornabuoni', 'Lamberteschi'): 0.33333333333333331,
-            Pair('Tornabuoni', 'Salviati'): 0.25,
-            Pair('Ridolfi', 'Acciaiuoli'): 0.33333333333333331,
-            Pair('Strozzi', 'Guadagni'): 0.16666666666666666,
-            Pair('Salviati', 'Acciaiuoli'): 0.5,
-            Pair('Guadagni', 'Ginori'): 0.33333333333333331,
-            Pair('Strozzi', 'Barbadori'): 0.20000000000000001,
-            Pair('Peruzzi', 'Barbadori'): 0.25,
-            Pair('Tornabuoni', 'Ridolfi'): 0.20000000000000001,
-            Pair('Albizzi', 'Acciaiuoli'): 0.5,
-            Pair('Tornabuoni', 'Medici'): 0.20000000000000001,
-            Pair('Ridolfi', 'Medici'): 0.20000000000000001,
-            Pair('Peruzzi', 'Castellani'): 0.20000000000000001,
-            Pair('Tornabuoni', 'Strozzi'): 0.16666666666666666,
-            Pair('Tornabuoni', 'Bischeri'): 0.20000000000000001,
-            Pair('Barbadori', 'Albizzi'): 0.33333333333333331,
-            Pair('Castellani', 'Bischeri'): 0.5,
-            Pair('Ridolfi', 'Guadagni'): 0.20000000000000001,
-            Pair('Ridolfi', 'Bischeri'): 0.20000000000000001,
-            Pair('Ridolfi', 'Peruzzi'): 0.20000000000000001,
-            Pair('Bischeri', 'Albizzi'): 0.25,
-            Pair('Medici', 'Ginori'): 0.33333333333333331,
-            Pair('Salviati', 'Ridolfi'): 0.25,
-            Pair('Tornabuoni', 'Barbadori'): 0.25,
-            Pair('Strozzi', 'Castellani'): 0.16666666666666666,
-            Pair('Salviati', 'Barbadori'): 0.33333333333333331,
-            Pair('Strozzi', 'Peruzzi'): 0.40000000000000002,
-            Pair('Strozzi', 'Bischeri'): 0.16666666666666666,
-            Pair('Tornabuoni', 'Albizzi'): 0.66666666666666663,
-            Pair('Barbadori', 'Acciaiuoli'): 0.5,
-            Pair('Ridolfi', 'Castellani'): 0.20000000000000001,
-            Pair('Tornabuoni', 'Acciaiuoli'): 0.33333333333333331}
-        assert_dict_equal(HirschCore(self.G).predict(), answer)
-
     def test_jaccard(self):
         answer = {
             Pair('Ridolfi', 'Barbadori'): 0.25,
@@ -484,56 +371,6 @@ class TestFlorentineFamily:
         assert_dict_equal(Jaccard(self.G).predict(), answer)
 
     def test_jaccard_weighted(self):
-        pass
-
-    def test_k50(self):
-        answer = {
-            Pair('Ridolfi', 'Barbadori'): 0.34378803407483205,
-            Pair('Medici', 'Guadagni'): 0.27216552697590873,
-            Pair('Peruzzi', 'Bischeri'): 0.25225225225225228,
-            Pair('Lamberteschi', 'Bischeri'): 0.53293871002119308,
-            Pair('Salviati', 'Albizzi'): 0.34378803407483205,
-            Pair('Lamberteschi', 'Albizzi'): 0.53293871002119308,
-            Pair('Peruzzi', 'Guadagni'): 0.19505076661811682,
-            Pair('Strozzi', 'Medici'): 0.068041381743977183,
-            Pair('Pazzi', 'Medici'): 0.34544086116173028,
-            Pair('Ridolfi', 'Albizzi'): 0.25225225225225228,
-            Pair('Tornabuoni', 'Lamberteschi'): 0.53293871002119308,
-            Pair('Tornabuoni', 'Salviati'): 0.34378803407483205,
-            Pair('Ridolfi', 'Acciaiuoli'): 0.53293871002119308,
-            Pair('Strozzi', 'Guadagni'): 0.1388888888888889,
-            Pair('Salviati', 'Acciaiuoli'): 0.67084489497185273,
-            Pair('Guadagni', 'Ginori'): 0.44871794871794873,
-            Pair('Strozzi', 'Barbadori'): 0.27912109783679506,
-            Pair('Peruzzi', 'Barbadori'): 0.34378803407483205,
-            Pair('Tornabuoni', 'Ridolfi'): 0.25225225225225228,
-            Pair('Albizzi', 'Acciaiuoli'): 0.53293871002119308,
-            Pair('Tornabuoni', 'Medici'): 0.12103629587877841,
-            Pair('Ridolfi', 'Medici'): 0.12103629587877841,
-            Pair('Peruzzi', 'Castellani'): 0.25225225225225228,
-            Pair('Tornabuoni', 'Strozzi'): 0.19505076661811682,
-            Pair('Tornabuoni', 'Bischeri'): 0.25225225225225228,
-            Pair('Barbadori', 'Albizzi'): 0.34378803407483205,
-            Pair('Castellani', 'Bischeri'): 0.5855855855855856,
-            Pair('Ridolfi', 'Guadagni'): 0.19505076661811682,
-            Pair('Ridolfi', 'Bischeri'): 0.25225225225225228,
-            Pair('Ridolfi', 'Peruzzi'): 0.25225225225225228,
-            Pair('Medici', 'Castellani'): 0.12103629587877841,
-            Pair('Bischeri', 'Albizzi'): 0.25225225225225228,
-            Pair('Medici', 'Ginori'): 0.34544086116173028,
-            Pair('Salviati', 'Ridolfi'): 0.34378803407483205,
-            Pair('Tornabuoni', 'Barbadori'): 0.34378803407483205,
-            Pair('Strozzi', 'Castellani'): 0.19505076661811682,
-            Pair('Salviati', 'Barbadori'): 0.44736842105263158,
-            Pair('Strozzi', 'Peruzzi'): 0.48372590121292974,
-            Pair('Strozzi', 'Bischeri'): 0.19505076661811682,
-            Pair('Tornabuoni', 'Albizzi'): 0.5855855855855856,
-            Pair('Barbadori', 'Acciaiuoli'): 0.67084489497185273,
-            Pair('Ridolfi', 'Castellani'): 0.25225225225225228,
-            Pair('Tornabuoni', 'Acciaiuoli'): 0.53293871002119308}
-        assert_dict_equal(K50(self.G).predict(), answer)
-
-    def test_manhattan(self):
         pass
 
     def test_n_measure(self):

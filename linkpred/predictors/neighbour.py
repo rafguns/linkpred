@@ -9,15 +9,9 @@ from .util import neighbourhood, neighbourhood_size,\
 __all__ = ["AdamicAdar",
            "AssociationStrength",
            "CommonNeighbours",
-           "CommonKNeighbours",
            "Cosine",
            "DegreeProduct",
-           "Euclidean",
-           "HirschCore",
            "Jaccard",
-           "K50",
-           "Manhattan",
-           "Minkowski",
            "MaxOverlap",
            "MinOverlap",
            "NMeasure",
@@ -84,25 +78,6 @@ class CommonNeighbours(Predictor):
         return res
 
 
-class CommonKNeighbours(Predictor):
-    def predict(self, beta=0.01, max_k=3, weight=None):
-        r"""A generalized version of common neighbours, somewhat inspired by Katz
-
-        $w(u, v) = \sum_{k=1}^\infty \beta^k |\self.Gamma_k(u) \cap \self.Gamma_k(v)|$
-
-        """
-        res = Scoresheet()
-        #for a, b in all_pairs(self.G.nodes()):
-        for a, b in self.likely_pairs():
-            w = 0
-            for k in range(1, max_k + 1):
-                w += (beta ** k) *\
-                    neighbourhood_intersection_size(self.G, a, b, weight, k)
-            if w > 0:
-                res[(a, b)] = w
-        return res
-
-
 class Cosine(Predictor):
     def predict(self, weight=None):
         res = Scoresheet()
@@ -126,95 +101,6 @@ class DegreeProduct(Predictor):
         return res
 
 
-class Minkowski(Predictor):
-    r"""
-    Predictor based on Minkowski distance
-
-    The distance `d` is defined as:
-
-    .. math::
-
-       d = ( \sum |x_i - x_j|^r )^{1/r}
-
-    and hence the likelihood score `w` is:
-
-    .. math::
-
-       w = \frac{1}{d}
-
-    """
-    def predict(self, r=1, weight='weight'):
-
-        def size(G, u, v, weight=None):
-            if weight is None and G.has_edge(u, v):
-                return 1
-            try:
-                return G[u][v][weight]
-            except KeyError:
-                return 0
-
-        res = Scoresheet()
-        for a, b in self.likely_pairs():
-            nbr_a = set(neighbourhood(self.G, a))
-            nbr_b = set(neighbourhood(self.G, b))
-            d = sum(abs(size(self.G, a, v, weight) - size(self.G, b, v, weight)) ** r
-                    for v in nbr_a & nbr_b)
-            d += sum(size(self.G, a, v, weight) ** r for v in nbr_a - nbr_b)
-            d += sum(size(self.G, b, v, weight) ** r for v in nbr_b - nbr_a)
-            d = d ** 1.0 / r
-            if d > 0:
-                # d is a distance measure, so we take the inverse
-                res[(a, b)] = 1.0 / d
-        return res
-
-
-class Euclidean(Minkowski):
-    def predict(self, weight='weight'):
-        return Minkowski.predict(self, r=2, weight=weight)
-
-
-class HirschCore(Predictor):
-    """
-    Predictor based on overlap between the h-cores of nodes
-
-    The h-index of a node n is the largest number h, such that each node has at
-    least h neighbours.
-    The h-core of a node n is then defined as the set of neighbours of n with h
-    or more neighbours.
-
-    References
-    ----------
-    Schubert, A. (2010). A reference-based Hirschian similarity measure for
-    journals. Scientometrics 84(1), 133-147.
-
-    Schubert, A. & Soos, S. (2010). Mapping of science journals based on
-    h-similarity. Scientometrics 83(2), 589-600.
-
-    """
-    def predict(self):
-
-        def h_core_set(G, nodes):
-            from hirsch import h_index
-
-            degree_dict = {n: len(G[n]) for n in nodes}
-            h_degree = h_index(degree_dict.values())
-
-            return set(k for k, v in degree_dict.iteritems() if v >= h_degree)
-
-        res = Scoresheet()
-        for a, b in self.likely_pairs():
-            a_neighbours = set(neighbourhood(self.G, a))
-            b_neighbours = set(neighbourhood(self.G, b))
-            if a_neighbours & b_neighbours:
-                a_core = h_core_set(self.G, a_neighbours)
-                b_core = h_core_set(self.G, b_neighbours)
-                if a_core & b_core:
-                    # Jaccard index of Hirsch cores or peripheries
-                    res[(a, b)] = len(
-                        a_core & b_core) / float(len(a_core | b_core))
-        return res
-
-
 class Jaccard(Predictor):
     def predict(self, weight=None):
         """Predict by Jaccard index, based on neighbours of a and b
@@ -231,31 +117,6 @@ class Jaccard(Predictor):
             if w > 0:
                 res[(a, b)] = w
         return res
-
-
-class K50(Predictor):
-    def predict(self, weight=None):
-        """K50, proposed by Boyack & Klavans (2006)"""
-        res = Scoresheet()
-        nbr_all = sum(neighbourhood_size(self.G, x, weight)
-                      for x in self.G.nodes_iter())
-        for a, b in self.likely_pairs():
-            intersection = neighbourhood_intersection_size(
-                self.G, a, b, weight)
-            nbr_a = neighbourhood_size(self.G, a, weight)
-            nbr_b = neighbourhood_size(self.G, b, weight)
-            den = nbr_a * nbr_b
-            expected = min(
-                den / float(nbr_all - nbr_a), den / float(nbr_all - nbr_b))
-            w = (intersection - expected) / math.sqrt(den)
-            if w > 0:
-                res[(a, b)] = w
-        return res
-
-
-class Manhattan(Minkowski):
-    def predict(self, weight='weight'):
-        return Minkowski.predict(self, r=1, weight=weight)
 
 
 class NMeasure(Predictor):
