@@ -44,10 +44,10 @@ class TestGraphDistance:
                  (0, 3): 0.5, (0, 4): 0.5, (1, 4): 0.5, (2, 3): 0.5,
                  (3, 4): 1. / 3}
         known = Scoresheet(known)
-        graph_distance = GraphDistance(self.G).predict()
+        graph_distance = GraphDistance(self.G).predict(weight=None)
         assert_dict_almost_equal(graph_distance, known)
 
-        graph_distance = WeightedGraphDistance(self.G).predict(alpha=0)
+        graph_distance = GraphDistance(self.G).predict(alpha=0)
         assert_dict_almost_equal(graph_distance, known)
 
     def test_weighted(self):
@@ -55,7 +55,7 @@ class TestGraphDistance:
                  (0, 3): 2. / 3, (0, 4): 0.75, (1, 4): 0.5, (2, 3): 2. / 3,
                  (3, 4): 0.4}
         known = Scoresheet(known)
-        graph_distance = WeightedGraphDistance(self.G).predict()
+        graph_distance = GraphDistance(self.G).predict()
         assert_dict_almost_equal(graph_distance, known)
 
     def test_weighted_alpha(self):
@@ -66,5 +66,5 @@ class TestGraphDistance:
                  (0, 4): 1 / (1 + 1 / sqrt(3)), (1, 4): 0.5,
                  (2, 3): 1 / (1 + 1 / sqrt(2)), (3, 4):  1 / (2 + 1 / sqrt(2))}
         known = Scoresheet(known)
-        graph_distance = WeightedGraphDistance(self.G).predict(alpha=0.5)
+        graph_distance = GraphDistance(self.G).predict(alpha=0.5)
         assert_dict_almost_equal(graph_distance, known)

@@ -4,30 +4,12 @@ from ..evaluation import Scoresheet
 from ..util import progressbar
 from .base import Predictor
 
-__all__ = ["GraphDistance",
-           "WeightedGraphDistance",
-           "Katz"]
+__all__ = ["GraphDistance", "Katz"]
 
 
 class GraphDistance(Predictor):
-    def predict(self):
-        res = Scoresheet()
-        shortest_paths = nx.shortest_path_length(self.G)
-        for a, reachables in shortest_paths.iteritems():
-            if not self.eligible_node(a):
-                continue
-            for b, length in reachables.iteritems():
-                if a == b or not self.eligible_node(b):
-                    continue
-                if length > 0:  # same node
-                    w = 1.0 / length
-                    res[(a, b)] = w
-        return res
-
-
-class WeightedGraphDistance(Predictor):
     def predict(self, weight='weight', alpha=1):
-        r"""Predict by weighted graph distance
+        r"""Predict by graph distance
 
         This is based on the dissimilarity measures of Egghe & Rousseau (2003):
 
@@ -37,27 +19,32 @@ class WeightedGraphDistance(Predictor):
 
         $d_\alpha(i, j) = \min(\sum 1 / w_k^\alpha)$
 
-        If alpha = 0, this reduces to unweighted graph distance, i.e. only keep
-        track of number of intermediate nodes and not of edge weights. If alpha = 1,
-        we only keep track of edge weights and not of the number of intermediate
-        nodes. (In practice, setting alpha equal to around 0.1 seems to yield the
-        best results.)
+        If alpha = 0 or weight is None, we determine unweighted graph distance,
+        i.e. only keep track of number of intermediate nodes and not of edge
+        weights. If alpha = 1, we only keep track of edge weights and not of
+        the number of intermediate nodes. (In practice, setting alpha equal to
+        around 0.1 seems to yield the best results.)
 
         """
         res = Scoresheet()
-        inverted = nx.Graph()
-        inverted.add_weighted_edges_from((u, v, 1.0 / d[weight] ** alpha)
-                                         for u, v, d in self.G.edges_iter(data=True))
-        dist = nx.shortest_path_length(inverted, weight=weight)
+
+        if weight is None:
+            G = self.G
+        else:
+            # We assume that edge weights denote proximities
+            G = nx.Graph()
+            G.add_weighted_edges_from((u, v, 1.0 / d[weight] ** alpha) for
+                                      u, v, d in self.G.edges_iter(data=True))
+
+        dist = nx.shortest_path_length(G, weight=weight)
         for a, others in dist.iteritems():
             if not self.eligible_node(a):
                 continue
             for b, length in others.iteritems():
                 if a == b or not self.eligible_node(b):
                     continue
-                if a != b:
-                    w = 1.0 / length
-                    res[(a, b)] = w
+                w = 1.0 / length
+                res[(a, b)] = w
         return res
 
 
