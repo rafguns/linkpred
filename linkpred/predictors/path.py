@@ -1,6 +1,7 @@
 import networkx as nx
 
 from ..evaluation import Scoresheet
+from ..util import progressbar
 from .base import Predictor
 
 __all__ = ["GraphDistance",
@@ -61,8 +62,7 @@ class WeightedGraphDistance(Predictor):
 
 
 class Katz(Predictor):
-    def predict(self, beta=0.001, max_power=5, weight='weight', all_walks=True,
-                dtype=None):
+    def predict(self, beta=0.001, max_power=5, weight='weight', dtype=None):
         """Predict by Katz (1953) measure
 
         Let $A$ be an adjacency matrix for the directed network $self.G$.
@@ -86,14 +86,10 @@ class Katz(Predictor):
             The edge attribute that holds the numerical value used for
             the edge weight.  If None then treat as unweighted.
 
-        all_walks : True|False
-            can walks contain the same node/link more than once?
-
         dtype : a data type
             data type of edge weights (default numpy.int32)
 
         """
-        from linkpred.util import progressbar
         from itertools import izip
 
         if dtype is None:
@@ -105,12 +101,8 @@ class Katz(Predictor):
             self.G, dtype=dtype, weight=weight)
         res = Scoresheet()
 
-        if not all_walks:
-            from scipy.sparse import triu
-            # Make triangular upper matrix
-            adj = triu(adj)
-
-        for k in progressbar(range(1, max_power + 1), "Computing matrix powers: "):
+        for k in progressbar(range(1, max_power + 1),
+                             "Computing matrix powers: "):
             # The below method is found to be fastest for iterating through a
             # sparse matrix, see
             # http://stackoverflow.com/questions/4319014/iterating-through-a-scipy-sparse-vector-or-matrix
@@ -122,4 +114,10 @@ class Katz(Predictor):
                 if self.eligible(u, v):
                     w = d * (beta ** k)
                     res[(u, v)] += w
+
+        # We count double in case of undirected networks ((i, j) and (j, i))
+        if not self.G.is_directed():
+            for pair in res:
+                res[pair] /= 2.
+
         return res
