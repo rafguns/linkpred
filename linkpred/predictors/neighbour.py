@@ -168,7 +168,7 @@ class Pearson(Predictor):
         # of little value for link prediction, we restrict ourselves to pairs
         # with at least one common neighbour.
         for a, b in self.likely_pairs():
-            n = len(self.G) - 1
+            n = len(self.G)
             a_l2norm = neighbourhood_size(self.G, a, weight)
             b_l2norm = neighbourhood_size(self.G, b, weight)
             a_l1norm = neighbourhood_size(self.G, a, weight, pow=1)

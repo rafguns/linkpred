@@ -21,7 +21,6 @@ class TestUnweighted:
         known = {(1, 5): 1 / log(3), (2, 3): 2 / log(2),
                  (1, 4): 1 / log(2) + 1 / log(3), (4, 5): 1 / log(3)}
         found = AdamicAdar(self.G).predict()
-        print found
         assert_dict_almost_equal(found, Scoresheet(known))
 
     def test_association_strength(self):
@@ -68,7 +67,8 @@ class TestUnweighted:
         assert_dict_almost_equal(found, Scoresheet(known))
 
     def test_pearson(self):
-        known = {(1, 5): 0.5, (2, 3): 2 / 3, (1, 4): 1, (4, 5): 0.5}
+        known = {(1, 5): 0.61237243, (2, 3): 2 / 3, (1, 4): 1,
+                 (4, 5): 0.61237243}
         found = Pearson(self.G).predict()
         assert_dict_almost_equal(found, Scoresheet(known))
 
