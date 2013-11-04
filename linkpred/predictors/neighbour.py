@@ -1,3 +1,4 @@
+from __future__ import division
 import math
 
 from ..evaluation import Scoresheet
@@ -30,7 +31,7 @@ class AdamicAdar(Predictor):
                 if weight is not None:
                     numerator = self.G[a][c][weight] * self.G[b][c][weight]
                 else:
-                    numerator = 1.0
+                    numerator = 1
                 w += numerator / \
                     math.log(neighbourhood_size(self.G, c, weight))
             if w > 0:
@@ -43,8 +44,8 @@ class AssociationStrength(Predictor):
         res = Scoresheet()
         for a, b in self.likely_pairs():
             w = neighbourhood_intersection_size(self.G, a, b, weight) / \
-                float(neighbourhood_size(self.G, a, weight) *
-                      neighbourhood_size(self.G, b, weight))
+                (neighbourhood_size(self.G, a, weight) *
+                 neighbourhood_size(self.G, b, weight))
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -113,7 +114,7 @@ class Jaccard(Predictor):
             # Best performance: weighted numerator, unweighted denominator.
             numerator = neighbourhood_intersection_size(self.G, a, b, weight)
             denominator = neighbourhood_union_size(self.G, a, b, weight)
-            w = numerator / float(denominator)
+            w = numerator / denominator
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -145,7 +146,7 @@ class Overlap(Predictor):
             numerator = neighbourhood_intersection_size(self.G, a, b, weight)
             denominator = function(neighbourhood_size(self.G, a, weight),
                                    neighbourhood_size(self.G, b, weight))
-            w = numerator / float(denominator)
+            w = numerator / denominator
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -202,7 +203,7 @@ class ResourceAllocation(Predictor):
                     numerator = float(self.G[a][c][weight] *
                                       self.G[b][c][weight])
                 else:
-                    numerator = 1.0
+                    numerator = 1
                 w += numerator / neighbourhood_size(self.G, c, weight)
             if w > 0:
                 res[(a, b)] = w

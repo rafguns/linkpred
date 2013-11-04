@@ -1,3 +1,4 @@
+from __future__ import division
 from nose.tools import assert_almost_equal
 import networkx as nx
 import numpy as np
@@ -42,7 +43,7 @@ class TestGraphDistance:
     def test_unweighted(self):
         known = {(0, 1): 1, (0, 2): 1, (1, 2): 1, (1, 3): 1, (2, 4): 1,
                  (0, 3): 0.5, (0, 4): 0.5, (1, 4): 0.5, (2, 3): 0.5,
-                 (3, 4): 1. / 3}
+                 (3, 4): 1 / 3}
         known = Scoresheet(known)
         graph_distance = GraphDistance(self.G).predict(weight=None)
         assert_dict_almost_equal(graph_distance, known)
@@ -52,7 +53,7 @@ class TestGraphDistance:
 
     def test_weighted(self):
         known = {(0, 1): 1, (0, 2): 3, (1, 2): 1, (1, 3): 2, (2, 4): 1,
-                 (0, 3): 2. / 3, (0, 4): 0.75, (1, 4): 0.5, (2, 3): 2. / 3,
+                 (0, 3): 2 / 3, (0, 4): 0.75, (1, 4): 0.5, (2, 3): 2 / 3,
                  (3, 4): 0.4}
         known = Scoresheet(known)
         graph_distance = GraphDistance(self.G).predict()

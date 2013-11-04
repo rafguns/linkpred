@@ -1,3 +1,4 @@
+from __future__ import division
 import networkx as nx
 
 from ..evaluation import Scoresheet
@@ -33,7 +34,7 @@ class GraphDistance(Predictor):
         else:
             # We assume that edge weights denote proximities
             G = nx.Graph()
-            G.add_weighted_edges_from((u, v, 1.0 / d[weight] ** alpha) for
+            G.add_weighted_edges_from((u, v, 1 / d[weight] ** alpha) for
                                       u, v, d in self.G.edges_iter(data=True))
 
         dist = nx.shortest_path_length(G, weight=weight)
@@ -43,7 +44,7 @@ class GraphDistance(Predictor):
             for b, length in others.iteritems():
                 if a == b or not self.eligible_node(b):
                     continue
-                w = 1.0 / length
+                w = 1 / length
                 res[(a, b)] = w
         return res
 
@@ -105,6 +106,6 @@ class Katz(Predictor):
         # We count double in case of undirected networks ((i, j) and (j, i))
         if not self.G.is_directed():
             for pair in res:
-                res[pair] /= 2.
+                res[pair] /= 2
 
         return res
