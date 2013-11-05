@@ -1,5 +1,4 @@
 import copy
-import matplotlib.pyplot as plt
 
 from time import localtime, strftime
 
@@ -174,6 +173,8 @@ GENERIC_CHART_LOOKS = ['k-', 'k--', 'k.-', 'k:',
 class Plotter(Listener):
     def __init__(self, name, xlabel="", ylabel="", filetype="pdf",
                  chart_looks=[]):
+        import matplotlib.pyplot as plt
+
         self.name = name
         self.filetype = filetype
         self.chart_looks = chart_looks
