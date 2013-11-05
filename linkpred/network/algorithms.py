@@ -1,5 +1,4 @@
 import networkx
-import numpy
 
 from ..util import log
 
@@ -48,24 +47,27 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
         \sum_{q \in \Gamma(v)} sim(p, q)
 
     """
+    import numpy as np
     n = len(G)
     M = raw_google_matrix(G, nodelist=nodelist, weight=weight)
-    sim = numpy.identity(n, dtype=numpy.float32)
+    sim = np.identity(n, dtype=np.float32)
     for i in range(num_iterations):
         log.logger.debug("Starting SimRank iteration %d" % i)
         temp = c * M.T * sim * M
-        sim = temp + numpy.identity(n) - numpy.diag(numpy.diag(temp))
+        sim = temp + np.identity(n) - np.diag(np.diag(temp))
     return sim
 
 
 def raw_google_matrix(G, nodelist=None, weight='weight'):
     """Calculate the raw Google matrix (stochastic without teleportation)"""
-    M = networkx.to_numpy_matrix(G, nodelist=nodelist, dtype=numpy.float32,
+    import numpy as np
+
+    M = networkx.to_numpy_matrix(G, nodelist=nodelist, dtype=np.float32,
                                  weight=weight)
     n, m = M.shape  # should be square
     assert n == m and n > 0
     # Find 'dangling' nodes, i.e. nodes whose row's sum = 0
-    dangling = numpy.where(M.sum(axis=1) == 0)
+    dangling = np.where(M.sum(axis=1) == 0)
     # add constant to dangling nodes' row
     for d in dangling[0]:
         M[d] = 1.0 / n
