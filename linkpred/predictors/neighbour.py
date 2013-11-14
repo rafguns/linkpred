@@ -138,28 +138,27 @@ class NMeasure(Predictor):
         return res
 
 
-class Overlap(Predictor):
-    def predict(self, function, weight=None):
-        res = Scoresheet()
-        for a, b in self.likely_pairs():
-            # Best performance: weighted numerator, unweighted denominator.
-            numerator = neighbourhood_intersection_size(self.G, a, b, weight)
-            denominator = function(neighbourhood_size(self.G, a, weight),
-                                   neighbourhood_size(self.G, b, weight))
-            w = numerator / denominator
-            if w > 0:
-                res[(a, b)] = w
-        return res
+def _predict_overlap(predictor, function, weight=None):
+    res = Scoresheet()
+    for a, b in predictor.likely_pairs():
+        # Best performance: weighted numerator, unweighted denominator.
+        numerator = neighbourhood_intersection_size(predictor.G, a, b, weight)
+        denominator = function(neighbourhood_size(predictor.G, a, weight),
+                               neighbourhood_size(predictor.G, b, weight))
+        w = numerator / denominator
+        if w > 0:
+            res[(a, b)] = w
+    return res
 
 
-class MaxOverlap(Overlap):
+class MaxOverlap(Predictor):
     def predict(self, weight=None):
-        return Overlap.predict(self, max, weight)
+        return _predict_overlap(self, max, weight)
 
 
-class MinOverlap(Overlap):
+class MinOverlap(Predictor):
     def predict(self, weight=None):
-        return Overlap.predict(self, min, weight)
+        return _predict_overlap(self, min, weight)
 
 
 class Pearson(Predictor):
