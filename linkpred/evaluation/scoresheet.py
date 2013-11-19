@@ -140,8 +140,8 @@ class Pair(object):
         return hash(self.elements)
 
     def __unicode__(self):
-        a, b = self.elements
-        return u"%s - %s" % (unicode(a), unicode(b))
+        a, b = map(str, self.elements)
+        return u"%s - %s" % (a.decode('utf-8'), b.decode('utf-8'))
 
     def __str__(self):
         return unicode(self).encode('utf-8')

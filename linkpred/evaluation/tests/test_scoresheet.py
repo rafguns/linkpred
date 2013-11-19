@@ -72,6 +72,11 @@ def test_pair():
     assert_equal(str(pair), "b - a")
     assert_equal(unicode(pair), u"b - a")
 
+    # Non-ASCII characters should not cause exception if they're proper UTF-8
+    pair = Pair("a", "\xc4\x87")
+    str(pair)
+    unicode(pair)
+
 
 @raises(AssertionError)
 def test_pair_identical_elements():
