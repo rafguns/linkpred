@@ -68,7 +68,9 @@ def test_pair():
     pair = Pair(t)
     assert_equal(pair, Pair(*t))
     assert_equal(pair, Pair('b', 'a'))
-    assert_equal(str(pair), "Pair(b, a)")
+    assert_equal(pair, eval(repr(pair)))
+    assert_equal(str(pair), "b - a")
+    assert_equal(unicode(pair), u"b - a")
 
 
 @raises(AssertionError)

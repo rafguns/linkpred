@@ -139,12 +139,15 @@ class Pair(object):
     def __hash__(self):
         return hash(self.elements)
 
-    def __str__(self):
+    def __unicode__(self):
         a, b = self.elements
-        return "Pair(%s, %s)" % (str(a), str(b))
+        return u"%s - %s" % (unicode(a), unicode(b))
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
 
     def __repr__(self):
-        return str(self)
+        return "Pair%s" % repr(self.elements)
 
     def __iter__(self):
         return iter(self.elements)
