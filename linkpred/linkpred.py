@@ -87,6 +87,9 @@ FILETYPE_READERS = {'.net': read_pajek,
 
 
 def read_network(fh):
+    if nx.utils.is_string_like(fh):
+        fh = open(fh)
+
     fname = fh.name
     ext = os.path.splitext(fname.lower())[1]
     try:

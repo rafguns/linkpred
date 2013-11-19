@@ -132,7 +132,7 @@ def parse_pajek(lines, weight='weight'):
     read_pajek()
 
     """
-    G = networkx.MultiDiGraph()
+    G = networkx.DiGraph()
     nodelabels = {}
     nnodes = 0
     for l in lines:
@@ -182,7 +182,7 @@ def parse_pajek(lines, weight='weight'):
                 # The Pajek format supports networks with both directed and
                 # edges. Since networkx does not, make this an undirected
                 # network as soon as we encounter one undirected edge.
-                G = networkx.MultiGraph(G)
+                G = networkx.Graph(G)
             splitline = l.split()
             ui, vi = splitline[0:2]
             u = nodelabels.get(ui, ui)
