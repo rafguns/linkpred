@@ -1,4 +1,4 @@
-import dispatch
+from linkpred.external import dispatch
 
 __all__ = ["new_prediction", "new_evaluation", "datagroup_finished",
            "dataset_finished", "run_finished"]
