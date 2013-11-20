@@ -16,8 +16,9 @@ def called_by(n=0):
     Example
     -------
     >>> def foo():
-    ....    from linkpred.util import log
-    ....    log.logger.debug("Called by %s, %s, l. %s" % log.called_by(2))
+    ...     from linkpred.util import log
+    ...     log.logger.debug("Called by %s, %s, l. %s" % log.called_by(2))
+    ...
 
     """
     f = sys._getframe(n)
