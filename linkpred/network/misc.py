@@ -33,6 +33,28 @@ def edge_weights(G, weight='weight'):
 
 
 def from_biadjacency_matrix(A, row_items=None, col_items=None, weight='weight'):
+    """Convert biadjacency matrix to bipartite graph
+
+    This function is a counterpart to networkx.bipartite.biadjacency_matrix .
+
+    Parameters
+    ----------
+    A : numpy matrix
+        biadjacency matrix
+
+    row_items : list of nodes, optional
+        list of nodes corresponding to each row
+        (if not supplied, numbers are used)
+
+    col_items : list of nodes, optional
+        list of nodes corresponding to each column
+        (if not supplied, numbers are used)
+
+    weight : None or string, optional
+        If None, all edge weights are considered equal.
+        Otherwise holds the name of the edge attribute used as weight.
+
+    """
     import numpy
 
     kind_to_python_type = {'f': float,

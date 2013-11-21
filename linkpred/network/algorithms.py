@@ -6,7 +6,7 @@ __all__ = ["rooted_pagerank", "simrank"]
 
 
 def rooted_pagerank(G, root, alpha=0.85, beta=0, weight='weight'):
-    """Return the rooted PageRank of all nodes with respect to node `root`.
+    """Return the rooted PageRank of all nodes with respect to node `root`
 
     Parameters
     ----------
@@ -41,10 +41,30 @@ def rooted_pagerank(G, root, alpha=0.85, beta=0, weight='weight'):
 def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
     r"""Calculate SimRank matrix for nodes in nodelist
 
-    SimRank is defined as
+    SimRank is defined as:
 
-        sim(u, v) = \frac{c}{|\Gamma(u)| |\Gamma(v)|} \sum_{p \in \Gamma(u)}
-        \sum_{q \in \Gamma(v)} sim(p, q)
+    .. math ::
+
+        sim(u, v) = \frac{c}{|N(u)| |N(v)|} \sum_{p \in N(u)}
+                    \sum_{q \in N(v)} sim(p, q)
+
+    Parameters
+    ----------
+    G : a networkx.Graph
+        network
+
+    nodelist : collection of nodes, optional
+        nodes to calculate SimRank for (default: all)
+
+    c : float, optional
+        decay factor, determines how quickly similarity decreases
+
+    num_iterations : int, optional
+        number of iterations to calculate
+
+    weight: string or None, optional
+        If None, all edge weights are considered equal.
+        Otherwise holds the name of the edge attribute used as weight.
 
     """
     import numpy as np

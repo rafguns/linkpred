@@ -6,6 +6,16 @@ __all__ = ['add_random_edges', 'remove_random_edges',
 
 
 def add_random_edges(G, pct):
+    """Add `n` random edges to G (`n` = fraction of current edge count)
+
+    Parameters
+    ----------
+    G : a networkx.Graph
+        the network
+
+    pct : float
+        A percentage (between 0 and 1)
+    """
     edges = G.edges()
     m = len(edges)
     to_add = int(m * pct)
@@ -16,6 +26,16 @@ def add_random_edges(G, pct):
 
 
 def remove_random_edges(G, pct):
+    """Randomly remove `n` edges from G (`n` = fraction of current edge count)
+
+    Parameters
+    ----------
+    G : a networkx.Graph
+        the network
+
+    pct : float
+        A percentage (between 0 and 1)
+    """
     edges = G.edges()
     m = len(edges)
     to_remove = int(m * pct)
@@ -25,6 +45,19 @@ def remove_random_edges(G, pct):
 
 
 def add_remove_random_edges(G, pct_add, pct_remove):
+    """Randomly add edges to and remove edges from G
+
+    Parameters
+    ----------
+    G : a networkx.Graph
+        the network
+
+    pct_add : float
+        A percentage (between 0 and 1)
+
+    pct_remove : float
+        A percentage (between 0 and 1)
+    """
     edges = G.edges()
     m = len(edges)
     to_add = int(m * pct_add)
