@@ -1,3 +1,4 @@
+"""linkpred main module"""
 import networkx as nx
 import os
 
@@ -11,7 +12,7 @@ __all__ = ["LinkPredError", "LinkPred", "filter_low_degree_nodes",
 
 
 class LinkPredError(Exception):
-    pass
+    """Link prediction error"""
 
 
 def filter_low_degree_nodes(networks, minimum=1, eligible=None):
@@ -69,7 +70,17 @@ def for_comparison(G, exclude=[]):
 
 
 def pretty_print(name, params={}):
-    """Pretty print a predictor name"""
+    """Pretty print a predictor name
+
+    Arguments
+    ---------
+    name : string
+        predictor name
+
+    params : dict
+        dictionary of parameter name -> value
+
+    """
     if not params:
         return name
 
@@ -87,6 +98,14 @@ FILETYPE_READERS = {'.net': read_pajek,
 
 
 def read_network(fh):
+    """Read the network file and return as networkx.Graph
+
+    Arguments
+    ---------
+    fh : string
+        file handle or file name
+
+    """
     if nx.utils.is_string_like(fh):
         fh = open(fh)
 
@@ -104,6 +123,12 @@ def read_network(fh):
 
 
 class LinkPred(object):
+    """linkpred main object
+
+    LinkPred stores all configuration and provides a high-level interface to
+    most functionality.
+
+    """
 
     def __init__(self, config={}):
         # default config
@@ -134,16 +159,19 @@ class LinkPred(object):
 
     @property
     def excluded(self):
+        """Get set of links that should not be predicted"""
         return set(self.training.edges_iter()) \
             if self.config['only_new'] else set()
 
     def network(self, key):
+        """Get network for given key"""
         try:
             return read_network(self.config[key])
         except (KeyError, AttributeError):
             pass
 
     def preprocess(self):
+        """Preprocess all networks according to configuration"""
         networks = [self.training]
         if self.test:
             networks.append(self.test)
@@ -151,10 +179,10 @@ class LinkPred(object):
         filter_low_degree_nodes(networks, minimum=self.config['min_degree'])
 
     def do_predict_all(self):
-        """Generator that yields predictions on the basis of training network G
+        """Generator that yields predictions based on training network
 
-        Returns
-        -------
+        Yields
+        ------
         (label, scoresheet) : a 2-tuple
             2-tuple consisting of a string (label of the prediction) and
             a Scoresheet (actual predictions)
@@ -178,10 +206,18 @@ class LinkPred(object):
             yield label, scoresheet
 
     def predict_all(self):
+        """Perform all predictions according to configuration
+
+        The predictions are only executed when `process_predictions` is called
+        or when `LinkPred.predictions` is accessed in some other way.
+
+        """
         self.predictions = self.do_predict_all()
         return self.predictions
 
     def process_predictions(self):
+        """Process (evaluate, log...) all predictions according to config"""
+
         filetype = self.config['chart_filetype']
         interpolation = self.config['interpolation']
         steps = self.config['steps']

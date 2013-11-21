@@ -1,3 +1,4 @@
+"""CLI handling"""
 import argparse
 import json
 
@@ -8,6 +9,7 @@ __all__ = ["load_profile", "get_profile", "handle_arguments"]
 
 
 def load_profile(fname):
+    """Load the JSON or YAML profile with the given filename"""
     profile = {}
     try:
         with open(fname) as f:
@@ -23,6 +25,7 @@ def load_profile(fname):
 
 
 def get_profile():
+    """Load profile based on command-line arguments and options"""
     args = handle_arguments()
     try:
         profile = load_profile(args.profile)
