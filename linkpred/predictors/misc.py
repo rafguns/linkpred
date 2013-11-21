@@ -9,6 +9,14 @@ __all__ = ["Community",
 
 class Community(Predictor):
     def predict(self):
+        """Predict using community structure
+
+        If two nodes belong to the same community, they are predicted to form
+        a link. This uses the Louvain alogorithm, which detrmines communities
+        at different granularity levels: the finer grained the community, the
+        higher the resulting score.
+
+        """
         from collections import defaultdict
         from linkpred.network import generate_dendogram, partition_at_level
 
@@ -32,13 +40,33 @@ class Community(Predictor):
 
 class Copy(Predictor):
     def predict(self, weight=None):
+        """Predict by copying the training network
+
+        If weights are used, the likelihood score is equal to the link weight.
+
+        This predictor is mostly intended as a sort of baseline. By definition,
+        it only yields predictions if `only_new` is set to False.
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         if weight is None:
             return Scoresheet.fromkeys(self.G.edges_iter(), 1)
-        return Scoresheet(((u, v), d[weight]) for u, v, d in self.G.edges(data=True))
+        return Scoresheet(((u, v), d[weight]) for u, v, d in
+                          self.G.edges(data=True))
 
 
 class Random(Predictor):
     def predict(self):
+        """Predict randomly
+
+        This predictor can be used as a baseline.
+
+        """
         import random
 
         res = Scoresheet()

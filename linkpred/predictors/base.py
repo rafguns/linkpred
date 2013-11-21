@@ -82,28 +82,30 @@ class Predictor(object):
     def predict(self, *args, **kwargs):
         raise NotImplementedError
 
-    @classmethod
-    def arguments(cls):
-        import inspect
-
-        eligible = lambda x: isinstance(x, (int, float, bool)) or x == 'weight'
-        a = inspect.getargspec(cls.predict)
-        if a.defaults:
-            args = {k: v for k, v in zip(a.args[1:], a.defaults) if eligible(v)}
-        else:
-            args = {}
-
-        return args
-
     def eligible(self, u, v):
+        """Check if link between nodes u and v is eligible
+
+        Eligibility allows us to ignore some nodes/links for link prediction.
+
+        """
         return self.eligible_node(u) and self.eligible_node(v) and u != v
 
     def eligible_node(self, v):
+        """Check if node v is eligible
+
+        Eligibility allows us to ignore some nodes/links for link prediction.
+
+        """
         if self.eligible_attr is None:
             return True
         return self.G.node[v][self.eligible_attr]
 
     def eligible_nodes(self):
+        """Get list of eligible nodes
+
+        Eligibility allows us to ignore some nodes/links for link prediction.
+
+        """
         return [v for v in self.G if self.eligible_node(v)]
 
     def likely_pairs(self, k=2):
@@ -127,11 +129,10 @@ class Predictor(object):
 
 
 def all_predictors():
-    """
-    Returns a list of all subclasses of `Predictor`
-    """
+    """Returns a list of all predictors"""
     from ..util import itersubclasses
     from operator import itemgetter
 
-    predictors = sorted([(s, s.__name__) for s in itersubclasses(Predictor)], key=itemgetter(1))
+    predictors = sorted([(s, s.__name__) for s in itersubclasses(Predictor)],
+                        key=itemgetter(1))
     return zip(*predictors)[0]

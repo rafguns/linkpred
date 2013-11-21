@@ -26,6 +26,16 @@ class GraphDistance(Predictor):
         the number of intermediate nodes. (In practice, setting alpha equal to
         around 0.1 seems to yield the best results.)
 
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        alpha : float
+            Parameter to determine relative importance of intermediate
+            link strength
+
         """
         res = Scoresheet()
 
@@ -53,10 +63,9 @@ class Katz(Predictor):
     def predict(self, beta=0.001, max_power=5, weight='weight', dtype=None):
         """Predict by Katz (1953) measure
 
-        Let $A$ be an adjacency matrix for the directed network $self.G$.
-        We assume that $self.G$ is unweighted, hence $A$ only contains values 1 and 0.
-        Then, each element $a_{ij}^{(k)}$ of $A^k$ (the $k$-th power of $A$) has a
-        value equal to the number of walks with length $k$ from $i$ to $j$.
+        Let `A` be an adjacency matrix for the directed network `G`.
+        Then, each element `a_{ij}` of `A^k` (the `k`-th power of `A`) has a
+        value equal to the number of walks with length `k` from `i` to `j`.
 
         The probability of a link rapidly decreases as the walks grow longer.
         Katz therefore introduces an extra parameter (here beta) to weigh

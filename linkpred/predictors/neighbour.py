@@ -22,6 +22,15 @@ __all__ = ["AdamicAdar",
 
 class AdamicAdar(Predictor):
     def predict(self, weight=None):
+        """Predict by Adamic/Adar measure of neighbours
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         res = Scoresheet()
         for a, b in self.likely_pairs():
             intersection = set(neighbourhood(self.G, a)) & \
@@ -41,6 +50,15 @@ class AdamicAdar(Predictor):
 
 class AssociationStrength(Predictor):
     def predict(self, weight=None):
+        """Predict by association strength of neighbours
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         res = Scoresheet()
         for a, b in self.likely_pairs():
             w = neighbourhood_intersection_size(self.G, a, b, weight) / \
@@ -57,9 +75,21 @@ class CommonNeighbours(Predictor):
 
         This is loosely based on Opsahl et al. (2010):
 
+        .. math ::
+
             k(u, v) = |N(u) \cap N(v)|
             s(u, v) = \sum_{i=1}^n x_i \cdot y_i
-            w(u, v) = k(u, v)^{1 - \alpha} \cdot s(u, v)^{\alpha}
+            W(u, v) = k(u, v)^{1 - \alpha} \cdot s(u, v)^{\alpha}
+
+        Parameters
+        ----------
+        alpha : float, optional
+            If alpha = 0, weights are ignored. If alpha = 1, only weights are
+            used (ignoring the number of intermediary nodes).
+
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
 
         """
         res = Scoresheet()
@@ -81,6 +111,15 @@ class CommonNeighbours(Predictor):
 
 class Cosine(Predictor):
     def predict(self, weight=None):
+        """Predict by cosine measure of neighbours
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         res = Scoresheet()
         for a, b in self.likely_pairs():
             w = neighbourhood_intersection_size(self.G, a, b, weight) / \
@@ -93,6 +132,19 @@ class Cosine(Predictor):
 
 class DegreeProduct(Predictor):
     def predict(self, weight=None, minimum=1):
+        """Predict by degree product (preferential attachment)
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        minimum : int, optional (default = 1)
+            If the degree product is below this minimum, the corresponding
+            prediction is ignored.
+
+        """
         res = Scoresheet()
         for a, b in all_pairs(self.eligible_nodes()):
             w = neighbourhood_size(self.G, a, weight) *\
@@ -104,9 +156,13 @@ class DegreeProduct(Predictor):
 
 class Jaccard(Predictor):
     def predict(self, weight=None):
-        """Predict by Jaccard index, based on neighbours of a and b
+        """Predict by Jaccard index of neighbours
 
-        Jaccard index J = |A \cap B| / |A \cup B|
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
 
         """
         res = Scoresheet()
@@ -122,9 +178,15 @@ class Jaccard(Predictor):
 
 class NMeasure(Predictor):
     def predict(self, weight=None):
-        r"""Predict by N measure (Egghe, 2009)
+        """Predict by N measure of neighbours
 
-        $N(A, B) = \srqt{2} \frac{|A \cap B|}{\sqrt{|A|^2 + |B|^2}}$
+        The N measure was defined by Egghe (2009).
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
 
         """
         res = Scoresheet()
@@ -153,16 +215,43 @@ def _predict_overlap(predictor, function, weight=None):
 
 class MaxOverlap(Predictor):
     def predict(self, weight=None):
+        """Predict by maximum overlap between neighbours
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         return _predict_overlap(self, max, weight)
 
 
 class MinOverlap(Predictor):
     def predict(self, weight=None):
+        """Predict by minimum overlap between neighbours
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         return _predict_overlap(self, min, weight)
 
 
 class Pearson(Predictor):
     def predict(self, weight=None):
+        """Predict by Pearson correlation between neighbours
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         res = Scoresheet()
         # 'Full' Pearson looks at all possible pairs. Since those are likely
         # of little value for link prediction, we restrict ourselves to pairs
@@ -187,9 +276,16 @@ class Pearson(Predictor):
 
 class ResourceAllocation(Predictor):
     def predict(self, weight=None):
-        """Predict with Resource Allocation index
+        """Predict with resource allocation index of neighbours
 
-        See T. Zhou, L. Lu, YC. Zhang (2009). Eur. Phys. J. B, 71, 623
+        Resource allocation was defined by Zhou, Lu & Zhang (2009, Eur. Phys.
+        J. B, 71, 623).
+
+        Parameters
+        ----------
+        weight : None or string, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
 
         """
         res = Scoresheet()

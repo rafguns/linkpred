@@ -11,32 +11,30 @@ class RootedPageRank(Predictor):
         Parameters
         ----------
 
-        G : a networkx.Graph
-
-        nbunch : iterable collection of nodes
+        nbunch : iterable collection of nodes, optional
             node(s) to calculate PR for (default: all)
 
-        alpha : float
+        alpha : float, optional
             PageRank probability that we will advance to a neighbour of the
             current node in a random walk
 
-        beta : float or int
+        beta : float, optional
             Normally, we return to the root node with probability 1 - alpha.
-            With this parameter, we can also advance to a random other node in the
-            network with probability beta. Thus, we get back to the root node with
-            probability 1 - alpha - beta. This is off (0) by default.
+            With this parameter, we can also advance to a random other node in
+            the network with probability beta. Thus, we get back to the root
+            node with probability 1 - alpha - beta. This is off (0) by default.
 
-        weight : string or None
+        weight : string or None, optional
             The edge attribute that holds the numerical value used for
             the edge weight.  If None then treat as unweighted.
 
-        k : int or None
+        k : int or None, optional
             If `k` is `None`, this predictor is applied to the entire network.
             If `k` is an int, the predictor is applied to a subgraph consisting
             of the k-neighbourhood of the current node.
             Results are often very similar but much faster.
 
-        See documentation for linkpred.network.rooted_pagerank() for these
+        See documentation for linkpred.network.rooted_pagerank for these
         parameters.
 
         """
@@ -60,6 +58,27 @@ class RootedPageRank(Predictor):
 
 class SimRank(Predictor):
     def predict(self, c=0.8, num_iterations=10, weight='weight'):
+        r"""Predict using SimRank
+
+        .. math ::
+            sim(u, v) = \frac{c}{|N(u)| \cdot |N(v)|} \sum_{p \in N(u)}
+                        \sum_{q \in N(v)} sim(p, q)
+
+        where `N(v)` is the set of neighbours of node `v`.
+
+        Parameters
+        ----------
+        c : float, optional
+            decay factor, determines how quickly similarity decreases
+
+        num_iterations : int, optional
+            number of iterations to calculate
+
+        weight: string or None, optional
+            If None, all edge weights are considered equal.
+            Otherwise holds the name of the edge attribute used as weight.
+
+        """
         res = Scoresheet()
         nodelist = self.G.nodes()
         sim = simrank(self.G, nodelist, c, num_iterations, weight)
