@@ -70,9 +70,9 @@ def handle_arguments():
     parser.add_argument("-f", "--chart-filetype", default="pdf",
                         help="File type for charts (default: %(default)s)")
 
-    parser.add_argument("-i", "--interpolation",
-                        help="Interpolate recall-precision charts",
-                        action="store_true", default=False)
+    parser.add_argument("-i", "--no-interpolation", dest="interpolation",
+                        help="Do not interpolate recall-precision charts",
+                        action="store_false", default=True)
 
     # TODO allow case-insensitive match
     predictors = [p.__name__ for p in all_predictors()]
