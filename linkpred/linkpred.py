@@ -257,6 +257,8 @@ class LinkPred(object):
                     self.evaluator = listeners.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
                 signals.new_prediction.connect(self.evaluator.on_new_prediction)
+                signals.datagroup_finished.connect(
+                    self.evaluator.on_datagroup_finished)
             else:
                 # We assume that if it's not an evaluation listener, it must
                 # be a prediction listener
