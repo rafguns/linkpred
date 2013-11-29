@@ -2,6 +2,13 @@ from setuptools import setup
 
 long_description = open('README.rst').read()
 
+# Platform specific stuff
+import platform
+
+scripts = ['scripts/linkpred']
+if platform.system() == "Windows":
+    scripts.append('scripts/linkpred.bat')
+
 setup(
     name='linkpred',
     version='0.1',
@@ -46,5 +53,5 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
     ],
-    scripts=['scripts/linkpred']
+    scripts=scripts
 )
