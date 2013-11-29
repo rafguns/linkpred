@@ -27,7 +27,13 @@ setup(
         'linkpred.predictors',
         'linkpred.util'
     ],
-    include_package_data=True,
+    package_data={
+        'linkpred': ['tests/*.py'],
+        'linkpred.evaluation': ['tests/*.py'],
+        'linkpred.network': ['tests/*.py'],
+        'linkpred.predictors': ['tests/*.py'],
+        'linkpred.util': ['tests/*.py']
+    },
     platforms='any',
     classifiers=[
         'Intended Audience :: Science/Research',
