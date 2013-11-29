@@ -12,6 +12,7 @@ setup(
     author='Raf Guns',
     tests_require=['nose'],
     install_requires=[
+        'matplotlib>=1.3',
         'networkx>=1.7',
         'numpy>=1.6',
         'scipy>=0.10'
