@@ -1,12 +1,10 @@
 from setuptools import setup
 
-import linkpred
-
 long_description = open('README.rst').read()
 
 setup(
     name='linkpred',
-    version=linkpred.__version__,
+    version='0.1',
     url='http://github.com/rafguns/linkpred/',
     license='New BSD License',
     author='Raf Guns',
