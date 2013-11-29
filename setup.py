@@ -10,7 +10,7 @@ setup(
     author='Raf Guns',
     tests_require=['nose'],
     install_requires=[
-        'matplotlib>=1.3',
+        'matplotlib>=1.1',
         'networkx>=1.7',
         'numpy>=1.6',
         'scipy>=0.10'
@@ -18,7 +18,15 @@ setup(
     author_email='raf.guns@uantwerpen.be',
     description='Python package for link prediction',
     long_description=long_description,
-    packages=['linkpred'],
+    packages=[
+        'linkpred',
+        'linkpred.evaluation',
+        'linkpred.external',
+        'linkpred.external.dispatch',
+        'linkpred.network',
+        'linkpred.predictors',
+        'linkpred.util'
+    ],
     include_package_data=True,
     platforms='any',
     classifiers=[
