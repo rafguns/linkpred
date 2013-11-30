@@ -6,10 +6,10 @@ import networkx as nx
 
 def test_imports():
     linkpred.LinkPred
-    linkpred.LinkPredError
     linkpred.filter_low_degree_nodes
     linkpred.read_network
     linkpred.network
+    linkpred.exceptions
     linkpred.evaluation
     linkpred.predictors
 
@@ -64,6 +64,6 @@ def test_pretty_print():
     assert_equal(pretty_print(name, params), "foo (baz = 5, bar = 0.1)")
 
 
-@raises(linkpred.LinkPredError)
+@raises(linkpred.exceptions.LinkPredError)
 def test_LinkPred_without_predictors():
     linkpred.LinkPred()

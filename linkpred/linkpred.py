@@ -4,15 +4,11 @@ import os
 
 from . import predictors
 from .evaluation import Pair, signals, listeners
+from .exceptions import LinkPredError
 from .network import read_pajek
 from .util import log
 
-__all__ = ["LinkPredError", "LinkPred", "filter_low_degree_nodes",
-           "read_network"]
-
-
-class LinkPredError(Exception):
-    """Link prediction error"""
+__all__ = ["LinkPred", "filter_low_degree_nodes", "read_network"]
 
 
 def filter_low_degree_nodes(networks, minimum=1, eligible=None):
