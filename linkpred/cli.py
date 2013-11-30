@@ -2,6 +2,7 @@
 import argparse
 import json
 
+from .exceptions import LinkPredError
 from .predictors import all_predictors
 from .util import log
 
@@ -10,36 +11,32 @@ __all__ = ["load_profile", "get_profile", "handle_arguments"]
 
 def load_profile(fname):
     """Load the JSON or YAML profile with the given filename"""
-    profile = {}
     try:
         with open(fname) as f:
             if fname.endswith(".yaml"):
                 import yaml
-                profile = yaml.safe_load(f)
+                return yaml.safe_load(f)
             else:
-                profile = json.load(f)
-    except (AttributeError, TypeError) as e:
-        log.logger.error("Encountered error '%s'" % e)
-    finally:
-        return profile
+                return json.load(f)
+    except Exception as e:
+        raise LinkPredError("Encountered error while loading profile '%s'. "
+                            "Error message: '%s'" % (fname, e))
 
 
 def get_profile():
     """Load profile based on command-line arguments and options"""
     args = handle_arguments()
-    try:
-        profile = load_profile(args.profile)
-    except AttributeError:
-        profile = {}
 
-    for k, v in args.iteritems():
-        # Handle predictors separately
-        if k == "predictors":
-            profile[k] = []
-            for predictor in v:
-                profile[k].append({"name": predictor})
-        else:
-            profile[k] = v
+    profilename = args.pop('profile')
+
+    profile = {}
+    predictorlist = [{'name': predictor} for predictor
+                     in args.pop('predictors')]
+    profile['predictors'] = predictorlist
+    profile.update(args)
+
+    if profilename:
+        profile.update(load_profile(profilename))
 
     return profile
 
