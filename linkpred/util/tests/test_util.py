@@ -1,4 +1,4 @@
-from nose.tools import assert_equal
+from nose.tools import assert_equal, raises
 
 import linkpred.util as u
 
@@ -14,3 +14,13 @@ def test_slugify():
     s = u"Ivan Krsti\u0107"
     expected = "ivan-krstic"
     assert_equal(u.slugify(s), expected)
+
+
+def test_load_function():
+    import os
+    assert_equal(u.load_function('os.path.join'), os.path.join)
+
+
+@raises(ValueError)
+def test_load_function_no_modulename():
+    u.load_function('join')

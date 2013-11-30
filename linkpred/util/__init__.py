@@ -52,22 +52,20 @@ def progressbar(it, prefix="", size=60):
     sys.stdout.flush()
 
 
-def load_function(functionname):
-    """Return the function given by functionname
+def load_function(full_functionname):
+    """Return the function given by full_functionname
 
-    This loads function names of the form <module.submodule.function>
+    This loads function names of the form 'module.submodule.function'
 
     """
     try:
-        # Find rightmost point. Everything to the left is module name.
-        index = functionname.rindex('.')
-        modulename = functionname[:index]
+        modulename, functionname = full_functionname.rsplit('.', 1)
     except ValueError:
-        raise Exception("No module name given in " + functionname)
+        raise ValueError("No module name given in " + full_functionname)
     # Dynamically load module and function
     __import__(modulename)
     module = sys.modules[modulename]
-    function = getattr(module, functionname[index + 1:])
+    function = getattr(module, functionname)
     return function
 
 
