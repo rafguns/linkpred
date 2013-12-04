@@ -5,6 +5,8 @@ examples/*.pdf
 examples/*.png
 examples/*.txt
 
+.ropeproject
+
 # C extensions
 *.so
 
