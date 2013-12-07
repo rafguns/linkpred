@@ -5,7 +5,6 @@ import os
 from . import predictors
 from .evaluation import Pair, signals, listeners
 from .exceptions import LinkPredError
-from .network import read_pajek
 from .util import log
 
 __all__ = ["LinkPred", "filter_low_degree_nodes", "read_network"]
@@ -85,7 +84,7 @@ def pretty_print(name, params={}):
     return "%s (%s)" % (name, pretty_params)
 
 
-FILETYPE_READERS = {'.net': read_pajek,
+FILETYPE_READERS = {'.net': nx.read_pajek,
                     '.gml': nx.read_gml,
                     '.graphml': nx.read_graphml,
                     '.gexf': nx.read_gexf,
@@ -172,6 +171,13 @@ class LinkPred(object):
         if self.test:
             networks.append(self.test)
 
+        for G in networks:
+            loops = G.selfloop_edges()
+            if loops:
+                log.logger.warning("Network contains %d self-loops. "
+                                   "Removing..." % len(loops))
+                G.remove_edges_from(loops)
+
         filter_low_degree_nodes(networks, minimum=self.config['min_degree'])
 
     def do_predict_all(self):
@@ -246,13 +252,15 @@ class LinkPred(object):
                 test_set = for_comparison(self.test, exclude=self.excluded)
                 nnodes = len(self.test)
                 # Universe = all possible edges, except for the ones that we no
-                # longer consider (because they're already in the training network)
+                # longer consider (because they're already in the training
+                # network)
                 num_universe = nnodes * (nnodes - 1) / 2 - len(self.excluded)
 
                 if not self.evaluator:
                     self.evaluator = listeners.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
-                signals.new_prediction.connect(self.evaluator.on_new_prediction)
+                signals.new_prediction.connect(
+                    self.evaluator.on_new_prediction)
                 signals.datagroup_finished.connect(
                     self.evaluator.on_datagroup_finished)
             else:
@@ -282,3 +290,4 @@ class LinkPred(object):
 
         signals.dataset_finished.send(sender=self, dataset=self.label)
         signals.run_finished.send(sender=self)
+        log.logger.info("Prediction run finished")
