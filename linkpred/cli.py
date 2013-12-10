@@ -23,9 +23,14 @@ def load_profile(fname):
                             "Error message: '%s'" % (fname, e))
 
 
-def get_profile():
-    """Load profile based on command-line arguments and options"""
-    args = handle_arguments()
+def get_profile(args=None):
+    """Load profile based on command-line arguments
+
+    If a YAML-or JSON-based profile file is supplied, any settinsg therein take
+    prioirity over command-line arguments.
+
+    """
+    args = handle_arguments(args)
 
     profilename = args.pop('profile')
 
@@ -41,7 +46,7 @@ def get_profile():
     return profile
 
 
-def handle_arguments():
+def handle_arguments(args=None):
     """Get nice CLI interface and return arguments."""
 
     parser = argparse.ArgumentParser(
@@ -90,7 +95,7 @@ def handle_arguments():
     parser.add_argument("test-file", nargs="?", type=argparse.FileType(),
                         help="File with the test network")
 
-    results = parser.parse_args()
+    results = parser.parse_args(args)
 
     if results.debug:
         log.logger.setLevel(log.logging.DEBUG)
