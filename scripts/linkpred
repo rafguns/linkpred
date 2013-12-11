@@ -34,13 +34,13 @@ else:
 
 # LIBDIR trick end (marker for removal on platforms that don't need it)
 
-from linkpred.cli import get_profile
+from linkpred.cli import get_config
 from linkpred.linkpred import LinkPred
 
 
 def main():
-    profile = get_profile()
-    linkpred = LinkPred(profile)
+    config = get_config()
+    linkpred = LinkPred(config)
     linkpred.preprocess()
     linkpred.predict_all()
     linkpred.process_predictions()

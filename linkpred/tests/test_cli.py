@@ -3,7 +3,7 @@ import nose
 
 import os
 import tempfile
-from linkpred.cli import load_profile, get_profile, handle_arguments
+from linkpred.cli import load_profile, get_config, handle_arguments
 from contextlib import contextmanager
 
 
@@ -68,7 +68,7 @@ interpolation: true""")
         with assert_raises(Exception):
             print load_profile(self.yaml_fname)
 
-    def test_get_profile(self):
+    def test_get_config(self):
         with open(self.yaml_fname, "w") as fh:
             fh.write("""predictors:
 - name: CommonNeighbours
@@ -79,17 +79,16 @@ interpolation: true""")
 
         fh = tempfile.NamedTemporaryFile("r", delete=False)
         with temp_empty_file() as training:
-            profile = get_profile([training, "-P", self.yaml_fname])
+            config = get_config([training, "-P", self.yaml_fname])
             for k, v in self.expected.iteritems():
-                assert_equal(profile[k], v)
+                assert_equal(config[k], v)
 
         with temp_empty_file() as training:
-            profile = get_profile([fh.name, "-P", self.yaml_fname, "-p",
-                                   "Katz", "-i"])
-            # Profile file gets priority
+            config = get_config([fh.name, "-P", self.yaml_fname, "-p",
+                                 "Katz", "-i"])
+            # Profile gets priority
             for k, v in self.expected.iteritems():
-                assert_equal(profile[k], v)
-
+                assert_equal(config[k], v)
         fh.close()
 
 

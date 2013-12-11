@@ -6,7 +6,7 @@ from .exceptions import LinkPredError
 from .predictors import all_predictors
 from .util import log
 
-__all__ = ["load_profile", "get_profile", "handle_arguments"]
+__all__ = ["load_profile", "get_config", "handle_arguments"]
 
 
 def load_profile(fname):
@@ -23,27 +23,27 @@ def load_profile(fname):
                             "Error message: '%s'" % (fname, e))
 
 
-def get_profile(args=None):
-    """Load profile based on command-line arguments
+def get_config(args=None):
+    """Get configuration as supplied by the user
 
-    If a YAML-or JSON-based profile file is supplied, any settinsg therein take
-    prioirity over command-line arguments.
+    If a YAML-or JSON-based profile is supplied, any settinsg therein take
+    priority over command-line arguments.
 
     """
     args = handle_arguments(args)
 
-    profilename = args.pop('profile')
+    profile = args.pop('profile')
 
-    profile = {}
+    config = {}
     predictorlist = [{'name': predictor} for predictor
                      in args.pop('predictors')]
-    profile['predictors'] = predictorlist
-    profile.update(args)
+    config['predictors'] = predictorlist
+    config.update(args)
 
-    if profilename:
-        profile.update(load_profile(profilename))
+    if profile:
+        config.update(load_profile(profile))
 
-    return profile
+    return config
 
 
 def handle_arguments(args=None):
