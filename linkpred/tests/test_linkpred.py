@@ -1,7 +1,10 @@
-from nose.tools import assert_equal, assert_less_equal, raises
+from nose.tools import (assert_equal, assert_less_equal, raises, assert_raises,
+                        assert_is_instance)
 
 import linkpred
 import networkx as nx
+import os
+import tempfile
 
 
 def test_imports():
@@ -62,6 +65,70 @@ def test_pretty_print():
     assert_equal(pretty_print(name), "foo")
     params = {"bar": 0.1, "baz": 5}
     assert_equal(pretty_print(name, params), "foo (baz = 5, bar = 0.1)")
+
+
+def test_read_unknown_network_type():
+    fd, fname = tempfile.mkstemp(suffix=".foo")
+    with assert_raises(linkpred.exceptions.LinkPredError):
+        linkpred.read_network(fname)
+    os.close(fd)
+    os.unlink(fname)
+
+
+def test_read_network():
+    fd, fname = tempfile.mkstemp(suffix=".net")
+    with open(fname, "w") as fh:
+        fh.write("""*vertices 2
+1 "A"
+2 "B"
+*arcs 2
+1 2
+2 1""")
+    expected = nx.DiGraph()
+    expected.add_edges_from([("A", "B"), ("B", "A")])
+
+    G = linkpred.read_network(fname)
+    assert_equal(set(G.edges()), set(expected.edges()))
+
+    with open(fname) as fh:
+        G = linkpred.read_network(fname)
+        assert_equal(set(G.edges()), set(expected.edges()))
+
+    os.close(fd)
+    os.unlink(fname)
+
+
+def test_read_pajek():
+    from linkpred.linkpred import _read_pajek
+
+    fd, fname = tempfile.mkstemp(suffix=".net")
+    with open(fname, "w") as fh:
+        fh.write("""*vertices 2
+1 "A"
+2 "B"
+*arcs 2
+1 2
+1 2""")
+    expected = nx.DiGraph()
+    expected.add_edges_from([("A", "B")])
+
+    G = _read_pajek(fname)
+    assert_is_instance(G, nx.DiGraph)
+    assert_equal(sorted(G.edges()), sorted(expected.edges()))
+
+    with open(fname, "w") as fh:
+        fh.write("""*vertices 2
+1 "A"
+2 "B"
+*edges 2
+1 2
+1 2""")
+    expected = nx.Graph()
+    expected.add_edges_from([("A", "B")])
+
+    G = _read_pajek(fname)
+    assert_is_instance(G, nx.Graph)
+    assert_equal(sorted(G.edges()), sorted(expected.edges()))
 
 
 @raises(linkpred.exceptions.LinkPredError)

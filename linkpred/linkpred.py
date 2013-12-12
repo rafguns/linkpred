@@ -84,7 +84,20 @@ def pretty_print(name, params={}):
     return "%s (%s)" % (name, pretty_params)
 
 
-FILETYPE_READERS = {'.net': nx.read_pajek,
+def _read_pajek(*args, **kwargs):
+    """Read Pajek file and make sure that we get an nx.Graph or nx.DiGraph"""
+    G = nx.read_pajek(*args, **kwargs)
+    edges = G.edges()
+    if len(set(edges)) < len(edges):  # multiple edges
+        log.logger.warning("Network contains multiple edges. "
+                           "These will be ignored.")
+    if G.is_directed():
+        return nx.DiGraph(G)
+    else:
+        return nx.Graph(G)
+
+
+FILETYPE_READERS = {'.net': _read_pajek,
                     '.gml': nx.read_gml,
                     '.graphml': nx.read_graphml,
                     '.gexf': nx.read_gexf,
@@ -93,7 +106,7 @@ FILETYPE_READERS = {'.net': nx.read_pajek,
 
 
 def read_network(fh):
-    """Read the network file and return as networkx.Graph
+    """Read the network file and return as nx.Graph or nx.DiGraph
 
     Arguments
     ---------
@@ -102,22 +115,26 @@ def read_network(fh):
 
     """
     if nx.utils.is_string_like(fh):
-        fh = open(fh)
+        fname = fh
+    else:
+        # We assume that fh is a file handle
+        fname = fh.name
 
-    fname = fh.name
     ext = os.path.splitext(fname.lower())[1]
     try:
         read = FILETYPE_READERS[ext]
+        log.logger.info("Reading file '%s'..." % fname)
+        network = read(fh)
+        log.logger.info("Successfully read file.")
     except KeyError:
-        raise LinkPredError("File '%s' is of an unknown type" % fname)
+        raise LinkPredError("File '%s' is of an unknown type. Known types "
+                            "are: %s." % (fname, ", ".join(FILETYPE_READERS)))
 
-    log.logger.info("Reading file '%s'..." % fname)
-    network = read(fname)
-    log.logger.info("Successfully read file.")
     return network
 
 
 class LinkPred(object):
+
     """linkpred main object
 
     LinkPred stores all configuration and provides a high-level interface to
