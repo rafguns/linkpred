@@ -49,11 +49,11 @@ interpolation: true""")
     def test_load_profile_json(self):
         with open(self.json_fname, "w") as fh:
             fh.write("""{"predictors":
-    [{"name": "CommonNeighbours",
-      "displayname": "Common neighbours"},
-     {"name": "Cosine"}],
-    "steps": 5,
-    "interpolation": true}""")
+                [{"name": "CommonNeighbours",
+                "displayname": "Common neighbours"},
+                {"name": "Cosine"}],
+                "steps": 5,
+                "interpolation": true}""")
         profile = load_profile(self.json_fname)
         assert_dict_equal(profile, self.expected)
 
@@ -103,9 +103,7 @@ def test_no_training_file():
 def test_nonexisting_predictor():
     # Skip because nose always displays stderr output :-/
     raise nose.SkipTest()
-    fh = tempfile.NamedTemporaryFile("r", delete=False)
-    fh.close()
-    handle_arguments([fh.name, "-p", "Aargh"])
+    handle_arguments(["some-network", "-p", "Aargh"])
 
 
 def test_handle_arguments():
@@ -118,35 +116,34 @@ def test_handle_arguments():
         "predictors": [],
         "only_new": True,
         "profile": None,
+        "training-file": "training"
     }
 
-    with temp_empty_file() as training:
-        args = handle_arguments([training])
-        for k, v in expected.iteritems():
-            assert_equal(args[k], v)
-        assert_equal(args["test-file"], None)
+    args = handle_arguments(['training'])
+    for k, v in expected.iteritems():
+        assert_equal(args[k], v)
 
-    with temp_empty_file() as training, temp_empty_file() as test:
-        args = handle_arguments([training, test])
-        for k, v in expected.iteritems():
-            assert_equal(args[k], v)
+    args = handle_arguments(['training', 'test'])
+    for k, v in expected.iteritems():
+        assert_equal(args[k], v)
+    assert_equal(args["test-file"], "test")
 
     argstr = "-p CommonNeighbours Cosine -o fmax " \
-        "recall-precision -- %s" % training
+        "recall-precision -- training"
     args = handle_arguments(argstr.split())
     expected_special = {"predictors": ["CommonNeighbours", "Cosine"],
                         "output": ["fmax", "recall-precision"]}
     for k, v in expected_special.iteritems():
         assert_equal(args[k], v)
 
-    args = handle_arguments([training, "-i"])
+    args = handle_arguments(["training", "-i"])
     assert_equal(args["interpolation"], False)
 
-    args = handle_arguments([training, "-a"])
+    args = handle_arguments(["training", "-a"])
     assert_equal(args["only_new"], False)
 
-    args = handle_arguments([training, "-P", "foo.json"])
+    args = handle_arguments(["training", "-P", "foo.json"])
     assert_equal(args["profile"], "foo.json")
 
-    args = handle_arguments([training, "-f", "eps"])
+    args = handle_arguments(["training", "-f", "eps"])
     assert_equal(args["chart_filetype"], "eps")

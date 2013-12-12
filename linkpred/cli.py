@@ -90,9 +90,8 @@ def handle_arguments(args=None):
 
     parser.add_argument("-P", "--profile", help="JSON/YAML profile file")
 
-    parser.add_argument("training-file", help="File with the training network",
-                        type=argparse.FileType())
-    parser.add_argument("test-file", nargs="?", type=argparse.FileType(),
+    parser.add_argument("training-file", help="File with the training network")
+    parser.add_argument("test-file", nargs="?",
                         help="File with the test network")
 
     results = parser.parse_args(args)

@@ -164,7 +164,7 @@ class LinkPred(object):
             raise LinkPredError("No predictor specified. Aborting...")
 
         self.label = self.config['label'] or \
-            os.path.splitext(self.config['training-file'].name)[0]
+            os.path.splitext(self.config['training-file'])[0]
         self.training = self.network('training-file')
         self.test = self.network('test-file')
         self.evaluator = None
