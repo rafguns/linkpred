@@ -1,3 +1,5 @@
+import networkx as nx
+
 from .util import neighbourhood
 
 __all__ = ["Predictor",
@@ -17,9 +19,11 @@ class Predictor(object):
     For instance:
 
     >>> B = nx.Graph()
-    >>> B.add_nodes_from([1,2,3,4], bipartite=0) # Add the node attribute "bipartite"
+    >>> # Add the node attribute "bipartite"
+    >>> B.add_nodes_from([1,2,3,4], bipartite=0)
     >>> B.add_nodes_from(['a','b','c'], bipartite=1)
-    >>> B.add_edges_from([(1,'a'), (1,'b'), (2,'b'), (2,'c'), (3,'c'), (4,'a')])
+    >>> B.add_edges_from([(1,'a'), (1,'b'), (2,'b'), (2,'c'), (3,'c'),
+    ...                   (4,'a')])
     >>> p = Predictor(B, eligible='bipartite')
     >>> p.eligible_node(1)
     0
@@ -27,7 +31,8 @@ class Predictor(object):
     ['a', 'b', 'c']
 
     """
-    def __init__(self, G, eligible=None, only_new=False):
+
+    def __init__(self, G, eligible=None, excluded=[]):
         """
         Initialize predictor
 
@@ -41,28 +46,25 @@ class Predictor(object):
             and non-eligible nodes. We only try to predict links between
             two eligible nodes.
 
-        only_new : True|False
-            If True, this ensures that we only predict 'new' links that are not
-            yet present in G. Otherwise, we predict all links, regardless of whether
-            or not they are in G.
+        excluded : iterable
+            A list or iterable of node pairs that should be excluded
 
         """
         self.G = G
         self.eligible_attr = eligible
-        self.only_new = only_new
+        self.excluded = excluded
 
         # Add a decorator to predict(), to do the necessary postprocessing for
-        # filtering out new links if only_new is False. We do this in __init__() such
-        # that child classes need not be changed.
+        # filtering out links if `excluded` is not empty. We do this in
+        # __init__() such that child classes need not be changed.
         def add_postprocessing(func):
             def predict_and_postprocess(*args, **kwargs):
                 scoresheet = func(*args, **kwargs)
-                if self.only_new:
-                    for u, v in self.G.edges_iter():
-                        try:
-                            del scoresheet[(u, v)]
-                        except KeyError:
-                            pass
+                for u, v in self.excluded:
+                    try:
+                        del scoresheet[(u, v)]
+                    except KeyError:
+                        pass
                 return scoresheet
             predict_and_postprocess.__name__ = func.__name__
             predict_and_postprocess.__doc__ = func.__doc__

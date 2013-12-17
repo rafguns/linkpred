@@ -150,7 +150,7 @@ class LinkPred(object):
             'interpolation':  False,
             'label':          '',
             'min_degree':     1,
-            'only_new':       False,
+            'exclude':        'old',
             'output':         ['recall-precision'],
             'predictors':     [],
             'steps':          1,
@@ -172,8 +172,15 @@ class LinkPred(object):
     @property
     def excluded(self):
         """Get set of links that should not be predicted"""
-        return set(self.training.edges_iter()) \
-            if self.config['only_new'] else set()
+        exclude = self.config['exclude']
+        if not exclude:
+            return set()  # No nodes are excluded
+        elif exclude == 'old':
+            return set(self.training.edges_iter())
+        elif exclude == 'new':
+            from itertools import combinations
+            return set(combinations(self.training, 2)) - \
+                set(self.training.edges_iter())
 
     def network(self, key):
         """Get network for given key"""
@@ -217,7 +224,7 @@ class LinkPred(object):
             log.logger.info("Executing %s..." % label)
             predictor = predictor_class(self.training,
                                         eligible=self.config['eligible'],
-                                        only_new=self.config['only_new'])
+                                        excluded=self.excluded())
             scoresheet = predictor.predict(**params)
             log.logger.info("Finished executing %s." % label)
 
