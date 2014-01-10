@@ -27,7 +27,7 @@ def neighbourhood_graph(G, n, k=1):
 
 def edge_weights(G, weight='weight'):
     """Iterator over edge weights in G"""
-    for u, nbrdict in G.adjacency_iter():
+    for _, nbrdict in G.adjacency_iter():
         for edgedata in nbrdict.itervalues():
             yield edgedata[weight]
 

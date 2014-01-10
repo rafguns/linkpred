@@ -172,7 +172,7 @@ GENERIC_CHART_LOOKS = ['k-', 'k--', 'k.-', 'k:',
 
 class Plotter(Listener):
     def __init__(self, name, xlabel="", ylabel="", filetype="pdf",
-                 chart_looks=[]):
+                 chart_looks=None):
         import matplotlib.pyplot as plt
 
         self.name = name
@@ -188,26 +188,24 @@ class Plotter(Listener):
         self._x = []
         self._y = []
 
-    def add_line(self, dataset="", predictor=""):
-        label = self.build_label(dataset, predictor)
+    def add_line(self, predictor=""):
         ax = self.fig.axes[0]
-        ax.plot(self._x, self._y, self.chart_look(), label=label)
+        ax.plot(self._x, self._y, self.chart_look(), label=predictor)
 
         log.logger.debug("Added line with %d points: "
                          "start = (%.2f, %.2f), end = (%.2f, %.2f)" %
                          (len(self._x), self._x[0], self._y[0],
                           self._x[-1], self._y[-1]))
 
-    def build_label(self, dataset="", predictor=""):
-        return predictor
-
-    def chart_look(self, default=GENERIC_CHART_LOOKS):
+    def chart_look(self, default=None):
         if not self.chart_looks:
+            if not default:
+                default = GENERIC_CHART_LOOKS
             self.chart_looks = copy.copy(default)
         return self.chart_looks.pop(0)
 
     def on_datagroup_finished(self, sender, **kwargs):
-        self.add_line(kwargs['dataset'], kwargs['predictor'])
+        self.add_line(kwargs['predictor'])
         self.reset_data()
 
     def on_run_finished(self, sender, **kwargs):
@@ -233,10 +231,10 @@ class RecallPrecisionPlotter(Plotter):
         self._x = [0.]
         self._y = [1.]
 
-    def add_line(self, dataset="", predictor=""):
+    def add_line(self, predictor=""):
         if self.interpolation:
             self._y = interpolate(self._y)
-        Plotter.add_line(self, dataset, predictor)
+        Plotter.add_line(self, predictor)
 
     def on_new_evaluation(self, sender, **kwargs):
         evaluation = kwargs['evaluation']

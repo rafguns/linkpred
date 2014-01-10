@@ -5,7 +5,7 @@ class StaticEvaluation(object):
     """
     Static evaluation of IR
     """
-    def __init__(self, retrieved=[], relevant=[], universe=None):
+    def __init__(self, retrieved=None, relevant=None, universe=None):
         """
         Initialize IR evaluation.
 
@@ -28,16 +28,16 @@ class StaticEvaluation(object):
             iterable of the relevant items
 
         universe : a list or set, an int or None
-            If universe is an iterable, it is interpreted as the set of all items
-            in the system.
-            If universe is an int, it is interpreted as the *number* of items in
-            the system. This allows for fewer checks but is more memory-efficient.
-            If universe is None, it is supposed to be unknown. This still allows for
-            some measures, including precision and recall, to be calculated.
+            If universe is an iterable, it is interpreted as the set of all
+            items in the system.  If universe is an int, it is interpreted as
+            the *number* of items in the system. This allows for fewer checks
+            but is more memory-efficient.  If universe is None, it is supposed
+            to be unknown. This still allows for some measures, including
+            precision and recall, to be calculated.
 
         """
-        retrieved = set(retrieved)
-        relevant = set(relevant)
+        retrieved = set(retrieved) if retrieved else set()
+        relevant = set(relevant) if relevant else set()
 
         self.fp = retrieved - relevant
         self.fn = relevant - retrieved

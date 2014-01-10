@@ -36,7 +36,7 @@ class BaseScoresheet(defaultdict):
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, float(val))
 
-    def process_data(self, data):
+    def process_data(self, data, *args, **kwargs):
         """Can be overridden by child classes"""
         return data
 
@@ -111,7 +111,6 @@ class Pair(object):
                 a, b = key
             else:
                 raise TypeError("Key '%s' is not a Pair or tuple." % (key))
-            pass
         elif len(args) == 2:
             a, b = args
         else:
@@ -151,6 +150,9 @@ class Pair(object):
 
     def __iter__(self):
         return iter(self.elements)
+
+    def __len__(self):
+        return len(self.elements)
 
 
 class Scoresheet(BaseScoresheet):

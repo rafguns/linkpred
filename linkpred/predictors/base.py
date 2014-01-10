@@ -16,10 +16,13 @@ class Predictor(object):
 
     For instance:
 
+    >>> import networkx as nx
     >>> B = nx.Graph()
-    >>> B.add_nodes_from([1,2,3,4], bipartite=0) # Add the node attribute "bipartite"
+    >>> # Add the node attribute "bipartite"
+    >>> B.add_nodes_from([1,2,3,4], bipartite=0)
     >>> B.add_nodes_from(['a','b','c'], bipartite=1)
-    >>> B.add_edges_from([(1,'a'), (1,'b'), (2,'b'), (2,'c'), (3,'c'), (4,'a')])
+    >>> B.add_edges_from([(1,'a'), (1,'b'), (2,'b'), (2,'c'),
+    ...                   (3,'c'), (4,'a')])
     >>> p = Predictor(B, eligible='bipartite')
     >>> p.eligible_node(1)
     0
@@ -43,17 +46,18 @@ class Predictor(object):
 
         only_new : True|False
             If True, this ensures that we only predict 'new' links that are not
-            yet present in G. Otherwise, we predict all links, regardless of whether
-            or not they are in G.
+            yet present in G. Otherwise, we predict all links, regardless of
+            whether or not they are in G.
 
         """
         self.G = G
         self.eligible_attr = eligible
         self.only_new = only_new
+        self.name = self.__class__.__name__
 
         # Add a decorator to predict(), to do the necessary postprocessing for
-        # filtering out new links if only_new is False. We do this in __init__() such
-        # that child classes need not be changed.
+        # filtering out new links if only_new is False. We do this in
+        # __init__() such that child classes need not be changed.
         def add_postprocessing(func):
             def predict_and_postprocess(*args, **kwargs):
                 scoresheet = func(*args, **kwargs)
@@ -72,8 +76,6 @@ class Predictor(object):
         self.predict = add_postprocessing(self.predict)
 
     def __str__(self):
-        if not self.name:
-            self.name = self.__class__.__name__
         return self.name
 
     def __call__(self, *args, **kwargs):

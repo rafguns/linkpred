@@ -54,17 +54,17 @@ def filter_low_degree_nodes(networks, minimum=1, eligible=None):
     log.logger.info("Finished filtering low degree nodes.")
 
 
-def for_comparison(G, exclude=[]):
+def for_comparison(G, exclude=None):
     """Return the result in a format, suitable for comparison.
 
     In practice this means we return it as a set of Pairs.
 
     """
-    exclude = set(Pair(u, v) for u, v in exclude)
+    exclude = set(Pair(u, v) for u, v in exclude) if exclude else set()
     return set(Pair(u, v) for u, v in G.edges_iter()) - exclude
 
 
-def pretty_print(name, params={}):
+def pretty_print(name, params=None):
     """Pretty print a predictor name
 
     Arguments
@@ -72,7 +72,7 @@ def pretty_print(name, params={}):
     name : string
         predictor name
 
-    params : dict
+    params : dict or None
         dictionary of parameter name -> value
 
     """
@@ -142,7 +142,7 @@ class LinkPred(object):
 
     """
 
-    def __init__(self, config={}):
+    def __init__(self, config=None):
         # default config
         self.config = {
             'chart_filetype': 'pdf',
@@ -157,8 +157,9 @@ class LinkPred(object):
             'test-file':      None,
             'training-file':  None
         }
-        self.config.update(config)
-        log.logger.debug(u"Config: %s" % unicode(config))
+        if config:
+            self.config.update(config)
+        log.logger.debug(u"Config: %s" % unicode(self.config))
 
         if not self.config['predictors']:
             raise LinkPredError("No predictor specified. Aborting...")
