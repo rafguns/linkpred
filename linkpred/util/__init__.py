@@ -78,14 +78,12 @@ def ensure_dir(fname):
         os.makedirs(d)
 
 
-def interpolate(l):
-    """Make curve l decrease."""
-    l.reverse()
-    for i in xrange(len(l) - 1):
-        if l[i] >= l[i + 1]:
-            l[i + 1] = l[i]
-    l.reverse()
-    return l
+def interpolate(curve):
+    """Make curve decrease."""
+    for i in xrange(-1, -len(curve), - 1):
+        if curve[i] > curve[i - 1]:
+            curve[i - 1] = curve[i]
+    return curve
 
 
 def itersubclasses(cls, _seen=None):

@@ -180,9 +180,7 @@ class RecallPrecisionPlotter(Plotter):
 
     def add_line(self, predictor=""):
         if self.interpolation:
-            # XXX Implement for np.ndarray
-            #self._y = interpolate(self._y)
-            pass
+            self._y = interpolate(self._y)
         Plotter.add_line(self, predictor)
 
     def setup_coords(self, evaluation):
