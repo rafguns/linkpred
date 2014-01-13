@@ -134,8 +134,10 @@ class EvaluationSheet(object):
     def tofile(self, fid, sep="\t", format="%s"):
         return self.data.tofile(fid, sep, format)
 
-    def _universe_unknown(self):
-        return np.where(self.tn == -1, True, False).any()
+    def _ensure_universe_is_known(self, caller=None):
+        if np.where(self.tn == -1, True, False).any():
+            raise ValueError("Cannot determine %s if universe is undefined."
+                             % (caller or "called method"))
 
     def precision(self):
         return self.tp / (self.tp + self.fp)
@@ -144,22 +146,17 @@ class EvaluationSheet(object):
         return self.tp / (self.tp + self.fn)
 
     def fallout(self):
-        if self._universe_unknown():
-            raise ValueError(
-                "Cannot determine fallout if universe is undefined")
+        self._ensure_universe_is_known("fallout")
 
         return self.fp / (self.fp + self.tn)
 
     def miss(self):
-        if self._universe_unknown():
-            raise ValueError("Cannot determine miss if universe is undefined")
+        self._ensure_universe_is_known("miss")
 
         return self.fn / (self.fn + self.tn)
 
     def accuracy(self):
-        if self._universe_unknown():
-            raise ValueError(
-                "Cannot determine accuracy if universe is undefined")
+        self._ensure_universe_is_known("accuracy")
 
         return (self.tp + self.tn) / self.data.sum(axis=1)
 
@@ -183,8 +180,6 @@ class EvaluationSheet(object):
         return beta2_tp / (beta2_tp + beta2 * self.fn + self.fp)
 
     def generality(self):
-        if self._universe_unknown():
-            raise ValueError(
-                "Cannot determine generality if universe is undefined")
+        self._ensure_universe_is_known("generality")
 
         return (self.tp + self.fn) / self.data.sum(axis=1)
