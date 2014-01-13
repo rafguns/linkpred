@@ -66,7 +66,7 @@ interpolation: true""")
         with open(self.yaml_fname, "w") as fh:
             fh.write("{foobar")
         with assert_raises(Exception):
-            print load_profile(self.yaml_fname)
+            load_profile(self.yaml_fname)
 
     def test_get_config(self):
         with open(self.yaml_fname, "w") as fh:

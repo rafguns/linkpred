@@ -13,7 +13,7 @@ def load_profile(fname):
     """Load the JSON or YAML profile with the given filename"""
     try:
         with open(fname) as f:
-            if fname.endswith(".yaml"):
+            if fname.endswith(".yaml") or fname.endswith(".yml"):
                 import yaml
                 return yaml.safe_load(f)
             else:
