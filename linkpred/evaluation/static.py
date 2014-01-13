@@ -1,7 +1,8 @@
-from ..util import log
+import numpy as np
 
 
 class StaticEvaluation(object):
+
     """
     Static evaluation of IR
     """
@@ -29,9 +30,9 @@ class StaticEvaluation(object):
 
         universe : a list or set, an int or None
             If universe is an iterable, it is interpreted as the set of all
-            items in the system.  If universe is an int, it is interpreted as
+            items in the system. If universe is an int, it is interpreted as
             the *number* of items in the system. This allows for fewer checks
-            but is more memory-efficient.  If universe is None, it is supposed
+            but is more memory-efficient. If universe is None, it is supposed
             to be unknown. This still allows for some measures, including
             precision and recall, to be calculated.
 
@@ -57,6 +58,7 @@ class StaticEvaluation(object):
             if not (retrieved <= universe and relevant <= universe):
                 raise ValueError("Retrieved and relevant should be "
                                  "subsets of universe.")
+            self.num_universe = len(universe)
             self.tn = universe - retrieved - relevant
             del universe
         self.update_counts()
@@ -94,94 +96,95 @@ class StaticEvaluation(object):
         self.fn -= relevant_new
         self.update_counts()
 
+
+class EvaluationSheet(object):
+
+    def __init__(self, scoresheet, relevant=None, universe=None, n=1):
+        static = StaticEvaluation(relevant=relevant, universe=universe)
+        # Initialize empty array of right dimensions
+        self.data = np.empty(self._data_size(len(scoresheet), n))
+        for i, prediction in enumerate(scoresheet.successive_sets(n=n)):
+            static.update_retrieved(prediction)
+            self.data[i] = (static.num_tp, static.num_fp, static.num_fn,
+                            static.num_tn)
+        self.data = self.data.transpose()
+
+    # XXX Static/class method?
+    def _data_size(self, length, n):
+        """Determine dimensions needed to store data"""
+        # 4 columns for tp, fp, fn, tn
+        return (int(np.ceil(float(length) / n)), 4)
+
+    @property
+    def tp(self):
+        return self.data[0]
+
+    @property
+    def fp(self):
+        return self.data[1]
+
+    @property
+    def fn(self):
+        return self.data[2]
+
+    @property
+    def tn(self):
+        return self.data[3]
+
+    def tofile(self, fid, sep="\t", format="%s"):
+        return self.data.tofile(fid, sep, format)
+
+    def _universe_unknown(self):
+        return np.where(self.tn == -1, True, False).any()
+
     def precision(self):
-        try:
-            return float(self.num_tp) / (self.num_tp + self.num_fp)
-        except ZeroDivisionError:
-            log.logger.warning("Division by 0 in calculating precision: "
-                               "tp = %d, fp = %d, fn = %d, tn = %d" %
-                               (self.num_tp, self.num_fp, self.num_tn, self.num_tn))
-            return 0.0
+        return self.tp / (self.tp + self.fp)
 
     def recall(self):
-        try:
-            return float(self.num_tp) / (self.num_tp + self.num_fn)
-        except ZeroDivisionError:
-            log.logger.warning("Division by 0 in calculating recall: "
-                               "tp = %d, fp = %d, fn = %d, tn = %d" %
-                               (self.num_tp, self.num_fp, self.num_tn, self.num_tn))
-            return 0.0
+        return self.tp / (self.tp + self.fn)
 
     def fallout(self):
-        if self.num_tn == -1:
+        if self._universe_unknown():
             raise ValueError(
                 "Cannot determine fallout if universe is undefined")
-        try:
-            return float(self.num_fp) / (self.num_fp + self.num_tn)
-        except ZeroDivisionError:
-            log.logger.warning("Division by 0 in calculating fallout: "
-                               "tp = %d, fp = %d, fn = %d, tn = %d" %
-                               (self.num_tp, self.num_fp, self.num_tn, self.num_tn))
-            return 0.0
+
+        return self.fp / (self.fp + self.tn)
 
     def miss(self):
-        if self.num_tn == -1:
+        if self._universe_unknown():
             raise ValueError("Cannot determine miss if universe is undefined")
-        try:
-            return float(self.num_fn) / (self.num_fn + self.num_tn)
-        except ZeroDivisionError:
-            log.logger.warning("Division by 0 in calculating miss: "
-                               "tp = %d, fp = %d, fn = %d, tn = %d" %
-                               (self.num_tp, self.num_fp, self.num_tn, self.num_tn))
-            return 0.0
+
+        return self.fn / (self.fn + self.tn)
 
     def accuracy(self):
-        """Compute accuracy = |correct| / |universe|
-
-        Not appropriate for IR, since over 99.9% is nonrelevant. A system that
-        labels everything as nonrelevant, would still have high accuracy.
-        """
-        if self.num_tn == -1:
+        if self._universe_unknown():
             raise ValueError(
                 "Cannot determine accuracy if universe is undefined")
-        try:
-            return float(self.num_tp + self.num_tn) / \
-                (self.num_tp + self.num_fp + self.num_tn + self.num_fn)
-        except ZeroDivisionError:
-            log.logger.warning("Division by 0 in calculating accuracy: "
-                               "tp = %d, fp = %d, fn = %d, tn = %d" %
-                               (self.num_tp, self.num_fp, self.num_tn, self.num_tn))
-            return 0.0
+
+        return (self.tp + self.tn) / self.data.sum(axis=1)
 
     def f_score(self, beta=1):
-        """Compute F-measure or F-score.
+        r"""Compute F-score
 
-        F is the weighted harmonic mean of recall R and precision P:
-            F = 2PR / (P + R)
-        In this case, R and P are evenly weighted. More generally:
-            F = (1 + b^2)PR / (b^2 * P + R)
-        If beta = 2, R is weighted twice as much as P.
-        If beta = 0.5, R is weighted half as much as P.
+        F is the harmonic mean of precision and recall
+
+        .. math ::
+            F = \frac{2PR}{P + R}
+
+        We use the generalized form
+
+        .. math ::
+            F &= \frac{(\beta^2 + 1)PR}{\beta^2 P + R} \\
+              &= \frac{(\beta^2 + 1)tp}{(\beta^2 + 1)tp + \beta^2fn + fp}
 
         """
-        p = self.precision()
-        r = self.recall()
-        beta_squared = beta ** 2
-        try:
-            return float((1 + beta_squared) * p * r) / (beta_squared * p + r)
-        except ZeroDivisionError:
-            return 0.0
+        beta2 = beta ** 2
+        beta2_tp = (beta2 + 1) * self.tp
+        return beta2_tp / (beta2_tp + beta2 * self.fn + self.fp)
 
     def generality(self):
-        """Compute generality = |relevant| / |universe|"""
-        if self.num_tn == -1:
+        if self._universe_unknown():
             raise ValueError(
                 "Cannot determine generality if universe is undefined")
-        try:
-            return float(self.num_tp + self.num_fn) / \
-                (self.num_tp + self.num_fp + self.num_tn + self.num_fn)
-        except ZeroDivisionError:
-            log.logger.warning("Division by 0 in calculating generality: "
-                               "tp = %d, fp = %d, fn = %d, tn = %d" %
-                               (self.num_tp, self.num_fp, self.num_tn, self.num_tn))
-            return 0.0
+
+        return (self.tp + self.fn) / self.data.sum(axis=1)
