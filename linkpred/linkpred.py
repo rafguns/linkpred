@@ -250,7 +250,7 @@ class LinkPred(object):
         steps = self.config['steps']
 
         prediction_listeners = {
-            'cache-predictions': listeners.CachePredictionListener()
+            'cache-predictions': listeners.CachePredictionListener(steps)
         }
         evaluation_listeners = {
             'recall-precision': listeners.RecallPrecisionPlotter(

@@ -1,5 +1,7 @@
 import numpy as np
 
+from tangle.util import log
+
 
 class StaticEvaluation(object):
 
@@ -100,6 +102,7 @@ class StaticEvaluation(object):
 class EvaluationSheet(object):
 
     def __init__(self, scoresheet, relevant=None, universe=None, n=1):
+        log.logger.debug("Counting for evaluation sheet...")
         static = StaticEvaluation(relevant=relevant, universe=universe)
         # Initialize empty array of right dimensions
         self.data = np.empty(self._data_size(len(scoresheet), n))
@@ -108,6 +111,7 @@ class EvaluationSheet(object):
             self.data[i] = (static.num_tp, static.num_fp, static.num_fn,
                             static.num_tn)
         self.data = self.data.transpose()
+        log.logger.debug("Finished counting evaluation sheet...")
 
     # XXX Static/class method?
     def _data_size(self, length, n):
@@ -135,6 +139,7 @@ class EvaluationSheet(object):
         return self.data.tofile(fid, sep, format)
 
     def _ensure_universe_is_known(self, caller=None):
+        # If tn is -1 somewhere, we know that universe is not defined.
         if np.where(self.tn == -1, True, False).any():
             raise ValueError("Cannot determine %s if universe is undefined."
                              % (caller or "called method"))

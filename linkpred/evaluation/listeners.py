@@ -36,7 +36,6 @@ class EvaluatingListener(Listener):
 
     def __init__(self, **kwargs):
         self.params = kwargs
-        self.evaluation = None
 
     def on_prediction_finished(self, sender, **kwargs):
         scoresheet, dataset, predictor = \
@@ -54,16 +53,16 @@ class CacheMixin(object):
 
 class CachePredictionListener(Listener, CacheMixin):
 
+    def __init__(self, n):
+        self.n = n
+
     def on_prediction_finished(self, sender, **kwargs):
         scoresheet, dataset, predictor = kwargs['scoresheet'], \
             kwargs['dataset'], kwargs['predictor']
 
         with open(_timestamped_filename("%s-%s-predictions" %
                                         (dataset, predictor))) as fh:
-            # XXX Handle n/steps
-            for prediction in scoresheet.successive_sets():
-                # If we take steps larger than 1, this may write lines in
-                # 'wrong' (non-descending) order.
+            for prediction in scoresheet.successive_sets(n=self.n):
                 for (u, v), W in prediction.iteritems():
                     fh.writeline(self.line(u, v, W))
 
