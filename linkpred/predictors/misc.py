@@ -12,7 +12,7 @@ class Community(Predictor):
         """Predict using community structure
 
         If two nodes belong to the same community, they are predicted to form
-        a link. This uses the Louvain alogorithm, which detrmines communities
+        a link. This uses the Louvain algorithm, which determines communities
         at different granularity levels: the finer grained the community, the
         higher the resulting score.
 

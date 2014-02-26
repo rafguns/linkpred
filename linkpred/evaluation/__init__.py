@@ -2,4 +2,4 @@
 from . import listeners
 from . import signals
 from .scoresheet import *
-from .static import StaticEvaluation
+from .static import *

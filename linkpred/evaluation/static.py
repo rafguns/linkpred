@@ -3,11 +3,16 @@ import numpy as np
 from tangle.util import log
 
 
-class StaticEvaluation(object):
+__all__ = ["EvaluationSheet", "StaticEvaluation", "UndefinedError"]
 
-    """
-    Static evaluation of IR
-    """
+
+class UndefinedError(Exception):
+    """Raised when the method's result is undefined"""
+
+
+class StaticEvaluation(object):
+    """Static evaluation of IR"""
+
     def __init__(self, retrieved=None, relevant=None, universe=None):
         """
         Initialize IR evaluation.
@@ -99,9 +104,27 @@ class StaticEvaluation(object):
         self.update_counts()
 
 
+def ensure_defined(func):
+    def _wrapper(self, *args, **kwargs):
+        if self.data.shape[1] == 0:
+            raise UndefinedError("Measure is undefined if there are no "
+                                 "relevant or retrieved items")
+        return func(self, *args, **kwargs)
+    return _wrapper
+
+
+def ensure_universe_known(func):
+    def _wrapper(self, *args, **kwargs):
+        # If tn is -1 somewhere, we know that universe is not defined.
+        if np.where(self.tn == -1, True, False).any():
+            raise UndefinedError("Measure is undefined if universe is unknown")
+        return func(self, *args, **kwargs)
+    return _wrapper
+
+
 class EvaluationSheet(object):
 
-    def __init__(self, scoresheet, relevant=None, universe=None, n=1):
+    def __init__(self, scoresheet, relevant, universe=None, n=1):
         log.logger.debug("Counting for evaluation sheet...")
         static = StaticEvaluation(relevant=relevant, universe=universe)
         # Initialize empty array of right dimensions
@@ -113,8 +136,8 @@ class EvaluationSheet(object):
         self.data = self.data.transpose()
         log.logger.debug("Finished counting evaluation sheet...")
 
-    # XXX Static/class method?
-    def _data_size(self, length, n):
+    @staticmethod
+    def _data_size(length, n):
         """Determine dimensions needed to store data"""
         # 4 columns for tp, fp, fn, tn
         return (int(np.ceil(float(length) / n)), 4)
@@ -138,53 +161,65 @@ class EvaluationSheet(object):
     def tofile(self, fid, sep="\t", format="%s"):
         return self.data.tofile(fid, sep, format)
 
-    def _ensure_universe_is_known(self, caller=None):
-        # If tn is -1 somewhere, we know that universe is not defined.
-        if np.where(self.tn == -1, True, False).any():
-            raise ValueError("Cannot determine %s if universe is undefined."
-                             % (caller or "called method"))
-
+    @ensure_defined
     def precision(self):
         return self.tp / (self.tp + self.fp)
 
+    @ensure_defined
     def recall(self):
         return self.tp / (self.tp + self.fn)
 
+    @ensure_defined
+    @ensure_universe_known
     def fallout(self):
-        self._ensure_universe_is_known("fallout")
-
         return self.fp / (self.fp + self.tn)
 
+    @ensure_defined
+    @ensure_universe_known
     def miss(self):
-        self._ensure_universe_is_known("miss")
-
         return self.fn / (self.fn + self.tn)
 
+    @ensure_defined
+    @ensure_universe_known
     def accuracy(self):
-        self._ensure_universe_is_known("accuracy")
+        return (self.tp + self.tn) / self.data.sum(axis=0)
 
-        return (self.tp + self.tn) / self.data.sum(axis=1)
-
+    @ensure_defined
     def f_score(self, beta=1):
         r"""Compute F-score
 
-        F is the harmonic mean of precision and recall
+        F is the harmonic mean of precision and recall:
 
-        .. math ::
-            F = \frac{2PR}{P + R}
+            F = 2PR / (P + R)
 
-        We use the generalized form
+        We use the generalized form:
 
-        .. math ::
-            F &= \frac{(\beta^2 + 1)PR}{\beta^2 P + R} \\
-              &= \frac{(\beta^2 + 1)tp}{(\beta^2 + 1)tp + \beta^2fn + fp}
+            F = (beta^2 + 1)PR / (beta^2 P + R)
+              = (beta^2 + 1)tp / ((beta^2 + 1)tp + beta^2fn + fp)
+
+        The parameter beta allows assigning more weight to precision or recall.
+        If beta > 1, recall is emphasized over precision. If beta < 1,
+        precision is emphasized over recall.
 
         """
         beta2 = beta ** 2
         beta2_tp = (beta2 + 1) * self.tp
         return beta2_tp / (beta2_tp + beta2 * self.fn + self.fp)
 
+    @ensure_defined
+    @ensure_universe_known
     def generality(self):
-        self._ensure_universe_is_known("generality")
+        """Compute generality of the query
 
-        return (self.tp + self.fn) / self.data.sum(axis=1)
+        Generality G is defined as:
+
+            G = (tp + fn) / (tp + fn + fp + tp)
+
+        Returns
+        -------
+
+        G : float
+
+        """
+        # Return single number: this is constant wrt what is retrieved
+        return ((self.tp + self.fn) / self.data.sum(axis=0))[0]
