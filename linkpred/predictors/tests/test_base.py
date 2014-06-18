@@ -29,7 +29,7 @@ def test_bipartite_common_neighbours_equivalent_projection():
 def test_postprocessing():
     G = nx.karate_club_graph()
     prediction_all_links = CommonNeighbours(G)()
-    prediction_only_new_links = CommonNeighbours(G, only_new=True)()
+    prediction_only_new_links = CommonNeighbours(G, excluded=G.edges())()
 
     for link, score in prediction_all_links.iteritems():
         if G.has_edge(*link):
