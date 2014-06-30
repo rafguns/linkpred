@@ -135,7 +135,9 @@ class Plotter(Listener):
         self._charttype = ""
         self._legend_props = {'prop': {'size': 'x-small'}}
         self.fig = plt.figure()
-        self.fig.add_axes([0.1, 0.1, 0.8, 0.8], xlabel=xlabel, ylabel=ylabel)
+        ax = self.fig.add_axes([0.1, 0.1, 0.8, 0.8],
+                               xlabel=xlabel, ylabel=ylabel)
+        ax.set_ylim((0, 1))
         self._x = []
         self._y = []
 
@@ -184,7 +186,6 @@ class RecallPrecisionPlotter(Plotter):
         Plotter.add_line(self, predictor)
 
     def setup_coords(self, evaluation):
-        # XXX Start at (0, 1)
         self._x = evaluation.recall()
         self._y = evaluation.precision()
 
