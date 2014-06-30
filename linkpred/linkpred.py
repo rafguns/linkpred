@@ -225,7 +225,7 @@ class LinkPred(object):
             log.logger.info("Executing %s..." % label)
             predictor = predictor_class(self.training,
                                         eligible=self.config['eligible'],
-                                        excluded=self.excluded())
+                                        excluded=self.excluded)
             scoresheet = predictor.predict(**params)
             log.logger.info("Finished executing %s." % label)
 
