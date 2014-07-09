@@ -23,8 +23,10 @@ class BaseScoresheet(defaultdict):
     -------
     >>> data = {('a', 'b'): 0.8, ('b', 'c'): 0.5, ('c', 'a'): 0.2}
     >>> sheet = Scoresheet(data)
-    >>> for s in sheet.sets(steps=2):
+    >>> for s in sheet.successive_sets(n=2):
     ...     print s
+    {Pair('b', 'a'): 0.8, Pair('c', 'b'): 0.5}
+    {Pair('c', 'a'): 0.2}
 
     """
     def __init__(self, data=None, n=100):
