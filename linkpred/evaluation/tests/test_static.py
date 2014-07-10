@@ -127,23 +127,6 @@ class TestEvaluationSheet:
         # Same expected applies as above
         assert_array_equal(sheet.data, expected)
 
-    def test_init_steps(self):
-        sheet = EvaluationSheet(self.scores, relevant=self.rel,
-                                universe=self.num_universe, n=3)
-        expected = np.array([[2, 4, 4],
-                             [1, 2, 3],
-                             [2, 0, 0],
-                             [15, 14, 13]])
-        assert_array_equal(sheet.data, expected)
-
-    def test_data_size(self):
-        sheet = EvaluationSheet(Scoresheet(), [])
-        assert_equal(sheet._data_size(100, 1), (100, 4))
-        assert_equal(sheet._data_size(100, 5), (20, 4))
-        assert_equal(sheet._data_size(100, 3), (34, 4))
-        assert_equal(sheet._data_size(10, 10), (1, 4))
-        assert_equal(sheet._data_size(10, 100), (1, 4))
-
     def test_measures(self):
         sheet_num_universe = EvaluationSheet(self.scores, relevant=self.rel,
                                              universe=self.num_universe)

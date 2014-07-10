@@ -6,51 +6,28 @@ from linkpred.evaluation.scoresheet import BaseScoresheet, Pair, Scoresheet
 
 class TestBaseScoresheet:
     def setup(self):
-        self.n = 3
         self.scoresheet = BaseScoresheet(
-            zip("abcdefghijklmnopqrstuvwx", range(24)), n=self.n)
+            zip("abcdefghijklmnopqrstuvwx", range(24)))
 
     def test_sets(self):
-        for i, s in enumerate(self.scoresheet.sets(), start=1):
-            assert_equal(len(s), i * self.n)
-        for i, s in enumerate(self.scoresheet.successive_sets()):
-            assert_equal(len(s), self.n)
+        d = dict(self.scoresheet.sets())
+        assert_dict_equal(d, dict(self.scoresheet))
 
-    def test_sets_with_n(self):
-        n = 8
-        for i, s in enumerate(self.scoresheet.sets(n=n), start=1):
-            assert_equal(len(s), i * n)
-        for s in self.scoresheet.successive_sets(n=n):
-            assert_equal(len(s), n)
+        s = self.scoresheet.sets()
+        assert_equal(s.next(), ('x', 23))
+        assert_equal(s.next(), ('w', 22))
+        assert_equal(s.next(), ('v', 21))
 
-    def test_sets_with_even_threshold(self):
+    def test_sets_with_threshold(self):
         threshold = 12
-        for i, s in enumerate(self.scoresheet.sets(threshold=threshold), start=1):
-            assert_equal(len(s), i * self.n)
-        for s in self.scoresheet.successive_sets(threshold=threshold):
-            assert_equal(len(s), self.n)
+        d = dict(self.scoresheet.sets(threshold=threshold))
+        assert_dict_equal(d, dict(zip("xwvutsrqponm",
+                                      reversed(range(12, 24)))))
 
     def test_with_too_large_threshold(self):
         threshold = 25
         for s in self.scoresheet.sets(threshold=threshold):
             assert_less(len(s), threshold)
-        for s in self.scoresheet.successive_sets(threshold=threshold):
-            assert_equal(len(s), self.n)
-
-    def test_sets_with_uneven_threshold(self):
-        """
-        If the threshold does not nicely fit a 'boundary', only the last set
-        should be affected.
-        """
-        threshold = 10
-
-        result = list(enumerate(self.scoresheet.sets(threshold=threshold), start=1))
-        for i, s in result:
-            assert_equal(len(s), i * self.n)
-
-        result = list(self.scoresheet.successive_sets(threshold=threshold))
-        for s in result:
-            assert_equal(len(s), self.n)
 
     def test_top(self):
         top = self.scoresheet.top()

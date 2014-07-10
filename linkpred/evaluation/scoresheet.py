@@ -6,34 +6,27 @@ from ..util import log
 __all__ = ["Pair", "BaseScoresheet", "Scoresheet"]
 
 
-def _boundaries(start, steps, threshold, successive):
-    for i in range(start, threshold, steps):
-        begin = i if successive else start
-        end = i + steps
-        yield begin, end
-
-
 class BaseScoresheet(defaultdict):
     """Score sheet for evaluation of IR and similar
 
     This is a simple dict-like object, whose values are typically numeric
-    (floats). It adds the methods `sets`, `successive_sets` and `top`.
+    (floats). It adds the methods `sets`, and `top`.
 
     Example
     -------
     >>> data = {('a', 'b'): 0.8, ('b', 'c'): 0.5, ('c', 'a'): 0.2}
     >>> sheet = Scoresheet(data)
-    >>> for s in sheet.successive_sets(n=2):
+    >>> for s in sheet.sets():
     ...     print s
-    {Pair('b', 'a'): 0.8, Pair('c', 'b'): 0.5}
-    {Pair('c', 'a'): 0.2}
+    (Pair('b', 'a'), 0.8)
+    (Pair('c', 'b'), 0.5)
+    (Pair('c', 'a'), 0.2)
 
     """
-    def __init__(self, data=None, n=100):
+    def __init__(self, data=None):
         defaultdict.__init__(self, float)
         if data:
             self.update(self.process_data(data))
-        self.n = n
 
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, float(val))
@@ -42,51 +35,32 @@ class BaseScoresheet(defaultdict):
         """Can be overridden by child classes"""
         return data
 
-    def sets(self, n=None, threshold=None, successive=False):
+    def sets(self, threshold=None):
         """Return sets of items on the scoresheet in decreasing order
 
         Arguments
         ---------
 
-        start : int
-            Where to start for first set
-
-        n : int
-            Number of items per set
-
         threshold : int
             Maximum number of items to return (in total)
-            Note that this is treated as a size hint, rather than a strict limit.
-
-        successive : True|False
-            if True, return successive sets; if False, return incremental sets
 
         """
-        n = n or self.n
         threshold = threshold or len(self)
-        log.logger.debug("Called Scoresheet.sets(): n=%d, "
-                         "threshold=%d" % (n, threshold))
+        log.logger.debug("Called Scoresheet.sets(): "
+                         "threshold=%d" % threshold)
 
         # Sort first by score, then by key. This way, we always get the same
         # ranking, even in case of ties.
         # We use the tmp structure because it is much faster than
         # itemgetter(1, 0).
         tmp = ((score, key) for key, score in self.iteritems())
-        ranked_data = [(key, score) for score, key in
-                       sorted(tmp, reverse=True)]
-        size = len(ranked_data)
+        ranked_data = sorted(tmp, reverse=True)
 
-        for begin, end in _boundaries(0, n, threshold, successive):
-            if begin >= size:
-                raise StopIteration
-            yield dict(ranked_data[begin:end])
-
-    def successive_sets(self, n=None, threshold=None):
-        return self.sets(n, threshold, True)
+        for score, key in ranked_data[:threshold]:
+            yield key, score
 
     def top(self, n=10):
-        top_n = self.sets(n=n).next()
-        return {k: self[k] for k in top_n}
+        return dict(self.sets(threshold=n))
 
 
 class Pair(object):

@@ -83,6 +83,9 @@ class StaticEvaluation(object):
                                             - self.num_fn - self.num_tp
             assert self.num_tn >= 0
 
+    def add_retrieved_item(self, item):
+        self.update_retrieved({item})
+
     def update_retrieved(self, new):
         new = set(new)
 
@@ -124,23 +127,18 @@ def ensure_universe_known(func):
 
 class EvaluationSheet(object):
 
-    def __init__(self, scoresheet, relevant, universe=None, n=1):
+    def __init__(self, scoresheet, relevant, universe=None):
         log.logger.debug("Counting for evaluation sheet...")
         static = StaticEvaluation(relevant=relevant, universe=universe)
         # Initialize empty array of right dimensions
-        self.data = np.empty(self._data_size(len(scoresheet), n))
-        for i, prediction in enumerate(scoresheet.successive_sets(n=n)):
-            static.update_retrieved(prediction)
+        # 4 columns for tp, fp, fn, tn
+        self.data = np.empty((len(scoresheet), 4))
+        for i, (prediction, _) in enumerate(scoresheet.sets()):
+            static.add_retrieved_item(prediction)
             self.data[i] = (static.num_tp, static.num_fp, static.num_fn,
                             static.num_tn)
         self.data = self.data.transpose()
         log.logger.debug("Finished counting evaluation sheet...")
-
-    @staticmethod
-    def _data_size(length, n):
-        """Determine dimensions needed to store data"""
-        # 4 columns for tp, fp, fn, tn
-        return (int(np.ceil(float(length) / n)), 4)
 
     @property
     def tp(self):
