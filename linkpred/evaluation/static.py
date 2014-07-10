@@ -133,7 +133,7 @@ class EvaluationSheet(object):
         # Initialize empty array of right dimensions
         # 4 columns for tp, fp, fn, tn
         self.data = np.empty((len(scoresheet), 4))
-        for i, (prediction, _) in enumerate(scoresheet.sets()):
+        for i, (prediction, _) in enumerate(scoresheet.ranked_items()):
             static.add_retrieved_item(prediction)
             self.data[i] = (static.num_tp, static.num_fp, static.num_fn,
                             static.num_tn)

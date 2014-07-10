@@ -16,7 +16,7 @@ class BaseScoresheet(defaultdict):
     -------
     >>> data = {('a', 'b'): 0.8, ('b', 'c'): 0.5, ('c', 'a'): 0.2}
     >>> sheet = Scoresheet(data)
-    >>> for s in sheet.sets():
+    >>> for s in sheet.ranked_items():
     ...     print s
     (Pair('b', 'a'), 0.8)
     (Pair('c', 'b'), 0.5)
@@ -35,18 +35,21 @@ class BaseScoresheet(defaultdict):
         """Can be overridden by child classes"""
         return data
 
-    def sets(self, threshold=None):
-        """Return sets of items on the scoresheet in decreasing order
+    def ranked_items(self, threshold=None):
+        """Return items in decreasing order of their score
 
         Arguments
         ---------
-
         threshold : int
             Maximum number of items to return (in total)
 
+        Returns
+        -------
+        (item, score) : tuple of item and score
+
         """
         threshold = threshold or len(self)
-        log.logger.debug("Called Scoresheet.sets(): "
+        log.logger.debug("Called Scoresheet.ranked_items(): "
                          "threshold=%d" % threshold)
 
         # Sort first by score, then by key. This way, we always get the same
@@ -60,7 +63,7 @@ class BaseScoresheet(defaultdict):
             yield key, score
 
     def top(self, n=10):
-        return dict(self.sets(threshold=n))
+        return dict(self.ranked_items(threshold=n))
 
 
 class Pair(object):

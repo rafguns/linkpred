@@ -56,7 +56,7 @@ class CachePredictionListener(Listener):
         with open(_timestamped_filename("%s-%s-predictions" %
                                         (dataset, predictor)), "wb") as fh:
             writer = csv.writer(fh, delimiter="\t")
-            for (u, v), score in scoresheet.sets():
+            for (u, v), score in scoresheet.ranked_items():
                 writer.writerow((u, v, score))
 
 

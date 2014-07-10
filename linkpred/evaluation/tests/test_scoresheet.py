@@ -9,24 +9,24 @@ class TestBaseScoresheet:
         self.scoresheet = BaseScoresheet(
             zip("abcdefghijklmnopqrstuvwx", range(24)))
 
-    def test_sets(self):
-        d = dict(self.scoresheet.sets())
+    def test_ranked_items(self):
+        d = dict(self.scoresheet.ranked_items())
         assert_dict_equal(d, dict(self.scoresheet))
 
-        s = self.scoresheet.sets()
+        s = self.scoresheet.ranked_items()
         assert_equal(s.next(), ('x', 23))
         assert_equal(s.next(), ('w', 22))
         assert_equal(s.next(), ('v', 21))
 
     def test_sets_with_threshold(self):
         threshold = 12
-        d = dict(self.scoresheet.sets(threshold=threshold))
+        d = dict(self.scoresheet.ranked_items(threshold=threshold))
         assert_dict_equal(d, dict(zip("xwvutsrqponm",
                                       reversed(range(12, 24)))))
 
     def test_with_too_large_threshold(self):
         threshold = 25
-        for s in self.scoresheet.sets(threshold=threshold):
+        for s in self.scoresheet.ranked_items(threshold=threshold):
             assert_less(len(s), threshold)
 
     def test_top(self):
