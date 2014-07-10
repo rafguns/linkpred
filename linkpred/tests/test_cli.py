@@ -25,7 +25,6 @@ class TestProfileFile:
                  "displayname": "Common neighbours"},
                 {"name": "Cosine"},
             ],
-            "steps": 5,
             "interpolation": True
         }
 
@@ -41,7 +40,6 @@ class TestProfileFile:
 - name: CommonNeighbours
   displayname: Common neighbours
 - name: Cosine
-steps: 5
 interpolation: true""")
         profile = load_profile(self.yaml_fname)
         assert_dict_equal(profile, self.expected)
@@ -52,7 +50,6 @@ interpolation: true""")
                 [{"name": "CommonNeighbours",
                 "displayname": "Common neighbours"},
                 {"name": "Cosine"}],
-                "steps": 5,
                 "interpolation": true}""")
         profile = load_profile(self.json_fname)
         assert_dict_equal(profile, self.expected)
@@ -74,7 +71,6 @@ interpolation: true""")
 - name: CommonNeighbours
   displayname: Common neighbours
 - name: Cosine
-steps: 5
 interpolation: true""")
 
         fh = tempfile.NamedTemporaryFile("r", delete=False)

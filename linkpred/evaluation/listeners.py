@@ -45,29 +45,22 @@ class EvaluatingListener(Listener):
                                  dataset=dataset, predictor=predictor)
 
 
-class CacheMixin(object):
-
-    def line(self, *args):
-        return "\t".join(map(str, args)) + "\n"
-
-
-class CachePredictionListener(Listener, CacheMixin):
-
-    def __init__(self, n):
-        self.n = n
+class CachePredictionListener(Listener):
 
     def on_prediction_finished(self, sender, **kwargs):
+        import csv
+
         scoresheet, dataset, predictor = kwargs['scoresheet'], \
             kwargs['dataset'], kwargs['predictor']
 
         with open(_timestamped_filename("%s-%s-predictions" %
-                                        (dataset, predictor))) as fh:
-            for prediction in scoresheet.successive_sets(n=self.n):
-                for (u, v), W in prediction.iteritems():
-                    fh.writeline(self.line(u, v, W))
+                                        (dataset, predictor)), "wb") as fh:
+            writer = csv.writer(fh, delimiter="\t")
+            for (u, v), score in scoresheet.sets():
+                writer.writerow((u, v, score))
 
 
-class CacheEvaluationListener(Listener, CacheMixin):
+class CacheEvaluationListener(Listener):
 
     def on_evaluation_finished(self, sender, **kwargs):
         evaluation, dataset, predictor = kwargs['evaluation'], \
@@ -97,9 +90,8 @@ class FMaxListener(Listener):
 
 class PrecisionAtKListener(Listener):
 
-    def __init__(self, name, k=10, steps=1):
+    def __init__(self, name, k=10):
         self.k = k
-        self.steps = steps
         self.fname = _timestamped_filename(
             "%s-precision-at-%d" % (name, self.k))
 
@@ -107,7 +99,7 @@ class PrecisionAtKListener(Listener):
         evaluation, dataset, predictor = kwargs['evaluation'], \
             kwargs['dataset'], kwargs['predictor']
 
-        precision = evaluation.precision()[self.k / self.steps]
+        precision = evaluation.precision()[self.k]
 
         status = "%s\t%s\t%.4f\n" % (dataset, predictor, precision)
         with open(self.fname, 'a') as f:
@@ -193,14 +185,13 @@ class RecallPrecisionPlotter(Plotter):
 class FScorePlotter(Plotter):
 
     def __init__(self, name, xlabel="#", ylabel="F-score",
-                 beta=1, steps=1, **kwargs):
+                 beta=1, **kwargs):
         Plotter.__init__(self, name, xlabel, ylabel, **kwargs)
         self._charttype = "F-Score"
         self.beta = beta
-        self.steps = steps
 
     def setup_coords(self, evaluation):
-        self._x = [self.steps * i for i in range(len(evaluation))]
+        self._x = range(len(evaluation))
         self._y = evaluation.f_score(self.beta)
 
 

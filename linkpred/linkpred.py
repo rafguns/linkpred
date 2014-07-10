@@ -153,7 +153,6 @@ class LinkPred(object):
             'exclude':        'old',
             'output':         ['recall-precision'],
             'predictors':     [],
-            'steps':          1,
             'test-file':      None,
             'training-file':  None
         }
@@ -247,17 +246,15 @@ class LinkPred(object):
 
         filetype = self.config['chart_filetype']
         interpolation = self.config['interpolation']
-        steps = self.config['steps']
 
         prediction_listeners = {
-            'cache-predictions': listeners.CachePredictionListener(steps)
+            'cache-predictions': listeners.CachePredictionListener()
         }
         evaluation_listeners = {
             'recall-precision': listeners.RecallPrecisionPlotter(
                 self.label, filetype=filetype, interpolation=interpolation),
             'f-score': listeners.FScorePlotter(self.label, filetype=filetype,
-                                               xlabel="# predictions",
-                                               steps=steps),
+                                               xlabel="# predictions"),
             'roc': listeners.ROCPlotter(self.label, filetype=filetype),
             'fmax': listeners.FMaxListener(self.label),
             'cache-evaluations': listeners.CacheEvaluationListener()
