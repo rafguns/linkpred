@@ -9,8 +9,8 @@ __all__ = ["Pair", "BaseScoresheet", "Scoresheet"]
 class BaseScoresheet(defaultdict):
     """Score sheet for evaluation of IR and similar
 
-    This is a simple dict-like object, whose values are typically numeric
-    (floats). It adds the methods `sets`, and `top`.
+    This is a simple dict-like object, whose values are numeric
+    (floats). It adds the methods `ranked_items` and `top`.
 
     Example
     -------
