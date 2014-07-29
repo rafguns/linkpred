@@ -85,8 +85,8 @@ def handle_arguments(args=None):
 
     all_help = "Predict all links, "\
                "including ones present in the training network"
-    parser.add_argument("-a", "--all", action="store_false", dest="only_new",
-                        default=True, help=all_help)
+    parser.add_argument("-a", "--all", action="store_const", dest="exclude",
+                        const="", default="old", help=all_help)
 
     parser.add_argument("-P", "--profile", help="JSON/YAML profile file")
 

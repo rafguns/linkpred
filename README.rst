@@ -17,7 +17,8 @@ Example
     11:49:00 - INFO - Successfully read file.
     >>> len(G)   # number of nodes
     632
-    >>> simrank = linkpred.predictors.SimRank(G, only_new=True)
+    >>> # We exclude edges already present, to predict only new links
+    >>> simrank = linkpred.predictors.SimRank(G, excluded=G.edges())
     >>> simrank_results = simrank.predict(c=0.5)
     >>> top = simrank_results.top(5)
     >>> for authors, score in top.items():

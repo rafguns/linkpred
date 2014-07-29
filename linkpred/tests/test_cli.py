@@ -110,7 +110,7 @@ def test_handle_arguments():
         "chart_filetype": "pdf",
         "interpolation": True,
         "predictors": [],
-        "only_new": True,
+        "exclude": "old",
         "profile": None,
         "training-file": "training"
     }
@@ -136,7 +136,7 @@ def test_handle_arguments():
     assert_equal(args["interpolation"], False)
 
     args = handle_arguments(["training", "-a"])
-    assert_equal(args["only_new"], False)
+    assert_equal(args["exclude"], "")
 
     args = handle_arguments(["training", "-P", "foo.json"])
     assert_equal(args["profile"], "foo.json")

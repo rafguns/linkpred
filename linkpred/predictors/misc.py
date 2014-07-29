@@ -45,7 +45,8 @@ class Copy(Predictor):
         If weights are used, the likelihood score is equal to the link weight.
 
         This predictor is mostly intended as a sort of baseline. By definition,
-        it only yields predictions if `only_new` is set to False.
+        it only yields predictions if we do not exclude links from the training
+        network (with `excluded`).
 
         Parameters
         ----------

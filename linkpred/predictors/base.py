@@ -48,7 +48,7 @@ class Predictor(object):
         excluded : iterable
             A list or iterable of node pairs that should be excluded (i.e., not
             predicted). This is useful to, for instance, make sure that we only
-            predict new linsk that are not currently in G.
+            predict new links that are not currently in G.
 
         """
         self.G = G
