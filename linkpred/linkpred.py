@@ -5,53 +5,11 @@ import os
 from . import predictors
 from .evaluation import Pair, signals, listeners
 from .exceptions import LinkPredError
+from .preprocess import (without_low_degree_nodes, without_uncommon_nodes,
+                         without_selfloops)
 from .util import log
 
-__all__ = ["LinkPred", "filter_low_degree_nodes", "read_network"]
-
-
-def filter_low_degree_nodes(networks, minimum=1, eligible=None):
-    """Only retain nodes with minimum degree in all networks
-
-    This also removes nodes that are not present in all networks.
-    Changes are made in place.
-
-    Arguments
-    ---------
-    networks : a list or iterable of networkx.Graph instances
-
-    minimum : int
-        minimum node degree
-
-    """
-    def low_degree(G, threshold):
-        """Get eligible nodes whose degree is below the threshold"""
-        if eligible is None:
-            return [n for n, d in G.degree_iter() if d < threshold]
-        else:
-            return [n for n, d in G.degree_iter()
-                    if d < threshold and G.node[n][eligible]]
-
-    def items_outside(G, nbunch):
-        """Get eligible nodes outside nbunch"""
-        if eligible is None:
-            return [n for n in G.nodes_iter() if n not in nbunch]
-        else:
-            return [n for n in G.nodes_iter()
-                    if G.node[n][eligible] and n not in nbunch]
-
-    log.logger.info("Filtering low degree nodes...")
-    for G in networks:
-        to_remove = low_degree(G, minimum)
-        G.remove_nodes_from(to_remove)
-        log.logger.info("Removed %d nodes "
-                        "(degree < %d)" % (len(to_remove), minimum))
-    common = set.intersection(*[set(G) for G in networks])
-    for G in networks:
-        to_remove = items_outside(G, common)
-        G.remove_nodes_from(to_remove)
-        log.logger.info("Removed %d nodes (not common)" % len(to_remove))
-    log.logger.info("Finished filtering low degree nodes.")
+__all__ = ["LinkPred", "read_network"]
 
 
 def for_comparison(G, exclude=None):
@@ -191,18 +149,19 @@ class LinkPred(object):
 
     def preprocess(self):
         """Preprocess all networks according to configuration"""
-        networks = [self.training]
+
+        log.logger.info("Starting preprocessing...")
+
+        preprocessed = lambda G: without_low_degree_nodes(
+            without_selfloops(G), minimum=self.config['min_degree'])
+
         if self.test:
-            networks.append(self.test)
+            networks = [preprocessed(G) for G in (self.training, self.test)]
+            self.training, self.test = without_uncommon_nodes(networks)
+        else:  # Only a training network
+            self.training = preprocessed(self.training)
 
-        for G in networks:
-            loops = G.selfloop_edges()
-            if loops:
-                log.logger.warning("Network contains %d self-loops. "
-                                   "Removing..." % len(loops))
-                G.remove_edges_from(loops)
-
-        filter_low_degree_nodes(networks, minimum=self.config['min_degree'])
+        log.logger.info("Finished preprocessing.")
 
     def do_predict_all(self):
         """Generator that yields predictions based on training network
