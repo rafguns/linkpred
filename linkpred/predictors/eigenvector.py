@@ -1,11 +1,14 @@
+import networkx as nx
+
 from ..evaluation import Scoresheet
-from ..network import neighbourhood_graph, rooted_pagerank, simrank
+from ..network import rooted_pagerank, simrank
 from ..util import progressbar
 from .base import Predictor
 
 
 class RootedPageRank(Predictor):
-    def predict(self, nbunch=None, alpha=0.85, beta=0, weight='weight', k=None):
+    def predict(self, nbunch=None, alpha=0.85, beta=0, weight='weight',
+                k=None):
         """Predict using rooted PageRank.
 
         Parameters
@@ -48,7 +51,7 @@ class RootedPageRank(Predictor):
                 G = self.G
             else:
                 # Restrict to the k-neighbourhood subgraph
-                G = neighbourhood_graph(self.G, u, k)
+                G = nx.ego_graph(self.G, u, radius=k)
             pagerank_scores = rooted_pagerank(G, u, alpha, beta, weight)
             for v, w in pagerank_scores.iteritems():
                 if w > 0 and u != v and self.eligible_node(v):
@@ -88,7 +91,8 @@ class SimRank(Predictor):
         for i in range(m):
             # sim(a, b) = sim(b, a), leading to a 'mirrored' matrix.
             # We start the column range at i + 1, such that we only look at the
-            # upper triangle in the matrix, excluding the diagonal: sim(a, a) = 1.
+            # upper triangle in the matrix, excluding the diagonal:
+            # sim(a, a) = 1.
             u = nodelist[i]
             for j in range(i + 1, n):
                 if sim[i, j] > 0:

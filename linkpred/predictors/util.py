@@ -1,11 +1,11 @@
-from ..network import neighbourhood_search
+import networkx as nx
 
 
 def neighbourhood(G, n, k=1):
     """Get k-neighbourhood of node n"""
     if k == 1:
         return G[n]
-    dist = neighbourhood_search(G, n, k)
+    dist = nx.single_source_shortest_path_length(G, n, k)
     del dist[n]
     return dist.keys()
 

@@ -3,28 +3,6 @@ import networkx as nx
 #TODO Examine if we can use nx.single-source_shortest_path_length here
 
 
-def neighbourhood_search(G, n, k=1):
-    """Get k-neighbourhood of node n"""
-    dist = {}
-    dist[n] = 0
-    queue = [n]
-    while queue:
-        v = queue.pop(0)
-        if dist[v] == k:
-            break
-        for w in G[v]:
-            if w not in dist:
-                queue.append(w)
-                dist[w] = dist[v] + 1
-    return dist
-
-
-def neighbourhood_graph(G, n, k=1):
-    """Get k-neighbourhood subgraph of node n"""
-    dist = neighbourhood_search(G, n, k)
-    return G.subgraph(dist.keys())
-
-
 def edge_weights(G, weight='weight'):
     """Iterator over edge weights in G"""
     for _, nbrdict in G.adjacency_iter():
@@ -32,7 +10,8 @@ def edge_weights(G, weight='weight'):
             yield edgedata[weight]
 
 
-def from_biadjacency_matrix(A, row_items=None, col_items=None, weight='weight'):
+def from_biadjacency_matrix(A, row_items=None, col_items=None,
+                            weight='weight'):
     """Convert biadjacency matrix to bipartite graph
 
     This function is a counterpart to networkx.bipartite.biadjacency_matrix .
@@ -89,7 +68,8 @@ def from_biadjacency_matrix(A, row_items=None, col_items=None, weight='weight'):
     x, y = numpy.asarray(A).nonzero()
 
     # handle numpy constructed data type
-    G.add_edges_from((row_items[u], col_items[v], {weight: python_type(A[u, v])})
+    G.add_edges_from((row_items[u], col_items[v],
+                      {weight: python_type(A[u, v])})
                      for u, v in zip(x, y))
 
     return G
