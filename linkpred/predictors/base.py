@@ -135,6 +135,6 @@ def all_predictors():
     from ..util import itersubclasses
     from operator import itemgetter
 
-    predictors = sorted([(s, s.__name__) for s in itersubclasses(Predictor)],
+    predictors = sorted(((s, s.__name__) for s in itersubclasses(Predictor)),
                         key=itemgetter(1))
     return zip(*predictors)[0]
