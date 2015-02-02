@@ -1,6 +1,6 @@
 import numpy as np
 
-from tangle.util import log
+from ..util import log
 
 
 __all__ = ["EvaluationSheet", "StaticEvaluation", "UndefinedError"]
