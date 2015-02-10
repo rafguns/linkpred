@@ -47,7 +47,7 @@ def from_biadjacency_matrix(A, row_items=None, col_items=None,
     nrows, ncols = A.shape
     try:
         python_type = kind_to_python_type[dt.kind]
-    except:
+    except KeyError:
         raise TypeError("Unknown numpy data type: %s" % dt)
 
     if row_items is None:
