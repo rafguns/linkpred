@@ -51,7 +51,7 @@ def partition_at_level(dendogram, level):
     """
     partition = dendogram[0].copy()
     for index in range(1, level + 1):
-        for node, community in partition.iteritems():
+        for node, community in partition.items():
             partition[node] = dendogram[index][community]
     return partition
 
@@ -97,7 +97,7 @@ def modularity(partition, graph):
     for node in graph:
         com = partition[node]
         deg[com] = deg.get(com, 0.) + graph.degree(node, weight='weight')
-        for neighbor, datas in graph[node].iteritems():
+        for neighbor, datas in graph[node].items():
             weight = datas.get("weight", 1)
             if partition[neighbor] == com:
                 if neighbor == node:
@@ -318,7 +318,7 @@ def __one_level(graph, status):
                      neigh_communities.get(com_node, 0.), status)
             best_com = com_node
             best_increase = 0
-            for com, dnc in neigh_communities.iteritems():
+            for com, dnc in neigh_communities.items():
                 incr = dnc - status.degrees.get(com, 0.) * degc_totw
                 if incr > best_increase:
                     best_increase = incr
@@ -393,7 +393,7 @@ class Status:
                 self.degrees[com] = self.degrees.get(com, 0) + deg
                 self.gdegrees[node] = deg
                 inc = 0.
-                for neighbor, datas in graph[node].iteritems():
+                for neighbor, datas in graph[node].items():
                     weight = datas.get("weight", 1)
                     if part[neighbor] == com:
                         if neighbor == node:
@@ -409,7 +409,7 @@ def __neighcom(node, graph, status):
     with the decomposition node2com
     """
     weights = {}
-    for neighbor, datas in graph[node].iteritems():
+    for neighbor, datas in graph[node].items():
         if neighbor != node:
             weight = datas.get("weight", 1)
             neighborcom = status.node2com[neighbor]
@@ -458,7 +458,7 @@ def __main():
         graphfile = __load_binary(filename)
         partition = best_partition(graphfile)
         print(str(modularity(partition, graphfile)), file=sys.stderr)
-        for elem, part in partition.iteritems():
+        for elem, part in partition.items():
             print(str(elem) + " " + str(part))
     except (IndexError, IOError):
         print("Usage : ./community filename")

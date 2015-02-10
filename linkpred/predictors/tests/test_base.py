@@ -37,7 +37,7 @@ def test_postprocessing():
     prediction_all_links = CommonNeighbours(G)()
     prediction_only_new_links = CommonNeighbours(G, excluded=G.edges())()
 
-    for link, score in prediction_all_links.iteritems():
+    for link, score in prediction_all_links.items():
         if G.has_edge(*link):
             assert_not_in(link, prediction_only_new_links)
         else:

@@ -28,9 +28,9 @@ class Community(Predictor):
             communities = defaultdict(list)
             weight = len(dendogram) - i  # Lower i, smaller communities
 
-            for n, com in partition.iteritems():
+            for n, com in partition.items():
                 communities[com].append(n)
-            for nodes in communities.itervalues():
+            for nodes in communities.values():
                 for u, v in all_pairs(nodes):
                     if not self.eligible(u, v):
                         continue

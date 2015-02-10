@@ -48,10 +48,10 @@ class GraphDistance(Predictor):
                                       u, v, d in self.G.edges_iter(data=True))
 
         dist = nx.shortest_path_length(G, weight=weight)
-        for a, others in dist.iteritems():
+        for a, others in dist.items():
             if not self.eligible_node(a):
                 continue
-            for b, length in others.iteritems():
+            for b, length in others.items():
                 if a == b or not self.eligible_node(b):
                     continue
                 w = 1 / length

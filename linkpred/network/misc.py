@@ -6,7 +6,7 @@ import networkx as nx
 def edge_weights(G, weight='weight'):
     """Iterator over edge weights in G"""
     for _, nbrdict in G.adjacency_iter():
-        for edgedata in nbrdict.itervalues():
+        for edgedata in nbrdict.values():
             yield edgedata[weight]
 
 

@@ -38,7 +38,7 @@ def pretty_print(name, params=None):
         return name
 
     pretty_params = ", ".join("%s = %s" % (k, str(v))
-                              for k, v in params.iteritems())
+                              for k, v in params.items())
     return "%s (%s)" % (name, pretty_params)
 
 

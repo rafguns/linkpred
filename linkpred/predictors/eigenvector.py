@@ -53,7 +53,7 @@ class RootedPageRank(Predictor):
                 # Restrict to the k-neighbourhood subgraph
                 G = nx.ego_graph(self.G, u, radius=k)
             pagerank_scores = rooted_pagerank(G, u, alpha, beta, weight)
-            for v, w in pagerank_scores.iteritems():
+            for v, w in pagerank_scores.items():
                 if w > 0 and u != v and self.eligible_node(v):
                     res[(u, v)] += w
         return res
