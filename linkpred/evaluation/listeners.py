@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import copy
 
 from time import localtime, strftime
@@ -85,7 +87,7 @@ class FMaxListener(Listener):
 
         with open(self.fname, 'a') as f:
             f.write(status)
-        print status
+        print(status)
 
 
 class PrecisionAtKListener(Listener):
@@ -104,7 +106,7 @@ class PrecisionAtKListener(Listener):
         status = "%s\t%s\t%.4f\n" % (dataset, predictor, precision)
         with open(self.fname, 'a') as f:
             f.write(status)
-        print status
+        print(status)
 
 
 GENERIC_CHART_LOOKS = ['k-', 'k--', 'k.-', 'k:',

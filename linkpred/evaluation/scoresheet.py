@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import networkx as nx
 
 from collections import defaultdict
@@ -17,7 +19,7 @@ class BaseScoresheet(defaultdict):
     >>> data = {('a', 'b'): 0.8, ('b', 'c'): 0.5, ('c', 'a'): 0.2}
     >>> sheet = Scoresheet(data)
     >>> for s in sheet.ranked_items():
-    ...     print s
+    ...     print(s)
     (Pair('b', 'a'), 0.8)
     (Pair('c', 'b'), 0.5)
     (Pair('c', 'a'), 0.2)

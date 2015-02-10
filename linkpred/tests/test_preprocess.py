@@ -9,9 +9,7 @@ import networkx as nx
 def test_without_uncommon_nodes():
     G1 = nx.erdos_renyi_graph(50, 0.1)
     G2 = nx.erdos_renyi_graph(50, 0.1)
-    r = without_uncommon_nodes([G1, G2])
-    print r
-    G1, G2 = r
+    G1, G2 = without_uncommon_nodes([G1, G2])
     assert_less_equal(len(G1), 50)
     assert_equal(len(G2), len(G1))
 
