@@ -12,23 +12,6 @@ def all_pairs(l):
                 for y in l[:i] if x != y)
 
 
-def slugify(value):
-    """
-    Normalize string to 'slug'
-
-    Converts to lowercase, removes non-alpha characters,
-    and converts spaces to hyphens.
-
-    Taken from http://stackoverflow.com/questions/295135/turn-a-string-into-a-valid-filename-in-python/295466#295466
-
-    """
-    import unicodedata
-    value = unicodedata.normalize(
-        'NFKD', unicode(value)).encode('ascii', 'ignore')
-    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-    return unicode(re.sub('[-\s]+', '-', value))
-
-
 def progressbar(it, prefix="", size=60):
     """Show progress bar
 

@@ -9,13 +9,6 @@ def test_all_pairs():
     assert_equal(sorted(u.all_pairs(s)), expected)
 
 
-def test_slugify():
-    # example from http://farmdev.com/talks/unicode/#id5
-    s = u"Ivan Krsti\u0107"
-    expected = "ivan-krstic"
-    assert_equal(u.slugify(s), expected)
-
-
 def test_load_function():
     import os
     assert_equal(u.load_function('os.path.join'), os.path.join)
