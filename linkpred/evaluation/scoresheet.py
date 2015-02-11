@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import networkx as nx
 
@@ -18,11 +18,11 @@ class BaseScoresheet(defaultdict):
     -------
     >>> data = {('a', 'b'): 0.8, ('b', 'c'): 0.5, ('c', 'a'): 0.2}
     >>> sheet = Scoresheet(data)
-    >>> for s in sheet.ranked_items():
-    ...     print(s)
-    (Pair('b', 'a'), 0.8)
-    (Pair('c', 'b'), 0.5)
-    (Pair('c', 'a'), 0.2)
+    >>> for (x, y), score in sheet.ranked_items():
+    ...     print("{}-{}: {}".format(x, y, score))
+    b-a: 0.8
+    c-b: 0.5
+    c-a: 0.2
 
     """
     def __init__(self, data=None):

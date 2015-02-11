@@ -50,7 +50,7 @@ def handle_arguments(args=None):
     """Get nice CLI interface and return arguments."""
 
     parser = argparse.ArgumentParser(
-        version="0.1", description="Easy link prediction tool",
+        description="Easy link prediction tool",
         usage="%(prog)s training-file [test-file] [options]")
 
     group = parser.add_mutually_exclusive_group()

@@ -80,7 +80,7 @@ def ensure_dir(fname):
 
 def interpolate(curve):
     """Make curve decrease."""
-    for i in xrange(-1, -len(curve), - 1):
+    for i in range(-1, -len(curve), - 1):
         if curve[i] > curve[i - 1]:
             curve[i - 1] = curve[i]
     return curve

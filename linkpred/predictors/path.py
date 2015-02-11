@@ -87,8 +87,6 @@ class Katz(Predictor):
             data type of edge weights (default numpy.int32)
 
         """
-        from itertools import izip
-
         if dtype is None:
             import numpy
             dtype = numpy.int32
@@ -104,7 +102,7 @@ class Katz(Predictor):
             # sparse matrix, see
             # http://stackoverflow.com/questions/4319014/iterating-through-a-scipy-sparse-vector-or-matrix
             matrix = (adj ** k).tocoo()
-            for i, j, d in izip(matrix.row, matrix.col, matrix.data):
+            for i, j, d in zip(matrix.row, matrix.col, matrix.data):
                 if i == j:
                     continue
                 u, v = nodelist[i], nodelist[j]

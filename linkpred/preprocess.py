@@ -49,9 +49,9 @@ def without_uncommon_nodes(networks, eligible=None):
     >>> A.add_nodes_from('abcd')
     >>> B.add_nodes_from('cdef')
     >>> A2, B2 = without_uncommon_nodes((A, B))
-    >>> A2.nodes()
+    >>> sorted(A2.nodes())
     ['c', 'd']
-    >>> B2.nodes()
+    >>> sorted(B2.nodes())
     ['c', 'd']
 
     """

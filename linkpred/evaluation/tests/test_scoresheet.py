@@ -14,9 +14,9 @@ class TestBaseScoresheet:
         assert_dict_equal(d, dict(self.scoresheet))
 
         s = self.scoresheet.ranked_items()
-        assert_equal(s.next(), ('x', 23))
-        assert_equal(s.next(), ('w', 22))
-        assert_equal(s.next(), ('v', 21))
+        assert_equal(next(s), ('x', 23))
+        assert_equal(next(s), ('w', 22))
+        assert_equal(next(s), ('v', 21))
 
     def test_sets_with_threshold(self):
         threshold = 12
@@ -65,7 +65,7 @@ def test_scoresheet():
     t = ('a', 'b')
     sheet[t] = 5
     assert_equal(len(sheet), 1)
-    assert_equal(sheet.items(), [(Pair('a', 'b'), 5.0)])
+    assert_equal(list(sheet.items()), [(Pair('a', 'b'), 5.0)])
     assert_equal(sheet[t], 5.0)
     del sheet[t]
     assert_equal(len(sheet), 0)

@@ -137,4 +137,4 @@ def all_predictors():
 
     predictors = sorted(((s, s.__name__) for s in itersubclasses(Predictor)),
                         key=itemgetter(1))
-    return zip(*predictors)[0]
+    return list(zip(*predictors))[0]
