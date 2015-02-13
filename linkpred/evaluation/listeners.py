@@ -1,10 +1,10 @@
 from __future__ import print_function
 
 import copy
+import smokesignal
 
 from time import localtime, strftime
 
-from .signals import evaluation_finished
 from .static import EvaluationSheet
 from ..util import interpolate, log
 
@@ -27,10 +27,10 @@ def _timestamped_filename(basename, ext="txt"):
 
 class Listener(object):
 
-    def on_dataset_finished(self, sender, **kwargs):
+    def on_dataset_finished(self, dataset):
         pass
 
-    def on_run_finished(self, sender, **kwargs):
+    def on_run_finished(self):
         pass
 
 
@@ -39,21 +39,16 @@ class EvaluatingListener(Listener):
     def __init__(self, **kwargs):
         self.params = kwargs
 
-    def on_prediction_finished(self, sender, **kwargs):
-        scoresheet, dataset, predictor = \
-            kwargs['scoresheet'], kwargs['dataset'], kwargs['predictor']
+    def on_prediction_finished(self, scoresheet, dataset, predictor):
         evaluation = EvaluationSheet(scoresheet, **self.params)
-        evaluation_finished.send(sender=self, evaluation=evaluation,
-                                 dataset=dataset, predictor=predictor)
+        smokesignal.emit('evaluation_finished', evaluation=evaluation,
+                         dataset=dataset, predictor=predictor)
 
 
 class CachePredictionListener(Listener):
 
-    def on_prediction_finished(self, sender, **kwargs):
+    def on_prediction_finished(self, scoresheet, dataset, predictor):
         import csv
-
-        scoresheet, dataset, predictor = kwargs['scoresheet'], \
-            kwargs['dataset'], kwargs['predictor']
 
         with open(_timestamped_filename("%s-%s-predictions" %
                                         (dataset, predictor)), "wb") as fh:
@@ -64,10 +59,7 @@ class CachePredictionListener(Listener):
 
 class CacheEvaluationListener(Listener):
 
-    def on_evaluation_finished(self, sender, **kwargs):
-        evaluation, dataset, predictor = kwargs['evaluation'], \
-            kwargs['dataset'], kwargs['predictor']
-
+    def on_evaluation_finished(self, evaluation, dataset, predictor):
         evaluation.tofile(_timestamped_filename(
             "%s-%s-predictions" % (dataset, predictor)))
 
@@ -78,12 +70,10 @@ class FMaxListener(Listener):
         self.beta = beta
         self.fname = _timestamped_filename("%s-Fmax" % name)
 
-    def on_evaluation_finished(self, sender, **kwargs):
-        evaluation = kwargs['evaluation']
+    def on_evaluation_finished(self, evaluation, dataset, predictor):
         fmax = evaluation.f_score(self.beta).max()
 
-        status = "%s\t%s\t%.4f\n" % (
-            kwargs['dataset'], kwargs['predictor'], fmax)
+        status = "%s\t%s\t%.4f\n" % (dataset, predictor, fmax)
 
         with open(self.fname, 'a') as f:
             f.write(status)
@@ -97,10 +87,7 @@ class PrecisionAtKListener(Listener):
         self.fname = _timestamped_filename(
             "%s-precision-at-%d" % (name, self.k))
 
-    def on_evaluation_finished(self, sender, **kwargs):
-        evaluation, dataset, predictor = kwargs['evaluation'], \
-            kwargs['dataset'], kwargs['predictor']
-
+    def on_evaluation_finished(self, evaluation, dataset, predictor):
         precision = evaluation.precision()[self.k]
 
         status = "%s\t%s\t%.4f\n" % (dataset, predictor, precision)
@@ -151,11 +138,11 @@ class Plotter(Listener):
             self.chart_looks = copy.copy(default)
         return self.chart_looks.pop(0)
 
-    def on_evaluation_finished(self, sender, **kwargs):
-        self.setup_coords(kwargs['evaluation'])
-        self.add_line(kwargs['predictor'])
+    def on_evaluation_finished(self, evaluation, dataset, predictor):
+        self.setup_coords(evaluation)
+        self.add_line(predictor)
 
-    def on_run_finished(self, sender, **kwargs):
+    def on_run_finished(self):
         # Fix looks
         for ax in self.fig.axes:
             ax.legend(**self._legend_props)

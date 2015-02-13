@@ -20,8 +20,9 @@ setup(
         'matplotlib>=1.1',
         'networkx>=1.7',
         'numpy>=1.6',
+        'pyyaml>=3.0',
         'scipy>=0.10',
-        'pyyaml>=3.0'
+        'smokesignal==0.7',
     ],
     author_email='raf.guns@uantwerpen.be',
     description='Python package for link prediction',

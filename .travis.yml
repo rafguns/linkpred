@@ -19,6 +19,7 @@ install:
     - sudo apt-get install -qq libatlas-dev libatlas-base-dev liblapack-dev gfortran
     - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION $DEPS
     - source activate test-environment
+    - pip install smokesignal
     - pip install --upgrade coverage coveralls nose
 script: 
     - printenv PWD

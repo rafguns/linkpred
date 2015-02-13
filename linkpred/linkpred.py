@@ -2,9 +2,10 @@
 from __future__ import unicode_literals
 import networkx as nx
 import os
+import smokesignal
 
 from . import predictors
-from .evaluation import Pair, signals, listeners
+from .evaluation import Pair, listeners
 from .exceptions import LinkPredError
 from .preprocess import (without_low_degree_nodes, without_uncommon_nodes,
                          without_selfloops)
@@ -225,8 +226,8 @@ class LinkPred(object):
             if name in evaluation_listeners:
                 # We're evaluating!
                 listener = evaluation_listeners[name]
-                signals.evaluation_finished.connect(
-                    listener.on_evaluation_finished)
+                smokesignal.on('evaluation_finished',
+                               listener.on_evaluation_finished)
 
                 if not self.test:
                     raise LinkPredError("Cannot evaluate (%s) without "
@@ -244,17 +245,17 @@ class LinkPred(object):
                 if not self.evaluator:
                     self.evaluator = listeners.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
-                signals.prediction_finished.connect(
-                    self.evaluator.on_prediction_finished)
+                smokesignal.on('prediction_finished',
+                               self.evaluator.on_prediction_finished)
             else:
                 # We assume that if it's not an evaluation listener, it must
                 # be a prediction listener
                 listener = prediction_listeners[name]
-                signals.prediction_finished.connect(
-                    listener.on_prediction_finished)
+                smokesignal.on('prediction_finished',
+                               listener.on_prediction_finished)
 
-            signals.dataset_finished.connect(listener.on_dataset_finished)
-            signals.run_finished.connect(listener.on_run_finished)
+            smokesignal.on('dataset_finished', listener.on_dataset_finished)
+            smokesignal.on('run_finished', listener.on_run_finished)
 
             log.logger.debug("Added listener for '%s'" % output)
 
@@ -262,12 +263,11 @@ class LinkPred(object):
         for predictorname, scoresheet in self.predictions:
             log.logger.debug("Predictor '%s' yields %d predictions" % (
                 predictorname, len(scoresheet)))
+            smokesignal.emit('prediction_finished',
+                             scoresheet=scoresheet,
+                             dataset=self.label,
+                             predictor=predictorname)
 
-            signals.prediction_finished.send(sender=self,
-                                             scoresheet=scoresheet,
-                                             dataset=self.label,
-                                             predictor=predictorname)
-
-        signals.dataset_finished.send(sender=self, dataset=self.label)
-        signals.run_finished.send(sender=self)
+        smokesignal.emit('dataset_finished', dataset=self.label)
+        smokesignal.emit('run_finished')
         log.logger.info("Prediction run finished")
