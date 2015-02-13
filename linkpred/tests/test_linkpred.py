@@ -1,5 +1,5 @@
-from nose.tools import (assert_equal, assert_less_equal, raises, assert_raises,
-                        assert_is_instance)
+from nose.tools import (assert_equal, raises, assert_raises,
+                        assert_in, assert_is_instance)
 
 import linkpred
 import networkx as nx
@@ -30,13 +30,17 @@ def test_for_comparison():
     assert_equal(for_comparison(G, exclude=to_delete), expected)
 
 
+# XXX This may fail because of hash randomization
 def test_pretty_print():
     from linkpred.linkpred import pretty_print
 
     name = "foo"
     assert_equal(pretty_print(name), "foo")
     params = {"bar": 0.1, "baz": 5}
-    assert_equal(pretty_print(name, params), "foo (baz = 5, bar = 0.1)")
+
+    # 2 possibilities because of hash randomization
+    assert_in(pretty_print(name, params), ["foo (baz = 5, bar = 0.1)",
+                                           "foo (bar = 0.1, baz = 5)"])
 
 
 def test_read_unknown_network_type():
