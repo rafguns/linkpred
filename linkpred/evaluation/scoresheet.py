@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 import networkx as nx
 
 from collections import defaultdict
-from ..util import log
+from ..util import log, python_2_unicode_compatible
 
 __all__ = ["Pair", "BaseScoresheet", "Scoresheet"]
 
@@ -68,6 +68,7 @@ class BaseScoresheet(defaultdict):
         return dict(self.ranked_items(threshold=n))
 
 
+@python_2_unicode_compatible
 class Pair(object):
     """An unsorted pair of things.
 
@@ -119,12 +120,8 @@ class Pair(object):
     def __hash__(self):
         return hash(self.elements)
 
-    def __unicode__(self):
-        a, b = map(str, self.elements)
-        return u"%s - %s" % (a.decode('utf-8'), b.decode('utf-8'))
-
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return "{} - {}".format(*self.elements)
 
     def __repr__(self):
         return "Pair%s" % repr(self.elements)

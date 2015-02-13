@@ -1,3 +1,7 @@
+from __future__ import unicode_literals
+
+import sys
+
 import networkx as nx
 from nose.tools import assert_dict_equal, assert_equal, assert_less, raises
 
@@ -41,18 +45,18 @@ class TestBaseScoresheet:
 
 
 def test_pair():
+    str_ = unicode if sys.version_info[0] == 2 else str
+
     t = ('a', 'b')
     pair = Pair(t)
     assert_equal(pair, Pair(*t))
     assert_equal(pair, Pair('b', 'a'))
     assert_equal(pair, eval(repr(pair)))
-    assert_equal(str(pair), "b - a")
-    assert_equal(unicode(pair), u"b - a")
+    assert_equal(str_(pair), "b - a")
 
-    # Non-ASCII characters should not cause exception if they're proper UTF-8
+    # Test unicode (C4 87 -> latin small letter C with acute)
     pair = Pair("a", "\xc4\x87")
-    str(pair)
-    unicode(pair)
+    assert_equal(str_(pair), "\xc4\x87 - a")
 
 
 @raises(AssertionError)

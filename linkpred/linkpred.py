@@ -1,4 +1,5 @@
 """linkpred main module"""
+from __future__ import unicode_literals
 import networkx as nx
 import os
 
@@ -116,7 +117,7 @@ class LinkPred(object):
         }
         if config:
             self.config.update(config)
-        log.logger.debug(u"Config: %s" % unicode(self.config))
+        log.logger.debug("Config: {}".format(self.config))
 
         if not self.config['predictors']:
             raise LinkPredError("No predictor specified. Aborting...")
