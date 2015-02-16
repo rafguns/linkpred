@@ -140,6 +140,9 @@ class EvaluationSheet(object):
         self.data = self.data.transpose()
         log.logger.debug("Finished counting evaluation sheet...")
 
+    def __len__(self):
+        return len(self.data[:])
+
     @property
     def tp(self):
         return self.data[0]
