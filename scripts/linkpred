@@ -43,6 +43,7 @@ def main():
     linkpred = LinkPred(config)
     linkpred.preprocess()
     linkpred.predict_all()
+    linkpred.setup_output()
     linkpred.process_predictions()
 
 

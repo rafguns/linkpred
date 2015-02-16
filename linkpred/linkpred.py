@@ -5,7 +5,7 @@ import os
 import smokesignal
 
 from . import predictors
-from .evaluation import Pair, listeners
+from .evaluation import Pair, listeners as l
 from .exceptions import LinkPredError
 from .preprocess import (without_low_degree_nodes, without_uncommon_nodes,
                          without_selfloops)
@@ -165,6 +165,52 @@ class LinkPred(object):
 
         log.logger.info("Finished preprocessing.")
 
+    def setup_output(self):
+        """Configure listeners"""
+        filetype = self.config['chart_filetype']
+        interpolation = self.config['interpolation']
+
+        listeners = {
+            'cache-predictions': (
+                l.CachePredictionListener, False, []),
+            'recall-precision': (
+                l.RecallPrecisionPlotter, True, [self.label, filetype,
+                                                 interpolation]),
+            'f-score': (
+                l.FScorePlotter, True, [self.label, filetype,
+                                        "# predictions"]),
+            'roc': (
+                l.ROCPlotter, True, [self.label, filetype]),
+            'fmax': (
+                l.FMaxListener, True, [self.label]),
+            'cache-evaluations': (
+                l.CacheEvaluationListener, True, [])
+        }
+
+        for output in self.config['output']:
+            name = output.lower()
+            listener, evaluating, args = listeners[name]
+
+            if evaluating:
+                if not self.test:
+                    raise LinkPredError("Cannot evaluate (%s) without "
+                                        "test network" % output)
+
+                # Set up an 'evaluator': a listener that routes predictions
+                # and turns them into evaluations
+                if not self.evaluator:
+                    test_set = for_comparison(self.test, exclude=self.excluded)
+                    n = len(self.test)
+                    # Universe = all possible edges, except for the ones that
+                    # we no longer consider (because they're already in the
+                    # training network)
+                    num_universe = n * (n - 1) / 2 - len(self.excluded)
+                    self.evaluator = l.EvaluatingListener(
+                        relevant=test_set, universe=num_universe)
+
+            listener(*args)
+            log.logger.debug("Added listener for '%s'" % output)
+
     def do_predict_all(self):
         """Generator that yields predictions based on training network
 
@@ -204,60 +250,6 @@ class LinkPred(object):
 
     def process_predictions(self):
         """Process (evaluate, log...) all predictions according to config"""
-
-        filetype = self.config['chart_filetype']
-        interpolation = self.config['interpolation']
-
-        prediction_listeners = {
-            'cache-predictions': listeners.CachePredictionListener()
-        }
-        evaluation_listeners = {
-            'recall-precision': listeners.RecallPrecisionPlotter(
-                self.label, filetype=filetype, interpolation=interpolation),
-            'f-score': listeners.FScorePlotter(self.label, filetype=filetype,
-                                               xlabel="# predictions"),
-            'roc': listeners.ROCPlotter(self.label, filetype=filetype),
-            'fmax': listeners.FMaxListener(self.label),
-            'cache-evaluations': listeners.CacheEvaluationListener()
-        }
-
-        for output in self.config['output']:
-            name = output.lower()
-            if name in evaluation_listeners:
-                # We're evaluating!
-                listener = evaluation_listeners[name]
-                smokesignal.on('evaluation_finished',
-                               listener.on_evaluation_finished)
-
-                if not self.test:
-                    raise LinkPredError("Cannot evaluate (%s) without "
-                                        "test network" % output)
-
-                test_set = for_comparison(self.test, exclude=self.excluded)
-                nnodes = len(self.test)
-                # Universe = all possible edges, except for the ones that we no
-                # longer consider (because they're already in the training
-                # network)
-                num_universe = nnodes * (nnodes - 1) / 2 - len(self.excluded)
-
-                # Set up an 'evaluator': a listener that routes predictions
-                # and turns them into evaluations
-                if not self.evaluator:
-                    self.evaluator = listeners.EvaluatingListener(
-                        relevant=test_set, universe=num_universe)
-                smokesignal.on('prediction_finished',
-                               self.evaluator.on_prediction_finished)
-            else:
-                # We assume that if it's not an evaluation listener, it must
-                # be a prediction listener
-                listener = prediction_listeners[name]
-                smokesignal.on('prediction_finished',
-                               listener.on_prediction_finished)
-
-            smokesignal.on('dataset_finished', listener.on_dataset_finished)
-            smokesignal.on('run_finished', listener.on_run_finished)
-
-            log.logger.debug("Added listener for '%s'" % output)
 
         # The following loop actually executes the predictors
         for predictorname, scoresheet in self.predictions:
