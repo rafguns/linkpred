@@ -1,6 +1,8 @@
 from __future__ import division
 
 import numpy as np
+import os
+import tempfile
 from nose.tools import *
 from linkpred.evaluation import (StaticEvaluation, EvaluationSheet,
                                  Scoresheet, BaseScoresheet, UndefinedError)
@@ -111,7 +113,7 @@ class TestEvaluationSheet:
         expected = np.array([[0, 1, 2, 2, 3, 4, 4],
                              [1, 1, 1, 2, 2, 2, 3],
                              [4, 3, 2, 2, 1, 0, 0],
-                             [-1, -1, -1, -1, -1, -1, -1]])
+                             [-1, -1, -1, -1, -1, -1, -1]]).T
         assert_array_equal(sheet.data, expected)
 
         sheet = EvaluationSheet(self.scores, relevant=self.rel,
@@ -119,13 +121,28 @@ class TestEvaluationSheet:
         expected = np.array([[0, 1, 2, 2, 3, 4, 4],
                              [1, 1, 1, 2, 2, 2, 3],
                              [4, 3, 2, 2, 1, 0, 0],
-                             [15, 15, 15, 14, 14, 14, 13]])
+                             [15, 15, 15, 14, 14, 14, 13]]).T
         assert_array_equal(sheet.data, expected)
 
         sheet = EvaluationSheet(self.scores, relevant=self.rel,
                                 universe=self.num_universe)
         # Same expected applies as above
         assert_array_equal(sheet.data, expected)
+
+        data = np.array([[1, 0, 0, 1], [1, 1, 0, 0]])
+        sheet = EvaluationSheet(data)
+        assert_array_equal(sheet.data, data)
+
+    def test_to_file_from_file(self):
+        data = np.array([[1, 0, 0, 1], [1, 1, 0, 0]])
+        sheet = EvaluationSheet(data)
+
+        fd, fname = tempfile.mkstemp()
+        sheet.to_file(fname)
+        newsheet = EvaluationSheet.from_file(fname)
+        assert_array_equal(sheet.data, newsheet.data)
+        os.close(fd)
+        os.unlink(fname)
 
     def test_measures(self):
         sheet_num_universe = EvaluationSheet(self.scores, relevant=self.rel,
