@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import copy
+import csv
 import smokesignal
 
 from time import localtime, strftime
@@ -59,11 +60,11 @@ class CachePredictionListener(Listener):
         super(CachePredictionListener, self).__init__()
 
     def on_prediction_finished(self, scoresheet, dataset, predictor):
-        import csv
-
-        with open(_timestamped_filename("%s-%s-predictions" %
-                                        (dataset, predictor)), "wb") as fh:
+        self.fname = _timestamped_filename("%s-%s-predictions" % (dataset,
+                                                                  predictor))
+        with open(self.fname, "wb") as fh:
             writer = csv.writer(fh, delimiter="\t")
+            # This assumes that keys are tuples; can we make this more generic?
             for (u, v), score in scoresheet.ranked_items():
                 writer.writerow((u, v, score))
 
@@ -75,8 +76,9 @@ class CacheEvaluationListener(Listener):
         super(CacheEvaluationListener, self).__init__()
 
     def on_evaluation_finished(self, evaluation, dataset, predictor):
-        evaluation.tofile(_timestamped_filename(
-            "%s-%s-predictions" % (dataset, predictor)))
+        self.fname = _timestamped_filename("%s-%s-predictions" % (dataset,
+                                                                  predictor))
+        evaluation.to_file(self.fname)
 
 
 class FMaxListener(Listener):
@@ -172,9 +174,10 @@ class Plotter(Listener):
             ax.legend(**self._legend_props)
 
         # Save to file
-        fname = _timestamped_filename("%s-%s" % (self.name, self._charttype),
-                                      self.filetype)
-        self.fig.savefig(fname)
+        self.fname = _timestamped_filename("%s-%s" % (self.name,
+                                                      self._charttype),
+                                           self.filetype)
+        self.fig.savefig(self.fname)
 
 
 class RecallPrecisionPlotter(Plotter):

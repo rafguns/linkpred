@@ -1,15 +1,10 @@
 from __future__ import division
 from math import log, sqrt
-from nose.tools import assert_almost_equal
+from utils import assert_dict_almost_equal
 import networkx as nx
 
 from linkpred.evaluation import Scoresheet
 from linkpred.predictors.neighbour import *
-
-
-def assert_dict_almost_equal(d1, d2):
-    for k in d1:
-        assert_almost_equal(d1[k], d2[k])
 
 
 class TestUnweighted:

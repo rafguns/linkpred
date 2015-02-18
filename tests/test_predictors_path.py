@@ -1,15 +1,11 @@
 from __future__ import division
 from nose.tools import assert_almost_equal
+from utils import assert_dict_almost_equal
 import networkx as nx
 import numpy as np
 
 from linkpred.predictors.path import *
 from linkpred.evaluation import Scoresheet
-
-
-def assert_dict_almost_equal(d1, d2):
-    for k in d1:
-        assert_almost_equal(d1[k], d2[k])
 
 
 def test_katz():
@@ -38,7 +34,7 @@ class TestGraphDistance:
     def setup(self):
         self.G = nx.Graph()
         self.G.add_weighted_edges_from([(0, 1, 1), (0, 2, 3), (1, 2, 1),
-                                         (1, 3, 2), (2, 4, 1)])
+                                        (1, 3, 2), (2, 4, 1)])
 
     def test_unweighted(self):
         known = {(0, 1): 1, (0, 2): 1, (1, 2): 1, (1, 3): 1, (2, 4): 1,

@@ -1,9 +1,11 @@
 from __future__ import division
 
+from nose.tools import *
+from utils import assert_array_equal
+
 import numpy as np
 import os
 import tempfile
-from nose.tools import *
 from linkpred.evaluation import (StaticEvaluation, EvaluationSheet,
                                  Scoresheet, BaseScoresheet, UndefinedError)
 
@@ -89,14 +91,6 @@ class TestStaticEvaluation:
     @raises(ValueError)
     def test_rel_larger_than_universe(self):
         StaticEvaluation([1, 2], range(11), 10)
-
-
-def assert_array_equal(a1, a2):
-    try:
-        if not (a1 == a2).all():
-            raise AssertionError("{} != {}".format(a1, a2))
-    except AttributeError:  # a1 and a2 are lists or empty ndarrays
-        assert_equal(a1, a2)
 
 
 class TestEvaluationSheet:
