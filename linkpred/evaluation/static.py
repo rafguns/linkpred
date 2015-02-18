@@ -1,5 +1,6 @@
 import numpy as np
 
+from .scoresheet import BaseScoresheet
 from ..util import log
 
 
@@ -109,7 +110,7 @@ class StaticEvaluation(object):
 
 def ensure_defined(func):
     def _wrapper(self, *args, **kwargs):
-        if self.data.shape[1] == 0:
+        if self.data.shape[0] == 0:
             raise UndefinedError("Measure is undefined if there are no "
                                  "relevant or retrieved items")
         return func(self, *args, **kwargs)
@@ -127,40 +128,53 @@ def ensure_universe_known(func):
 
 class EvaluationSheet(object):
 
-    def __init__(self, scoresheet, relevant, universe=None):
-        log.logger.debug("Counting for evaluation sheet...")
-        static = StaticEvaluation(relevant=relevant, universe=universe)
-        # Initialize empty array of right dimensions
-        # 4 columns for tp, fp, fn, tn
-        self.data = np.empty((len(scoresheet), 4))
-        for i, (prediction, _) in enumerate(scoresheet.ranked_items()):
-            static.add_retrieved_item(prediction)
-            self.data[i] = (static.num_tp, static.num_fp, static.num_fn,
-                            static.num_tn)
-        self.data = self.data.transpose()
-        log.logger.debug("Finished counting evaluation sheet...")
+    def __init__(self, data=None, relevant=None, universe=None):
+        if isinstance(data, BaseScoresheet):
+            if relevant is None:
+                raise TypeError("Cannot create evaluation sheet from "
+                                "scoresheet without set of relevant items")
+            log.logger.debug("Counting for evaluation sheet...")
+            static = StaticEvaluation(relevant=relevant, universe=universe)
+            # Initialize empty array of right dimensions
+            # 4 columns for tp, fp, fn, tn
+            self.data = np.empty((len(data), 4))
+            for i, (prediction, _) in enumerate(data.ranked_items()):
+                static.add_retrieved_item(prediction)
+                self.data[i] = (static.num_tp, static.num_fp, static.num_fn,
+                                static.num_tn)
+            log.logger.debug("Finished counting evaluation sheet...")
+        elif isinstance(data, np.ndarray):
+            self.data = data
+        else:
+            raise TypeError("Cannot create evaluation sheet from "
+                            "unknown data type {}".format(type(data)))
 
     def __len__(self):
-        return len(self.data[:])
+        return len(self.data)
 
     @property
     def tp(self):
-        return self.data[0]
+        return self.data[:, 0]
 
     @property
     def fp(self):
-        return self.data[1]
+        return self.data[:, 1]
 
     @property
     def fn(self):
-        return self.data[2]
+        return self.data[:, 2]
 
     @property
     def tn(self):
-        return self.data[3]
+        return self.data[:, 3]
 
-    def tofile(self, fid, sep="\t", format="%s"):
-        return self.data.tofile(fid, sep, format)
+    def to_file(self, fname, *args, **kwargs):
+        np.savetxt(fname, self.data, *args, **kwargs)
+
+    @classmethod
+    def from_file(cls, fname, *args, **kwargs):
+        data = np.loadtxt(fname, *args, **kwargs)
+        return cls(data)
 
     @ensure_defined
     def precision(self):
@@ -183,7 +197,7 @@ class EvaluationSheet(object):
     @ensure_defined
     @ensure_universe_known
     def accuracy(self):
-        return (self.tp + self.tn) / self.data.sum(axis=0)
+        return (self.tp + self.tn) / self.data.sum(axis=1)
 
     @ensure_defined
     def f_score(self, beta=1):
@@ -223,4 +237,4 @@ class EvaluationSheet(object):
 
         """
         # Return single number: this is constant wrt what is retrieved
-        return ((self.tp + self.fn) / self.data.sum(axis=0))[0]
+        return ((self.tp + self.fn) / self.data.sum(axis=1))[0]
