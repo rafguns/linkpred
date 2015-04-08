@@ -15,15 +15,14 @@ before_install:
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
 install:
-    - pip install coverage
-    - pip install coveralls
     - DEPS="networkx numpy scipy matplotlib pyyaml"
     - sudo apt-get install -qq libatlas-dev libatlas-base-dev liblapack-dev gfortran
     - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION $DEPS
     - source activate test-environment
-      #- python setup.py install
+    - pip install --upgrade coverage coveralls nose
 script: 
     - printenv PWD
+    - pip install .
     - nosetests --with-doctest --with-coverage --cover-package=linkpred
 after_success:
     coveralls
