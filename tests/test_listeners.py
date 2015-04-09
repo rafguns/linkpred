@@ -47,10 +47,12 @@ def test_CachePredictionListener():
     scoresheet = BaseScoresheet({(1, 2): 10, (1, 3): 5, (3, 2): 2, (1, 4): 1})
     smokesignal.emit('prediction_finished', scoresheet, 'd', 'p')
 
-    # TODO delete file
     with open(l.fname) as fh:
-        assert_equal(fh.read(), "1\t2\t10\n1\t3\t5\n3\t2\t2\n1\t4\t1\n")
+        # Line endings may be different across platforms
+        assert_equal(fh.read().replace("\r\n", "\n"),
+                     "1\t2\t10\n1\t3\t5\n3\t2\t2\n1\t4\t1\n")
     smokesignal.clear_all()
+    os.unlink(l.fname)
 
 
 def test_CacheEvaluationListener():
