@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import copy
-import csv
 import smokesignal
 
+from networkx.readwrite.pajek import make_qstr
 from time import localtime, strftime
 
 from .static import EvaluationSheet
@@ -58,15 +58,17 @@ class CachePredictionListener(Listener):
     def __init__(self):
         smokesignal.on('prediction_finished', self.on_prediction_finished)
         super(CachePredictionListener, self).__init__()
+        self.encoding = 'utf-8'
 
     def on_prediction_finished(self, scoresheet, dataset, predictor):
         self.fname = _timestamped_filename("%s-%s-predictions" % (dataset,
                                                                   predictor))
         with open(self.fname, "wb") as fh:
-            writer = csv.writer(fh, delimiter="\t")
             # This assumes that keys are tuples; can we make this more generic?
             for (u, v), score in scoresheet.ranked_items():
-                writer.writerow((u, v, score))
+                u, v, score = map(make_qstr, (u, v, score))
+                line = u"{}\t{}\t{}\n".format(u, v, score)
+                fh.write(line.encode(self.encoding))
 
 
 class CacheEvaluationListener(Listener):
