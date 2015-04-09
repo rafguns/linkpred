@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
+import os
 import sys
+import tempfile
 
 import networkx as nx
 from nose.tools import assert_dict_equal, assert_equal, assert_less, raises
@@ -42,6 +44,42 @@ class TestBaseScoresheet:
 
         top = self.scoresheet.top(100)
         assert_equal(len(top), 24)
+
+    def test_to_file_from_file(self):
+        fd, fname = tempfile.mkstemp()
+        self.scoresheet.to_file(fname)
+
+        newsheet = BaseScoresheet.from_file(fname)
+        assert_dict_equal(self.scoresheet, newsheet)
+        os.close(fd)
+        os.unlink(fname)
+
+
+class TestScoresheetFile:
+    def setup(self):
+        self.sheet = Scoresheet()
+        self.sheet[(u'a', u'b')] = 2.0
+        self.sheet[(u'b', u'\xe9')] = 1.0
+        self.expected = b"b\ta\t2.0\n\xc3\xa9\tb\t1.0\n"
+
+    def test_to_file(self):
+        fd, fname = tempfile.mkstemp()
+        self.sheet.to_file(fname)
+
+        with open(fname, "rb") as fh:
+            assert_equal(fh.read(), self.expected)
+        os.close(fd)
+        os.unlink(fname)
+
+    def test_from_file(self):
+        fd, fname = tempfile.mkstemp()
+        with open(fname, "wb") as fh:
+            fh.write(self.expected)
+
+        sheet = Scoresheet.from_file(fname)
+        assert_dict_equal(sheet, self.sheet)
+        os.close(fd)
+        os.unlink(fname)
 
 
 def test_pair():
