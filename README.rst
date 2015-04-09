@@ -6,6 +6,13 @@ linkpred
 While some predictors are fairly straightforward (e.g., if two people have a large number of mutual friends, it seems likely that eventually they will meet and become friends), others are more involved.
 
 
+.. image:: https://travis-ci.org/rafguns/linkpred.svg?branch=master
+    :target: https://travis-ci.org/rafguns/linkpred
+
+.. image:: https://coveralls.io/repos/rafguns/linkpred/badge.svg?branch=master
+    :target: https://coveralls.io/r/rafguns/linkpred?branch=master
+
+
 Example
 -------
 
