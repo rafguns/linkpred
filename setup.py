@@ -30,8 +30,6 @@ setup(
     packages=[
         'linkpred',
         'linkpred.evaluation',
-        'linkpred.external',
-        'linkpred.external.dispatch',
         'linkpred.network',
         'linkpred.predictors',
         'linkpred.util'
