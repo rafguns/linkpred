@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 import networkx as nx
 
 from collections import defaultdict
+from networkx.readwrite.pajek import make_qstr
 from ..util import log, python_2_unicode_compatible
 
 __all__ = ["Pair", "BaseScoresheet", "Scoresheet"]
@@ -66,6 +67,33 @@ class BaseScoresheet(defaultdict):
 
     def top(self, n=10):
         return dict(self.ranked_items(threshold=n))
+
+    @staticmethod
+    def from_record(line, delimiter='\t'):
+        line = line.rstrip('\n')
+        return line.rstrip('\n').split(delimiter)
+
+    @staticmethod
+    def to_record(key, value, delimiter='\t'):
+        key, value = map(make_qstr, (key, value))
+        return u"{}{}{}\n".format(key, delimiter, value)
+
+    @classmethod
+    def from_file(cls, fname, delimiter='\t', encoding='utf-8', **kwargs):
+        """Create new instance from CSV file *fname*"""
+        d = cls()
+        with open(fname, "rb") as fh:
+            for line in fh:
+                key, score = cls.from_record(line.decode(encoding), delimiter)
+                d[key] = score
+        return d
+
+    def to_file(self, fname, delimiter='\t', encoding='utf-8', **kwargs):
+        """Save to CSV file *fname*"""
+        with open(fname, "wb") as fh:
+            for key, score in self.ranked_items():
+                fh.write(self.to_record(
+                    key, score, delimiter).encode(encoding))
 
 
 @python_2_unicode_compatible
@@ -156,3 +184,14 @@ class Scoresheet(BaseScoresheet):
                     in data.edges(data=True)}
         # We assume that data is some sort of iterable, like a list or tuple
         return {Pair(k): float(v) for k, v in data}
+
+    @staticmethod
+    def from_record(line, delimiter='\t'):
+        u, v, score = line.rstrip('\n').split(delimiter)
+        return (u, v), score
+
+    @staticmethod
+    def to_record(key, value, delimiter='\t'):
+        u, v = key
+        u, v, score = map(make_qstr, (u, v, value))
+        return u"{0}{3}{1}{3}{2}\n".format(u, v, score, delimiter)

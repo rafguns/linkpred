@@ -3,7 +3,6 @@ from __future__ import print_function
 import copy
 import smokesignal
 
-from networkx.readwrite.pajek import make_qstr
 from time import localtime, strftime
 
 from .static import EvaluationSheet
@@ -63,12 +62,7 @@ class CachePredictionListener(Listener):
     def on_prediction_finished(self, scoresheet, dataset, predictor):
         self.fname = _timestamped_filename("%s-%s-predictions" % (dataset,
                                                                   predictor))
-        with open(self.fname, "wb") as fh:
-            # This assumes that keys are tuples; can we make this more generic?
-            for (u, v), score in scoresheet.ranked_items():
-                u, v, score = map(make_qstr, (u, v, score))
-                line = u"{}\t{}\t{}\n".format(u, v, score)
-                fh.write(line.encode(self.encoding))
+        scoresheet.to_file(self.fname)
 
 
 class CacheEvaluationListener(Listener):

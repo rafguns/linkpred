@@ -1,5 +1,3 @@
-#from __future__ import absolute_import
-
 from nose.tools import (assert_equal, assert_is_instance,
                         assert_regexp_matches)
 from utils import assert_array_equal
@@ -44,13 +42,13 @@ def test_EvaluatingListener():
 
 def test_CachePredictionListener():
     l = CachePredictionListener()
-    scoresheet = BaseScoresheet({(1, 2): 10, (1, 3): 5, (3, 2): 2, (1, 4): 1})
+    scoresheet = BaseScoresheet({1: 10, 2: 5, 3: 2, 4: 1})
     smokesignal.emit('prediction_finished', scoresheet, 'd', 'p')
 
     with open(l.fname) as fh:
         # Line endings may be different across platforms
         assert_equal(fh.read().replace("\r\n", "\n"),
-                     "1\t2\t10\n1\t3\t5\n3\t2\t2\n1\t4\t1\n")
+                     "1\t10\n2\t5\n3\t2\n4\t1\n")
     smokesignal.clear_all()
     os.unlink(l.fname)
 

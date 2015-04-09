@@ -1,7 +1,5 @@
 import networkx as nx
 
-#TODO Examine if we can use nx.single-source_shortest_path_length here
-
 
 def edge_weights(G, weight='weight'):
     """Iterator over edge weights in G"""
