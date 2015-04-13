@@ -16,9 +16,17 @@ class Community(Predictor):
         at different granularity levels: the finer grained the community, the
         higher the resulting score.
 
+        You'll need to install Thomas Aynaud's python-louvain package from
+        https://bitbucket.org/taynaud/python-louvain for this.
+
         """
+        try:
+            from community import generate_dendogram, partition_at_level
+        except ImportError:
+            raise ImportError("Module 'community' could not be found. "
+                              "Please install python-louvain from "
+                              "https://bitbucket.org/taynaud/python-louvain")
         from collections import defaultdict
-        from linkpred.network import generate_dendogram, partition_at_level
 
         res = Scoresheet()
         dendogram = generate_dendogram(self.G)

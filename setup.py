@@ -47,6 +47,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Software Development',
         'Topic :: Scientific/Engineering',
         'Development Status :: 4 - Beta',
