@@ -1,5 +1,6 @@
 """linkpred main module"""
 from __future__ import unicode_literals
+import logging
 import networkx as nx
 import os
 import smokesignal
@@ -9,7 +10,8 @@ from .evaluation import Pair, listeners as l
 from .exceptions import LinkPredError
 from .preprocess import (without_low_degree_nodes, without_uncommon_nodes,
                          without_selfloops)
-from .util import log
+
+log = logging.getLogger(__name__)
 
 __all__ = ["LinkPred", "read_network"]
 
@@ -49,8 +51,7 @@ def _read_pajek(*args, **kwargs):
     G = nx.read_pajek(*args, **kwargs)
     edges = G.edges()
     if len(set(edges)) < len(edges):  # multiple edges
-        log.logger.warning("Network contains multiple edges. "
-                           "These will be ignored.")
+        log.warning("Network contains multiple edges. These will be ignored.")
     if G.is_directed():
         return nx.DiGraph(G)
     else:
@@ -83,9 +84,9 @@ def read_network(fh):
     ext = os.path.splitext(fname.lower())[1]
     try:
         read = FILETYPE_READERS[ext]
-        log.logger.info("Reading file '%s'..." % fname)
+        log.info("Reading file '%s'..." % fname)
         network = read(fh)
-        log.logger.info("Successfully read file.")
+        log.info("Successfully read file.")
     except KeyError:
         raise LinkPredError("File '%s' is of an unknown type. Known types "
                             "are: %s." % (fname, ", ".join(FILETYPE_READERS)))
@@ -118,7 +119,7 @@ class LinkPred(object):
         }
         if config:
             self.config.update(config)
-        log.logger.debug("Config: {}".format(self.config))
+        log.debug("Config: {}".format(self.config))
 
         if not self.config['predictors']:
             raise LinkPredError("No predictor specified. Aborting...")
@@ -152,7 +153,7 @@ class LinkPred(object):
     def preprocess(self):
         """Preprocess all networks according to configuration"""
 
-        log.logger.info("Starting preprocessing...")
+        log.info("Starting preprocessing...")
 
         preprocessed = lambda G: without_low_degree_nodes(
             without_selfloops(G), minimum=self.config['min_degree'])
@@ -163,7 +164,7 @@ class LinkPred(object):
         else:  # Only a training network
             self.training = preprocessed(self.training)
 
-        log.logger.info("Finished preprocessing.")
+        log.info("Finished preprocessing.")
 
     def setup_output(self):
         """Configure listeners"""
@@ -209,7 +210,7 @@ class LinkPred(object):
                         relevant=test_set, universe=num_universe)
 
             listener(*args)
-            log.logger.debug("Added listener for '%s'" % output)
+            log.debug("Added listener for '%s'" % output)
 
     def do_predict_all(self):
         """Generator that yields predictions based on training network
@@ -228,12 +229,12 @@ class LinkPred(object):
             label = predictor_profile.get('displayname',
                                           pretty_print(name, params))
 
-            log.logger.info("Executing %s..." % label)
+            log.info("Executing %s..." % label)
             predictor = predictor_class(self.training,
                                         eligible=self.config['eligible'],
                                         excluded=self.excluded)
             scoresheet = predictor.predict(**params)
-            log.logger.info("Finished executing %s." % label)
+            log.info("Finished executing %s." % label)
 
             # XXX TODO Do we need label?
             yield label, scoresheet
@@ -253,7 +254,7 @@ class LinkPred(object):
 
         # The following loop actually executes the predictors
         for predictorname, scoresheet in self.predictions:
-            log.logger.debug("Predictor '%s' yields %d predictions" % (
+            log.debug("Predictor '%s' yields %d predictions" % (
                 predictorname, len(scoresheet)))
             smokesignal.emit('prediction_finished',
                              scoresheet=scoresheet,
@@ -262,4 +263,4 @@ class LinkPred(object):
 
         smokesignal.emit('dataset_finished', dataset=self.label)
         smokesignal.emit('run_finished')
-        log.logger.info("Prediction run finished")
+        log.info("Prediction run finished")

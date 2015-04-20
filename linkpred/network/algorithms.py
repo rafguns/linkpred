@@ -1,6 +1,7 @@
+import logging
 import networkx
 
-from ..util import log
+log = logging.getLogger(__name__)
 
 __all__ = ["rooted_pagerank", "simrank"]
 
@@ -72,7 +73,7 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
     M = raw_google_matrix(G, nodelist=nodelist, weight=weight)
     sim = np.identity(n, dtype=np.float32)
     for i in range(num_iterations):
-        log.logger.debug("Starting SimRank iteration %d" % i)
+        log.debug("Starting SimRank iteration {}".format(i))
         temp = c * M.T * sim * M
         sim = temp + np.identity(n) - np.diag(np.diag(temp))
     return sim

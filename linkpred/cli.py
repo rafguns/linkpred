@@ -1,10 +1,12 @@
 """CLI handling"""
 import argparse
 import json
+import logging
 
 from .exceptions import LinkPredError
 from .predictors import all_predictors
-from .util import log
+
+log = logging.getLogger(__name__)
 
 __all__ = ["load_profile", "get_config", "handle_arguments"]
 
@@ -97,11 +99,11 @@ def handle_arguments(args=None):
     results = parser.parse_args(args)
 
     if results.debug:
-        log.logger.setLevel(log.logging.DEBUG)
+        log.setLevel(logging.DEBUG)
     elif results.quiet:
-        log.logger.setLevel(log.logging.WARNING)
+        log.setLevel(logging.WARNING)
     else:
-        log.logger.setLevel(log.logging.INFO)
+        log.setLevel(logging.INFO)
 
     # Return as plain dictionary
     return vars(results)
