@@ -32,14 +32,12 @@ setup(
         'linkpred.evaluation',
         'linkpred.network',
         'linkpred.predictors',
-        'linkpred.util'
     ],
     package_data={
         'linkpred': ['tests/*.py'],
         'linkpred.evaluation': ['tests/*.py'],
         'linkpred.network': ['tests/*.py'],
         'linkpred.predictors': ['tests/*.py'],
-        'linkpred.util': ['tests/*.py']
     },
     platforms='any',
     classifiers=[
