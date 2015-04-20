@@ -254,7 +254,7 @@ class LinkPred(object):
 
         # The following loop actually executes the predictors
         for predictorname, scoresheet in self.predictions:
-            log.logger.debug("Predictor '%s' yields %d predictions" % (
+            log.debug("Predictor '%s' yields %d predictions" % (
                 predictorname, len(scoresheet)))
             smokesignal.emit('prediction_finished',
                              scoresheet=scoresheet,
@@ -263,4 +263,4 @@ class LinkPred(object):
 
         smokesignal.emit('dataset_finished', dataset=self.label)
         smokesignal.emit('run_finished')
-        log.logger.info("Prediction run finished")
+        log.info("Prediction run finished")
