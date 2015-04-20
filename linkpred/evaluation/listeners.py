@@ -1,12 +1,15 @@
 from __future__ import print_function
 
 import copy
+import logging
 import smokesignal
 
 from time import localtime, strftime
 
 from .static import EvaluationSheet
-from ..util import interpolate, log
+from ..util import interpolate
+
+log = logging.getLogger(__name__)
 
 __all__ = ["EvaluatingListener",
            "CachePredictionListener",
@@ -148,10 +151,10 @@ class Plotter(Listener):
         ax = self.fig.axes[0]
         ax.plot(self._x, self._y, self.chart_look(), label=predictor)
 
-        log.logger.debug("Added line with %d points: "
-                         "start = (%.2f, %.2f), end = (%.2f, %.2f)" %
-                         (len(self._x), self._x[0], self._y[0],
-                          self._x[-1], self._y[-1]))
+        log.debug("Added line with %d points: "
+                  "start = (%.2f, %.2f), end = (%.2f, %.2f)" %
+                  (len(self._x), self._x[0], self._y[0],
+                   self._x[-1], self._y[-1]))
 
     def chart_look(self, default=None):
         if not self.chart_looks:

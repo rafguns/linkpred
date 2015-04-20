@@ -1,6 +1,9 @@
+import logging
 import random
 
-from ..util import all_pairs, log
+from ..util import all_pairs
+
+log = logging.getLogger(__name__)
 
 __all__ = ['add_random_edges', 'remove_random_edges',
            'add_remove_random_edges']
@@ -25,7 +28,7 @@ def add_random_edges(G, pct):
     assert_is_percentage(pct)
     m = G.size()
     to_add = int(m * pct)
-    log.logger.debug("Will add %d edges to %d (%f)" % (to_add, m, pct))
+    log.debug("Will add %d edges to %d (%f)" % (to_add, m, pct))
 
     new_edges = set(all_pairs(G)) - set(G.edges_iter())
     G.add_edges_from(random.sample(new_edges, to_add), weight=1)
@@ -47,7 +50,7 @@ def remove_random_edges(G, pct):
     m = len(edges)
     to_remove = int(m * pct)
 
-    log.logger.debug("Will remove %d edges of %d (%f)" % (to_remove, m, pct))
+    log.debug("Will remove %d edges of %d (%f)" % (to_remove, m, pct))
     G.remove_edges_from(random.sample(edges, to_remove))
 
 
@@ -71,9 +74,8 @@ def add_remove_random_edges(G, pct_add, pct_remove):
     m = len(edges)
     to_add = int(m * pct_add)
     to_remove = int(m * pct_remove)
-    log.logger.debug("Will add %d (%f) edges to and remove"
-                     "%d (%f) edges of %d" %
-                     (to_add, pct_add, to_remove, pct_remove, m))
+    log.debug("Will add %d (%f) edges to and remove %d (%f) edges of %d" %
+              (to_add, pct_add, to_remove, pct_remove, m))
 
     new_edges = set(all_pairs(G)) - set(edges)
     G.remove_edges_from(random.sample(edges, to_remove))

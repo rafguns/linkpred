@@ -1,11 +1,13 @@
 from __future__ import print_function, unicode_literals
 
+import logging
 import networkx as nx
 
 from collections import defaultdict
 from networkx.readwrite.pajek import make_qstr
-from ..util import log, python_2_unicode_compatible
+from ..util import python_2_unicode_compatible
 
+log = logging.getLogger(__name__)
 __all__ = ["Pair", "BaseScoresheet", "Scoresheet"]
 
 
@@ -52,8 +54,7 @@ class BaseScoresheet(defaultdict):
 
         """
         threshold = threshold or len(self)
-        log.logger.debug("Called Scoresheet.ranked_items(): "
-                         "threshold=%d" % threshold)
+        log.debug("Called Scoresheet.ranked_items(): threshold=%d" % threshold)
 
         # Sort first by score, then by key. This way, we always get the same
         # ranking, even in case of ties.

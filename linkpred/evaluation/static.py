@@ -1,8 +1,9 @@
+import logging
 import numpy as np
 
 from .scoresheet import BaseScoresheet
-from ..util import log
 
+log = logging.getLogger(__name__)
 
 __all__ = ["EvaluationSheet", "StaticEvaluation", "UndefinedError"]
 
@@ -133,7 +134,7 @@ class EvaluationSheet(object):
             if relevant is None:
                 raise TypeError("Cannot create evaluation sheet from "
                                 "scoresheet without set of relevant items")
-            log.logger.debug("Counting for evaluation sheet...")
+            log.debug("Counting for evaluation sheet...")
             static = StaticEvaluation(relevant=relevant, universe=universe)
             # Initialize empty array of right dimensions
             # 4 columns for tp, fp, fn, tn
@@ -142,7 +143,7 @@ class EvaluationSheet(object):
                 static.add_retrieved_item(prediction)
                 self.data[i] = (static.num_tp, static.num_fp, static.num_fn,
                                 static.num_tn)
-            log.logger.debug("Finished counting evaluation sheet...")
+            log.debug("Finished counting evaluation sheet...")
         elif isinstance(data, np.ndarray):
             self.data = data
         else:
