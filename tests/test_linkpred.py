@@ -117,88 +117,79 @@ def test_LinkPred_without_predictors():
 
 
 class TestLinkpred:
-    def setup(self):
-        self.training = io.StringIO()
-        self.training.name = 'foo.net'
-        self.training.write("*Vertices 3\n1 A\n2 B\n3 C\n*Edges 1\n1 2 1\n")
-        self.test = io.StringIO()
-        self.test.name = 'baz.net'
-        self.test.write("*Vertices 3\n1 A\n2 B\n3 C\n*Edges 1\n3 2 1\n")
-        self.config = {'predictors': ['Random'], 'label': 'testing',
-                       'training-file': self.training}
-
-        self.training.seek(0)
-        self.test.seek(0)
-
     def teardown(self):
         smokesignal.clear_all()
 
+    def config_file(self, training=False, test=False, **kwargs):
+        config = {'predictors': ['Random'], 'label': 'testing'}
+
+        # add training and test files, if
+        for var, name, fname, data in ((training, 'training', 'foo.net',
+                                        '*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
+                                        '1\n1 2 1\n'),
+                                       (test, 'test', 'bar.net',
+                                        '*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
+                                        '1\n3 2 1\n')):
+            if var:
+                fh = io.StringIO()
+                fh.name = fname
+                fh.write(data)
+                fh.seek(0)
+                config['{}-file'.format(name)] = fh
+
+        config.update(kwargs)
+        return config
+
     def test_init(self):
-        lp = linkpred.LinkPred(self.config)
+        lp = linkpred.LinkPred(self.config_file())
         assert_equal(lp.config['label'], 'testing')
+        assert lp.training is None
+
+        lp = linkpred.LinkPred(self.config_file(training=True))
         assert_is_instance(lp.training, nx.Graph)
         assert_equal(len(lp.training.nodes()), 3)
         assert_equal(len(lp.training.edges()), 1)
         assert lp.test is None
 
-        self.training.seek(0)
-
     def test_excluded(self):
         for value, expected in zip(('', 'old', 'new'),
                                    (set(), {('A', 'B')},
                                     {('B', 'C'), ('A', 'C')})):
-            config = {'exclude': value}
-            config.update(self.config)
-            lp = linkpred.LinkPred(config)
+            lp = linkpred.LinkPred(self.config_file(training=True,
+                                                    exclude=value))
             assert_equal({tuple(sorted(p)) for p in lp.excluded}, expected)
-            self.training.seek(0)
         with assert_raises(linkpred.exceptions.LinkPredError):
-            config = {'exclude': 'nonsense'}
-            config.update(self.config)
-            lp = linkpred.LinkPred(config)
+            lp = linkpred.LinkPred(self.config_file(exclude='bla'))
             lp.excluded
 
-        self.training.seek(0)
-
     def test_preprocess_only_training(self):
-        lp = linkpred.LinkPred(self.config)
+        lp = linkpred.LinkPred(self.config_file(training=True))
         lp.preprocess()
         assert_equal(set(lp.training.nodes()), set("AB"))
 
-        self.training.seek(0)
-
     def test_preprocess_training_and_test(self):
-        config = self.config.copy()
-        config['test-file'] = self.test
-        lp = linkpred.LinkPred(config)
+        lp = linkpred.LinkPred(self.config_file(training=True, test=True))
         lp.preprocess()
         assert_equal(set(lp.training.nodes()), {"B"})
         assert_equal(set(lp.test.nodes()), {"B"})
 
-        self.training.seek(0)
-        self.test.seek(0)
-
     @raises(linkpred.exceptions.LinkPredError)
     def test_setup_output_evaluating_without_test(self):
-        lp = linkpred.LinkPred(self.config)
+        lp = linkpred.LinkPred(self.config_file(training=True))
         lp.setup_output()
 
     def test_setup_output(self):
-        config = self.config.copy()
-        config['test-file'] = self.test
-
         for name, klass in (('recall-precision', RecallPrecisionPlotter),
                             ('f-score', FScorePlotter),
-                            ('roc', ROCPlotter),
+                            # Should be able to handle uppercase
+                            ('ROC', ROCPlotter),
                             ('fmax', FMaxListener),
                             ('cache-evaluations', CacheEvaluationListener)):
-            config['output'] = [name]
+            config = self.config_file(training=True, test=True, output=[name])
             lp = linkpred.LinkPred(config)
             lp.setup_output()
             assert_is_instance(lp.listeners[0], klass)
             smokesignal.clear_all()
-            self.training.seek(0)
-            self.test.seek(0)
         # Has an evaluator been set up?
         assert_equal(len(lp.evaluator.params['relevant']), 1)
         assert_equal(lp.evaluator.params['universe'], 2)
@@ -218,7 +209,7 @@ class TestLinkpred:
         linkpred.predictors.A = Stub
         linkpred.predictors.B = Stub
 
-        config = self.config.copy()
+        config = self.config_file(training=True)
         config['predictors'] = [
             {'name': 'A', 'parameters': {'X': 'x'}, 'displayname': 'prettyA'},
             {'name': 'B', 'displayname': 'prettyB'}]
@@ -232,12 +223,12 @@ class TestLinkpred:
         def a(scoresheet, dataset, predictor):
             assert scoresheet.startswith('scoresheet')
             assert predictor.startswith('pred')
-            assert_equal(dataset, self.config['label'])
+            assert_equal(dataset, 'testing')
             a.called = True
 
         @smokesignal.on('dataset_finished')
         def b(dataset):
-            assert_equal(dataset, self.config['label'])
+            assert_equal(dataset, 'testing')
             b.called = True
 
         @smokesignal.on('run_finished')
@@ -245,7 +236,7 @@ class TestLinkpred:
             c.called = True
 
         a.called = b.called = c.called = False
-        lp = linkpred.LinkPred(self.config)
+        lp = linkpred.LinkPred(self.config_file())
         lp.predictions = [('pred1', 'scoresheet1'), ('pred2', 'scoresheet2')]
         lp.process_predictions()
         assert a.called
