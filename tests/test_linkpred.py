@@ -8,6 +8,7 @@ import linkpred
 import networkx as nx
 import os
 import smokesignal
+import sys
 import tempfile
 
 
@@ -123,15 +124,19 @@ class TestLinkpred:
     def config_file(self, training=False, test=False, **kwargs):
         config = {'predictors': ['Random'], 'label': 'testing'}
 
-        # add training and test files, if
+        # add training and test files, if needed
+
+        # Make sure we get bytes
+        b = lambda s: str(s) if sys.version_info[0] == 2 else \
+            s.encode('latin-1')
         for var, name, fname, data in ((training, 'training', 'foo.net',
-                                        '*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
-                                        '1\n1 2 1\n'),
+                                        b('*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
+                                          '1\n1 2 1\n')),
                                        (test, 'test', 'bar.net',
-                                        '*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
-                                        '1\n3 2 1\n')):
+                                        b('*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
+                                          '1\n3 2 1\n'))):
             if var:
-                fh = io.StringIO()
+                fh = io.BytesIO()
                 fh.name = fname
                 fh.write(data)
                 fh.seek(0)
