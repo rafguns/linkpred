@@ -1,7 +1,7 @@
 from nose.tools import assert_equal, assert_dict_equal, raises, assert_raises
-import nose
 
 import os
+import sys
 import tempfile
 from linkpred.cli import load_profile, get_config, handle_arguments
 from contextlib import contextmanager
@@ -90,15 +90,13 @@ interpolation: true""")
 
 @raises(SystemExit)
 def test_no_training_file():
-    # Skip because nose always displays stderr output :-/
-    raise nose.SkipTest()
+    sys.stderr = sys.stdout  # Suppress nose output to stderr
     handle_arguments([])
 
 
 @raises(SystemExit)
 def test_nonexisting_predictor():
-    # Skip because nose always displays stderr output :-/
-    raise nose.SkipTest()
+    sys.stderr = sys.stdout  # Suppress nose output to stderr
     handle_arguments(["some-network", "-p", "Aargh"])
 
 
