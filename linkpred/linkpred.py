@@ -129,6 +129,7 @@ class LinkPred(object):
         self.training = self.network('training-file')
         self.test = self.network('test-file')
         self.evaluator = None
+        self.listeners = []
 
     @property
     def excluded(self):
@@ -139,16 +140,19 @@ class LinkPred(object):
         elif exclude == 'old':
             return set(self.training.edges_iter())
         elif exclude == 'new':
-            from itertools import combinations
-            return set(combinations(self.training, 2)) - \
-                set(self.training.edges_iter())
+            return set(nx.non_edges(self.training))
+        raise LinkPredError("Value '{}' for exclude is unexpected. Use either "
+                            "'old', 'new' or empty string '' (for no "
+                            "exclusions)".format(exclude))
 
     def network(self, key):
         """Get network for given key"""
         try:
-            return read_network(self.config[key])
-        except (KeyError, AttributeError):
+            network_file = self.config[key]
+        except KeyError:
             pass
+        if network_file:
+            return read_network(network_file)
 
     def preprocess(self):
         """Preprocess all networks according to configuration"""
@@ -203,13 +207,12 @@ class LinkPred(object):
                     test_set = for_comparison(self.test, exclude=self.excluded)
                     n = len(self.test)
                     # Universe = all possible edges, except for the ones that
-                    # we no longer consider (because they're already in the
-                    # training network)
+                    # we no longer consider because they're excluded
                     num_universe = n * (n - 1) / 2 - len(self.excluded)
                     self.evaluator = l.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
 
-            listener(*args)
+            self.listeners.append(listener(*args))
             log.debug("Added listener for '%s'" % output)
 
     def do_predict_all(self):
