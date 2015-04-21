@@ -179,6 +179,11 @@ class TestLinkpred:
         lp.setup_output()
 
     def test_setup_output(self):
+        # Make sure this also works is $DISPLAY is not set.
+        # Should probably mock this out...
+        import matplotlib
+        matplotlib.use('Agg')
+
         for name, klass in (('recall-precision', RecallPrecisionPlotter),
                             ('f-score', FScorePlotter),
                             # Should be able to handle uppercase
