@@ -1,5 +1,6 @@
 from __future__ import division
 import networkx as nx
+import six
 
 from ..evaluation import Scoresheet
 from ..util import progressbar
@@ -48,10 +49,10 @@ class GraphDistance(Predictor):
                                       u, v, d in self.G.edges_iter(data=True))
 
         dist = nx.shortest_path_length(G, weight=weight)
-        for a, others in dist.items():
+        for a, others in six.iteritems(dist):
             if not self.eligible_node(a):
                 continue
-            for b, length in others.items():
+            for b, length in six.iteritems(others):
                 if a == b or not self.eligible_node(b):
                     continue
                 w = 1 / length
@@ -100,7 +101,7 @@ class Katz(Predictor):
                              "Computing matrix powers: "):
             # The below method is found to be fastest for iterating through a
             # sparse matrix, see
-            # http://stackoverflow.com/questions/4319014/iterating-through-a-scipy-sparse-vector-or-matrix
+            # http://stackoverflow.com/questions/4319014/
             matrix = (adj ** k).tocoo()
             for i, j, d in zip(matrix.row, matrix.col, matrix.data):
                 if i == j:
