@@ -3,6 +3,7 @@ from nose.tools import (assert_dict_equal,
                         assert_greater,
                         assert_not_in)
 import networkx as nx
+import six
 
 from linkpred.evaluation import Pair
 from linkpred.predictors import (all_predictors,
@@ -37,7 +38,7 @@ def test_postprocessing():
     prediction_all_links = CommonNeighbours(G)()
     prediction_only_new_links = CommonNeighbours(G, excluded=G.edges())()
 
-    for link, score in prediction_all_links.items():
+    for link, score in six.iteritems(prediction_all_links):
         if G.has_edge(*link):
             assert_not_in(link, prediction_only_new_links)
         else:

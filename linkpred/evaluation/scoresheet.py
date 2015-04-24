@@ -60,7 +60,7 @@ class BaseScoresheet(defaultdict):
         # ranking, even in case of ties.
         # We use the tmp structure because it is much faster than
         # itemgetter(1, 0).
-        tmp = ((score, key) for key, score in self.items())
+        tmp = ((score, key) for key, score in six.iteritems(self))
         ranked_data = sorted(tmp, reverse=True)
 
         for score, key in ranked_data[:threshold]:
@@ -179,7 +179,7 @@ class Scoresheet(BaseScoresheet):
 
     def process_data(self, data, weight='weight'):
         if isinstance(data, dict):
-            return {Pair(k): float(v) for k, v in data.items()}
+            return {Pair(k): float(v) for k, v in six.iteritems(data)}
         if isinstance(data, nx.Graph):
             return {Pair(u, v): float(d[weight]) for u, v, d
                     in data.edges(data=True)}

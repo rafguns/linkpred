@@ -1,6 +1,7 @@
 from nose.tools import assert_equal, assert_dict_equal, raises, assert_raises
 
 import os
+import six
 import sys
 import tempfile
 from linkpred.cli import load_profile, get_config, handle_arguments
@@ -76,14 +77,14 @@ interpolation: true""")
         fh = tempfile.NamedTemporaryFile("r", delete=False)
         with temp_empty_file() as training:
             config = get_config([training, "-P", self.yaml_fname])
-            for k, v in self.expected.items():
+            for k, v in six.iteritems(self.expected):
                 assert_equal(config[k], v)
 
         with temp_empty_file() as training:
             config = get_config([fh.name, "-P", self.yaml_fname, "-p",
                                  "Katz", "-i"])
             # Profile gets priority
-            for k, v in self.expected.items():
+            for k, v in six.iteritems(self.expected):
                 assert_equal(config[k], v)
         fh.close()
 
@@ -114,11 +115,11 @@ def test_handle_arguments():
     }
 
     args = handle_arguments(['training'])
-    for k, v in expected.items():
+    for k, v in six.iteritems(expected):
         assert_equal(args[k], v)
 
     args = handle_arguments(['training', 'test'])
-    for k, v in expected.items():
+    for k, v in six.iteritems(expected):
         assert_equal(args[k], v)
     assert_equal(args["test-file"], "test")
 
@@ -127,7 +128,7 @@ def test_handle_arguments():
     args = handle_arguments(argstr.split())
     expected_special = {"predictors": ["CommonNeighbours", "Cosine"],
                         "output": ["fmax", "recall-precision"]}
-    for k, v in expected_special.items():
+    for k, v in six.iteritems(expected_special):
         assert_equal(args[k], v)
 
     args = handle_arguments(["training", "-i"])

@@ -1,10 +1,11 @@
 import networkx as nx
+import six
 
 
 def edge_weights(G, weight='weight'):
     """Iterator over edge weights in G"""
     for _, nbrdict in G.adjacency_iter():
-        for edgedata in nbrdict.values():
+        for edgedata in six.itervalues(nbrdict):
             yield edgedata[weight]
 
 

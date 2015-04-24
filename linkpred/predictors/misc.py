@@ -1,3 +1,5 @@
+import six
+
 from ..evaluation import Scoresheet
 from ..util import all_pairs
 from .base import Predictor
@@ -36,9 +38,9 @@ class Community(Predictor):
             communities = defaultdict(list)
             weight = len(dendogram) - i  # Lower i, smaller communities
 
-            for n, com in partition.items():
+            for n, com in six.iteritems(partition):
                 communities[com].append(n)
-            for nodes in communities.values():
+            for nodes in six.itervalues(communities):
                 for u, v in all_pairs(nodes):
                     if not self.eligible(u, v):
                         continue
