@@ -50,3 +50,8 @@ def test_itersubclasses():
     if six.PY2:
         with assert_raises(TypeError):
             list(u.itersubclasses(OldStyleClass))
+
+
+# This is silly but hey... 100% test coverage for this file :-)
+def test_itersubclasses_from_type():
+    list(u.itersubclasses(type))
