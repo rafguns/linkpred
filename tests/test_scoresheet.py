@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import os
-import sys
+import six
 import tempfile
 
 import networkx as nx
@@ -83,18 +83,20 @@ class TestScoresheetFile:
 
 
 def test_pair():
-    str_ = unicode if sys.version_info[0] == 2 else str
+    # We cannot use six.u since it expects a string literal as argument and
+    # we're passing an object.
+    u = unicode if six.PY2 else str
 
     t = ('a', 'b')
     pair = Pair(t)
     assert_equal(pair, Pair(*t))
     assert_equal(pair, Pair('b', 'a'))
     assert_equal(pair, eval(repr(pair)))
-    assert_equal(str_(pair), "b - a")
+    assert_equal(u(pair), "b - a")
 
     # Test unicode (C4 87 -> latin small letter C with acute)
     pair = Pair("a", "\xc4\x87")
-    assert_equal(str_(pair), "\xc4\x87 - a")
+    assert_equal(u(pair), "\xc4\x87 - a")
 
 
 @raises(AssertionError)

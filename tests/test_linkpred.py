@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 from nose.tools import (assert_equal, raises, assert_raises,
                         assert_in, assert_is_instance)
 from linkpred.evaluation.listeners import *
@@ -8,7 +9,6 @@ import linkpred
 import networkx as nx
 import os
 import smokesignal
-import sys
 import tempfile
 
 
@@ -125,16 +125,12 @@ class TestLinkpred:
         config = {'predictors': ['Random'], 'label': 'testing'}
 
         # add training and test files, if needed
-
-        # Make sure we get bytes
-        b = lambda s: str(s) if sys.version_info[0] == 2 else \
-            s.encode('latin-1')
         for var, name, fname, data in ((training, 'training', 'foo.net',
-                                        b('*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
-                                          '1\n1 2 1\n')),
+                                        b'*Vertices 3\n1 A\n2 B\n3 C\n'
+                                        b'*Edges 1\n1 2 1\n'),
                                        (test, 'test', 'bar.net',
-                                        b('*Vertices 3\n1 A\n2 B\n3 C\n*Edges '
-                                          '1\n3 2 1\n'))):
+                                        b'*Vertices 3\n1 A\n2 B\n3 C\n'
+                                        b'*Edges 1\n3 2 1\n')):
             if var:
                 fh = io.BytesIO()
                 fh.name = fname
