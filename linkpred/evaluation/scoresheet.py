@@ -1,11 +1,11 @@
 from __future__ import print_function, unicode_literals
 
 import logging
+import six
 import networkx as nx
 
 from collections import defaultdict
 from networkx.readwrite.pajek import make_qstr
-from ..util import python_2_unicode_compatible
 
 log = logging.getLogger(__name__)
 __all__ = ["Pair", "BaseScoresheet", "Scoresheet"]
@@ -97,7 +97,7 @@ class BaseScoresheet(defaultdict):
                     key, score, delimiter).encode(encoding))
 
 
-@python_2_unicode_compatible
+@six.python_2_unicode_compatible
 class Pair(object):
     """An unsorted pair of things.
 

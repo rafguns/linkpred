@@ -22,6 +22,7 @@ setup(
         'numpy>=1.6',
         'pyyaml>=3.0',
         'scipy>=0.10',
+        'six>=1.9.0',
         'smokesignal==0.7',
     ],
     author_email='raf.guns@uantwerpen.be',
