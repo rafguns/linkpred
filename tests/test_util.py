@@ -1,6 +1,7 @@
-from nose.tools import assert_equal, raises
+from nose.tools import assert_equal, assert_raises, raises
 
 import linkpred.util as u
+import six
 
 
 def test_all_pairs():
@@ -17,3 +18,35 @@ def test_load_function():
 @raises(ValueError)
 def test_load_function_no_modulename():
     u.load_function('join')
+
+
+def test_interpolate():
+    a = [10, 8, 9, 6, 6, 7, 3, 5, 6, 2, 1, 2]
+    assert_equal(u.interpolate(a), [10, 9, 9, 7, 7, 7, 6, 6, 6, 2, 2, 2])
+
+    a = list(range(5))
+    assert_equal(u.interpolate(a), [4] * 5)
+
+
+def test_itersubclasses():
+    class A(object):
+        pass
+
+    class Aa(A):
+        pass
+
+    class Ab(A):
+        pass
+
+    class Aaa(Aa):
+        pass
+
+    class OldStyleClass:
+        pass
+
+    name = lambda x: x.__name__
+    assert_equal(list(map(name, u.itersubclasses(A))), ['Aa', 'Aaa', 'Ab'])
+
+    if six.PY2:
+        with assert_raises(TypeError):
+            list(u.itersubclasses(OldStyleClass))

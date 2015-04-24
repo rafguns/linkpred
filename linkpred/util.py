@@ -47,15 +47,6 @@ def load_function(full_functionname):
     return function
 
 
-def ensure_dir(fname):
-    """Make sure all the intermediate directories exist for given file name"""
-    import os
-
-    d = os.path.dirname(fname)
-    if not os.path.isdir(d):
-        os.makedirs(d)
-
-
 def interpolate(curve):
     """Make curve decrease."""
     for i in range(-1, -len(curve), - 1):
