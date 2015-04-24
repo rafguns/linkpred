@@ -1,11 +1,9 @@
 from __future__ import division
 
 from nose.tools import *
-from utils import assert_array_equal
+from utils import assert_array_equal, temp_file
 
 import numpy as np
-import os
-import tempfile
 from linkpred.evaluation import (StaticEvaluation, EvaluationSheet,
                                  Scoresheet, BaseScoresheet, UndefinedError)
 
@@ -131,12 +129,10 @@ class TestEvaluationSheet:
         data = np.array([[1, 0, 0, 1], [1, 1, 0, 0]])
         sheet = EvaluationSheet(data)
 
-        fd, fname = tempfile.mkstemp()
-        sheet.to_file(fname)
-        newsheet = EvaluationSheet.from_file(fname)
-        assert_array_equal(sheet.data, newsheet.data)
-        os.close(fd)
-        os.unlink(fname)
+        with temp_file() as fname:
+            sheet.to_file(fname)
+            newsheet = EvaluationSheet.from_file(fname)
+            assert_array_equal(sheet.data, newsheet.data)
 
     def test_measures(self):
         sheet_num_universe = EvaluationSheet(self.scores, relevant=self.rel,

@@ -1,14 +1,10 @@
+import itertools
 import sys
 
 
-def all_pairs(l):
-    """Return list of all possible pairs in l"""
-    try:
-        from itertools import combinations
-        return combinations(l, 2)
-    except ImportError:
-        return (tuple(sorted((x, y))) for i, x in enumerate(l, start=1)
-                for y in l[:i] if x != y)
+def all_pairs(iterable):
+    """Return iterator over all possible pairs in l"""
+    return itertools.combinations(iterable, 2)
 
 
 def progressbar(it, prefix="", size=60):
@@ -49,15 +45,6 @@ def load_function(full_functionname):
     module = sys.modules[modulename]
     function = getattr(module, functionname)
     return function
-
-
-def ensure_dir(fname):
-    """Make sure all the intermediate directories exist for given file name"""
-    import os
-
-    d = os.path.dirname(fname)
-    if not os.path.isdir(d):
-        os.makedirs(d)
 
 
 def interpolate(curve):

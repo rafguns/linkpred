@@ -3,13 +3,12 @@ from __future__ import unicode_literals
 from nose.tools import (assert_equal, raises, assert_raises,
                         assert_in, assert_is_instance)
 from linkpred.evaluation.listeners import *
+from utils import temp_file
 
 import io
 import linkpred
 import networkx as nx
-import os
 import smokesignal
-import tempfile
 
 
 def test_imports():
@@ -48,68 +47,63 @@ def test_pretty_print():
                                            "foo (bar = 0.1, baz = 5)"])
 
 
+@raises(linkpred.exceptions.LinkPredError)
 def test_read_unknown_network_type():
-    fd, fname = tempfile.mkstemp(suffix=".foo")
-    with assert_raises(linkpred.exceptions.LinkPredError):
+    with temp_file(suffix=".foo") as fname:
         linkpred.read_network(fname)
-    os.close(fd)
-    os.unlink(fname)
 
 
 def test_read_network():
-    fd, fname = tempfile.mkstemp(suffix=".net")
-    with open(fname, "w") as fh:
-        fh.write("""*vertices 2
+    with temp_file(suffix=".net") as fname:
+        with open(fname, "w") as fh:
+            fh.write("""*vertices 2
 1 "A"
 2 "B"
 *arcs 2
 1 2
 2 1""")
-    expected = nx.DiGraph()
-    expected.add_edges_from([("A", "B"), ("B", "A")])
+        expected = nx.DiGraph()
+        expected.add_edges_from([("A", "B"), ("B", "A")])
 
-    G = linkpred.read_network(fname)
-    assert_equal(set(G.edges()), set(expected.edges()))
-
-    with open(fname) as fh:
         G = linkpred.read_network(fname)
         assert_equal(set(G.edges()), set(expected.edges()))
 
-    os.close(fd)
-    os.unlink(fname)
+        with open(fname) as fh:
+            G = linkpred.read_network(fname)
+            assert_equal(set(G.edges()), set(expected.edges()))
 
 
 def test_read_pajek():
     from linkpred.linkpred import _read_pajek
 
-    fd, fname = tempfile.mkstemp(suffix=".net")
-    with open(fname, "w") as fh:
-        fh.write("""*vertices 2
+    with temp_file(suffix=".net") as fname:
+        with open(fname, "w") as fh:
+            fh.write("""*vertices 2
 1 "A"
 2 "B"
 *arcs 2
 1 2
 1 2""")
-    expected = nx.DiGraph()
-    expected.add_edges_from([("A", "B")])
+        expected = nx.DiGraph()
+        expected.add_edges_from([("A", "B")])
 
-    G = _read_pajek(fname)
-    assert_is_instance(G, nx.DiGraph)
-    assert_equal(sorted(G.edges()), sorted(expected.edges()))
+        G = _read_pajek(fname)
+        assert_is_instance(G, nx.DiGraph)
+        assert_equal(sorted(G.edges()), sorted(expected.edges()))
 
-    with open(fname, "w") as fh:
-        fh.write("""*vertices 2
+        with open(fname, "w") as fh:
+            fh.write("""*vertices 2
 1 "A"
 2 "B"
 *edges 2
 1 2
 1 2""")
-    expected = nx.Graph()
-    expected.add_edges_from([("A", "B")])
+        expected = nx.Graph()
+        expected.add_edges_from([("A", "B")])
 
-    G = _read_pajek(fname)
-    assert_is_instance(G, nx.Graph)
-    assert_equal(sorted(G.edges()), sorted(expected.edges()))
+        G = _read_pajek(fname)
+        assert_is_instance(G, nx.Graph)
+        assert_equal(sorted(G.edges()), sorted(expected.edges()))
 
 
 @raises(linkpred.exceptions.LinkPredError)
