@@ -31,7 +31,7 @@ class Predictor(object):
 
     """
 
-    def __init__(self, G, eligible=None, excluded=[]):
+    def __init__(self, G, eligible=None, excluded=None):
         """
         Initialize predictor
 
@@ -45,7 +45,7 @@ class Predictor(object):
             and non-eligible nodes. We only try to predict links between
             two eligible nodes.
 
-        excluded : iterable
+        excluded : iterable or None
             A list or iterable of node pairs that should be excluded (i.e., not
             predicted). This is useful to, for instance, make sure that we only
             predict new links that are not currently in G.
@@ -54,7 +54,7 @@ class Predictor(object):
         self.G = G
         self.eligible_attr = eligible
         self.name = self.__class__.__name__
-        self.excluded = excluded
+        self.excluded = [] if excluded is None else excluded
 
         # Add a decorator to predict(), to do the necessary postprocessing for
         # filtering out links if `excluded` is not empty. We do this in
