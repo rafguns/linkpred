@@ -80,7 +80,7 @@ class BaseScoresheet(defaultdict):
         return u"{}{}{}\n".format(key, delimiter, value)
 
     @classmethod
-    def from_file(cls, fname, delimiter='\t', encoding='utf-8', **kwargs):
+    def from_file(cls, fname, delimiter='\t', encoding='utf-8'):
         """Create new instance from CSV file *fname*"""
         d = cls()
         with open(fname, "rb") as fh:
@@ -89,7 +89,7 @@ class BaseScoresheet(defaultdict):
                 d[key] = score
         return d
 
-    def to_file(self, fname, delimiter='\t', encoding='utf-8', **kwargs):
+    def to_file(self, fname, delimiter='\t', encoding='utf-8'):
         """Save to CSV file *fname*"""
         with open(fname, "wb") as fh:
             for key, score in self.ranked_items():
