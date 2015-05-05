@@ -38,7 +38,20 @@ from linkpred.cli import get_config
 from linkpred.linkpred import LinkPred
 
 
+def setup_logger():
+    import logging
+
+    logger = logging.getLogger('linkpred')
+    streamhandler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s",
+                                  "%H:%M:%S")
+    streamhandler.setFormatter(formatter)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(streamhandler)
+
+
 def main():
+    setup_logger()
     config = get_config()
     linkpred = LinkPred(config)
     linkpred.preprocess()
