@@ -73,7 +73,7 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
     M = raw_google_matrix(G, nodelist=nodelist, weight=weight)
     sim = np.identity(n, dtype=np.float32)
     for i in range(num_iterations):
-        log.debug("Starting SimRank iteration {}".format(i))
+        log.debug("Starting SimRank iteration %d", i)
         temp = c * M.T * sim * M
         sim = temp + np.identity(n) - np.diag(np.diag(temp))
     return sim

@@ -119,7 +119,7 @@ class LinkPred(object):
         }
         if config:
             self.config.update(config)
-        log.debug("Config: {}".format(self.config))
+        log.debug("Config: %s", self.config)
 
         if not self.config['predictors']:
             raise LinkPredError("No predictor specified. Aborting...")
