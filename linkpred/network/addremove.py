@@ -1,7 +1,6 @@
 import logging
+import networkx as nx
 import random
-
-from ..util import all_pairs
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ def add_random_edges(G, pct):
     to_add = int(m * pct)
     log.debug("Will add %d edges to %d (%f)" % (to_add, m, pct))
 
-    new_edges = set(all_pairs(G)) - set(G.edges_iter())
+    new_edges = set(nx.non_edges(G))
     G.add_edges_from(random.sample(new_edges, to_add), weight=1)
 
 
@@ -77,6 +76,6 @@ def add_remove_random_edges(G, pct_add, pct_remove):
     log.debug("Will add %d (%f) edges to and remove %d (%f) edges of %d" %
               (to_add, pct_add, to_remove, pct_remove, m))
 
-    new_edges = set(all_pairs(G)) - set(edges)
+    new_edges = set(nx.non_edges(G))
     G.remove_edges_from(random.sample(edges, to_remove))
     G.add_edges_from(random.sample(new_edges, to_add))
