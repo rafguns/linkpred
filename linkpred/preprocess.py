@@ -27,7 +27,7 @@ def without_low_degree_nodes(G, minimum=1, eligible=None):
     to_remove = low_degree(G, minimum)
     H = G.copy()
     H.remove_nodes_from(to_remove)
-    log.info("Removed {} nodes (degree < {})".format(len(to_remove), minimum))
+    log.info("Removed %d nodes (degree < %d)", len(to_remove), minimum)
 
     return H
 
@@ -70,7 +70,7 @@ def without_uncommon_nodes(networks, eligible=None):
         H = G.copy()
         H.remove_nodes_from(to_remove)
         new_networks.append(H)
-        log.info("Removed {} nodes (not common)".format(len(to_remove)))
+        log.info("Removed %d nodes (not common)", len(to_remove))
 
     return new_networks
 
