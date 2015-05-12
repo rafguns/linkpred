@@ -152,9 +152,9 @@ class Plotter(Listener):
         ax.plot(self._x, self._y, self.chart_look(), label=predictor)
 
         log.debug("Added line with %d points: "
-                  "start = (%.2f, %.2f), end = (%.2f, %.2f)" %
-                  (len(self._x), self._x[0], self._y[0],
-                   self._x[-1], self._y[-1]))
+                  "start = (%.2f, %.2f), end = (%.2f, %.2f)",
+                  len(self._x), self._x[0], self._y[0],
+                  self._x[-1], self._y[-1])
 
     def chart_look(self, default=None):
         if not self.chart_looks:

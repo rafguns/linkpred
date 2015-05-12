@@ -54,7 +54,7 @@ class BaseScoresheet(defaultdict):
 
         """
         threshold = threshold or len(self)
-        log.debug("Called Scoresheet.ranked_items(): threshold=%d" % threshold)
+        log.debug("Called Scoresheet.ranked_items(): threshold=%d", threshold)
 
         # Sort first by score, then by key. This way, we always get the same
         # ranking, even in case of ties.
