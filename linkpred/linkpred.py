@@ -84,12 +84,12 @@ def read_network(fh):
     ext = os.path.splitext(fname.lower())[1]
     try:
         read = FILETYPE_READERS[ext]
-        log.info("Reading file '%s'..." % fname)
+        log.info("Reading file '%s'...", fname)
         network = read(fh)
         log.info("Successfully read file.")
     except KeyError:
         raise LinkPredError("File '%s' is of an unknown type. Known types "
-                            "are: %s." % (fname, ", ".join(FILETYPE_READERS)))
+                            "are: %s.", fname, ", ".join(FILETYPE_READERS))
 
     return network
 
@@ -213,7 +213,7 @@ class LinkPred(object):
                         relevant=test_set, universe=num_universe)
 
             self.listeners.append(listener(*args))
-            log.debug("Added listener for '%s'" % output)
+            log.debug("Added listener for '%s'", output)
 
     def do_predict_all(self):
         """Generator that yields predictions based on training network
@@ -232,12 +232,12 @@ class LinkPred(object):
             label = predictor_profile.get('displayname',
                                           pretty_print(name, params))
 
-            log.info("Executing %s..." % label)
+            log.info("Executing %s...", label)
             predictor = predictor_class(self.training,
                                         eligible=self.config['eligible'],
                                         excluded=self.excluded)
             scoresheet = predictor.predict(**params)
-            log.info("Finished executing %s." % label)
+            log.info("Finished executing %s.", label)
 
             # XXX TODO Do we need label?
             yield label, scoresheet
@@ -257,8 +257,8 @@ class LinkPred(object):
 
         # The following loop actually executes the predictors
         for predictorname, scoresheet in self.predictions:
-            log.debug("Predictor '%s' yields %d predictions" % (
-                predictorname, len(scoresheet)))
+            log.debug("Predictor '%s' yields %d predictions",
+                      predictorname, len(scoresheet))
             smokesignal.emit('prediction_finished',
                              scoresheet=scoresheet,
                              dataset=self.label,
