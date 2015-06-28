@@ -244,8 +244,8 @@ class LinkPred(object):
             scoresheet = predictor.predict(**params)
             log.info("Finished executing %s.", label)
 
-            # XXX TODO Do we need label?
-            yield label, scoresheet
+            # XXX TODO Do we need name?
+            yield name, scoresheet
 
     def predict_all(self):
         """Perform all predictions according to configuration
