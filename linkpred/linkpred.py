@@ -177,24 +177,29 @@ class LinkPred(object):
 
         listeners = {
             'cache-predictions': (
-                l.CachePredictionListener, False, []),
+                l.CachePredictionListener, False, {}),
             'recall-precision': (
-                l.RecallPrecisionPlotter, True, [self.label, filetype,
-                                                 interpolation]),
+                l.RecallPrecisionPlotter,
+                True,
+                dict(name=self.label, filetype=filetype,
+                     interpolation=interpolation)),
             'f-score': (
-                l.FScorePlotter, True, [self.label, filetype,
-                                        "# predictions"]),
+                l.FScorePlotter,
+                True,
+                dict(name=self.label, filetype=filetype)),
             'roc': (
-                l.ROCPlotter, True, [self.label, filetype]),
+                l.ROCPlotter,
+                True,
+                dict(name=self.label, filetype=filetype)),
             'fmax': (
-                l.FMaxListener, True, [self.label]),
+                l.FMaxListener, True, {'name': self.label}),
             'cache-evaluations': (
-                l.CacheEvaluationListener, True, [])
+                l.CacheEvaluationListener, True, {})
         }
 
         for output in self.config['output']:
             name = output.lower()
-            listener, evaluating, args = listeners[name]
+            listener, evaluating, kwargs = listeners[name]
 
             if evaluating:
                 if not self.test:
@@ -212,7 +217,7 @@ class LinkPred(object):
                     self.evaluator = l.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
 
-            self.listeners.append(listener(*args))
+            self.listeners.append(listener(**kwargs))
             log.debug("Added listener for '%s'", output)
 
     def do_predict_all(self):
