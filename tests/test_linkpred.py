@@ -34,7 +34,6 @@ def test_for_comparison():
     assert_equal(for_comparison(G, exclude=to_delete), expected)
 
 
-# XXX This may fail because of hash randomization
 def test_pretty_print():
     from linkpred.linkpred import pretty_print
 
@@ -215,8 +214,8 @@ class TestLinkpred:
             {'name': 'B', 'displayname': 'prettyB'}]
         lp = linkpred.LinkPred(config)
         results = list(lp.predict_all())
-        assert_equal(results, [('prettyA', 'scoresheet'),
-                               ('prettyB', 'scoresheet')])
+        assert_equal(results, [('A', 'scoresheet'),
+                               ('B', 'scoresheet')])
 
     def test_process_predictions(self):
         @smokesignal.on('prediction_finished')
