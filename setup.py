@@ -18,7 +18,7 @@ setup(
     tests_require=['nose'],
     install_requires=[
         'matplotlib>=1.1',
-        'networkx>=1.7',
+        'networkx==1.10',
         'numpy>=1.6',
         'pyyaml>=3.0',
         'scipy>=0.10',
