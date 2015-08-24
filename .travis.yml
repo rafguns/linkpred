@@ -1,3 +1,11 @@
+sudo: false
+addons:
+    apt:
+        packages:
+        - libatlas-dev
+        - libatlas-base-dev
+        - liblapack-dev
+        - gfortran
 language: python
 python:
     - "2.7"
@@ -16,12 +24,11 @@ before_install:
     - conda update -q conda
 install:
     - DEPS="networkx numpy scipy matplotlib pyyaml"
-    - sudo apt-get install -qq libatlas-dev libatlas-base-dev liblapack-dev gfortran
     - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION $DEPS
     - source activate test-environment
     - pip install smokesignal
     - pip install --upgrade coverage coveralls nose
-script: 
+script:
     - printenv PWD
     - pip install .
     - nosetests --with-doctest --with-coverage --cover-package=linkpred
