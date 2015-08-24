@@ -192,6 +192,7 @@ class TestLinkpred:
         # Has an evaluator been set up?
         assert_equal(len(lp.evaluator.params['relevant']), 1)
         assert_equal(lp.evaluator.params['universe'], 2)
+        assert_is_instance(lp.evaluator.params['universe'], int)
 
     def test_predict_all(self):
         # Mock out linkpred.predictors

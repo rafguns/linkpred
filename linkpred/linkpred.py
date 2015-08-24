@@ -1,5 +1,5 @@
 """linkpred main module"""
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
 import logging
 import networkx as nx
 import os
@@ -213,7 +213,8 @@ class LinkPred(object):
                     n = len(self.test)
                     # Universe = all possible edges, except for the ones that
                     # we no longer consider because they're excluded
-                    num_universe = n * (n - 1) / 2 - len(self.excluded)
+                    # Make sure we get an int here.
+                    num_universe = n * (n - 1) // 2 - len(self.excluded)
                     self.evaluator = l.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
 
