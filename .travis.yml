@@ -1,4 +1,5 @@
 sudo: false
+
 addons:
     apt:
         packages:
@@ -6,28 +7,37 @@ addons:
         - libatlas-base-dev
         - liblapack-dev
         - gfortran
+
 language: python
+
 python:
     - "2.7"
     - "3.4"
+
+cache:
+    directories:
+    - $HOME/.cache/pip
+
 before_install:
     - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-          wget http://repo.continuum.io/miniconda/Miniconda-3.7.0-Linux-x86_64.sh -O miniconda.sh;
+          wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
       else
-          wget http://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O miniconda.sh;
+          wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
       fi
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH="$HOME/miniconda/bin:$PATH"
     - hash -r
     - conda info -a
     - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
+    - pip install --upgrade pip
+
 install:
     - DEPS="networkx numpy scipy matplotlib pyyaml"
     - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION $DEPS
     - source activate test-environment
     - pip install smokesignal
     - pip install --upgrade coverage coveralls nose
+
 script:
     - printenv PWD
     - pip install .
