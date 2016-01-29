@@ -2,13 +2,22 @@
 import argparse
 import json
 import logging
+import sys
 
 from .exceptions import LinkPredError
 from .predictors import all_predictors
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('linkpred')
 
 __all__ = ["load_profile", "get_config", "handle_arguments"]
+
+
+def setup_logger():
+    streamhandler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s",
+                                  "%H:%M:%S")
+    streamhandler.setFormatter(formatter)
+    log.addHandler(streamhandler)
 
 
 def load_profile(fname):

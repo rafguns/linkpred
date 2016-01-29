@@ -34,25 +34,13 @@ else:
 
 # LIBDIR trick end (marker for removal on platforms that don't need it)
 
-from linkpred.cli import get_config
+from linkpred.cli import get_config, setup_logger
 from linkpred.linkpred import LinkPred
 
 
-def setup_logger():
-    import logging
-
-    logger = logging.getLogger('linkpred')
-    streamhandler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s",
-                                  "%H:%M:%S")
-    streamhandler.setFormatter(formatter)
-    logger.setLevel(logging.INFO)
-    logger.addHandler(streamhandler)
-
-
 def main():
-    setup_logger()
     config = get_config()
+    setup_logger()
     linkpred = LinkPred(config)
     linkpred.preprocess()
     linkpred.predict_all()
