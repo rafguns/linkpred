@@ -1,16 +1,13 @@
 import os
 import subprocess
 
-from nose.tools import assert_equal, with_setup
+from nose.tools import assert_equal
 
 
-def setup_mpl():
+def test_simple_run():
     import matplotlib
     matplotlib.use('Agg')
 
-
-@with_setup(setup_mpl)
-def test_simple_run():
     num_files = len(os.listdir('examples'))
 
     subprocess.check_call(
