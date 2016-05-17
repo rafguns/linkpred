@@ -115,7 +115,8 @@ class LinkPred(object):
             'output':         ['recall-precision'],
             'predictors':     [],
             'test-file':      None,
-            'training-file':  None
+            'training-file':  None,
+            'cutoff':         10,
         }
         if config:
             self.config.update(config)
@@ -128,11 +129,12 @@ class LinkPred(object):
             os.path.splitext(self.config['training-file'])[0]
         self.training = self.network('training-file')
         self.test = self.network('test-file')
+        self.cutoff = self.config['cutoff']
         self.evaluator = None
         self.listeners = []
+        self.excluded = self.get_excluded()
 
-    @property
-    def excluded(self):
+    def get_excluded(self):
         """Get set of links that should not be predicted"""
         exclude = self.config['exclude']
         if not exclude:
@@ -159,8 +161,12 @@ class LinkPred(object):
 
         log.info("Starting preprocessing...")
 
-        preprocessed = lambda G: without_low_degree_nodes(
-            without_selfloops(G), minimum=self.config['min_degree'])
+        def preprocessed(G):
+            G = without_selfloops(G)
+            return without_low_degree_nodes(G, self.config['min_degree'])
+
+        if self.config['min_degree'] == 0:
+            return  # skip, HACK
 
         if self.test:
             networks = [preprocessed(G) for G in (self.training, self.test)]
@@ -193,6 +199,9 @@ class LinkPred(object):
                 dict(name=self.label, filetype=filetype)),
             'fmax': (
                 l.FMaxListener, True, {'name': self.label}),
+            'precisionatk': (
+                l.PrecisionAtKListener, True, {'name': self.label,
+                                               'k': self.cutoff}),
             'cache-evaluations': (
                 l.CacheEvaluationListener, True, {})
         }
@@ -215,6 +224,7 @@ class LinkPred(object):
                     # we no longer consider because they're excluded
                     # Make sure we get an int here.
                     num_universe = n * (n - 1) // 2 - len(self.excluded)
+                    log.debug(n, num_universe, len(self.excluded))
                     self.evaluator = l.EvaluatingListener(
                         relevant=test_set, universe=num_universe)
 
@@ -246,7 +256,7 @@ class LinkPred(object):
             log.info("Finished executing %s.", label)
 
             # XXX TODO Do we need name?
-            yield name, scoresheet
+            yield label, scoresheet
 
     def predict_all(self):
         """Perform all predictions according to configuration

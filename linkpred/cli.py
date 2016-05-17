@@ -72,7 +72,7 @@ def handle_arguments(args=None):
 
     # TODO allow case-insensitive match
     output_types = ["recall-precision", "f-score", "roc", "cache-predictions",
-                    "cache-evaluations", "fmax"]
+                    "cache-evaluations", "fmax", "precisionatk"]
     output_help = "Type of output(s) to produce (default: recall-precision). "\
                   "Allowed values are: " + ", ".join(output_types)
     parser.add_argument("-o", "--output", help=output_help, nargs="*",

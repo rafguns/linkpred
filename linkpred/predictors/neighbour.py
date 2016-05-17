@@ -4,20 +4,23 @@ import math
 from ..evaluation import Scoresheet
 from ..util import all_pairs
 from .base import Predictor
-from .util import neighbourhood, neighbourhood_size,\
-    neighbourhood_intersection_size, neighbourhood_union_size
+from .util import (neighbourhood, neighbourhood_size,
+                   neighbourhood_intersection_size, neighbourhood_union_size)
 
-__all__ = ["AdamicAdar",
-           "AssociationStrength",
-           "CommonNeighbours",
-           "Cosine",
-           "DegreeProduct",
-           "Jaccard",
-           "MaxOverlap",
-           "MinOverlap",
-           "NMeasure",
-           "Pearson",
-           "ResourceAllocation"]
+__all__ = [
+    "AdamicAdar",
+    "AssociationStrength",
+    "CommonNeighbors",
+    "CommonNeighbours",
+    "Cosine",
+    "DegreeProduct",
+    "Jaccard",
+    "MaxOverlap",
+    "MinOverlap",
+    "NMeasure",
+    "Pearson",
+    "ResourceAllocation",
+]
 
 
 class AdamicAdar(Predictor):
@@ -107,6 +110,9 @@ class CommonNeighbours(Predictor):
             if w > 0:
                 res[(a, b)] = w
         return res
+
+
+CommonNeighbors = CommonNeighbours
 
 
 class Cosine(Predictor):

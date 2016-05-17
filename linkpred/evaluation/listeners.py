@@ -96,7 +96,7 @@ class FMaxListener(Listener):
 
         with open(self.fname, 'a') as f:
             f.write(status)
-        print(status)
+        print("Fmax", status)
 
 
 class PrecisionAtKListener(Listener):
@@ -115,7 +115,7 @@ class PrecisionAtKListener(Listener):
         status = "%s\t%s\t%.4f\n" % (dataset, predictor, precision)
         with open(self.fname, 'a') as f:
             f.write(status)
-        print(status)
+        print("Precision@k", status)
 
 
 GENERIC_CHART_LOOKS = ['k-', 'k--', 'k.-', 'k:',
