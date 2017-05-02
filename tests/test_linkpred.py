@@ -25,11 +25,12 @@ def test_for_comparison():
     from linkpred.evaluation import Pair
 
     G = nx.path_graph(10)
-    expected = set(Pair(x) for x in [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5),
-                                     (5, 6), (6, 7), (7, 8), (8, 9)])
+    expected = {(0, 1), (1, 2), (2, 3), (3, 4), (4, 5),
+                (5, 6), (6, 7), (7, 8), (8, 9)}
     assert_equal(for_comparison(G), expected)
 
     to_delete = [Pair(2, 3), Pair(8, 9)]
+    expected = {Pair(t) for t in expected}
     expected = expected.difference(to_delete)
     assert_equal(for_comparison(G, exclude=to_delete), expected)
 
