@@ -80,7 +80,7 @@ Example usage within Python
     >>> simrank_results = simrank.predict(c=0.5)
     >>> top = simrank_results.top(5)
     >>> for authors, score in top.items():
-    ...    print authors, score
+    ...    print(authors, score)
     ...
     Tomizawa, H - Fujigaki, Y 0.188686630053
     Shirabe, M - Hayashi, T 0.143866427916
