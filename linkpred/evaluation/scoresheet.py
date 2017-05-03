@@ -129,19 +129,40 @@ class Pair(object):
                 "__init__() takes 1 or 2 arguments in addition to self")
         # For link prediction, a and b are two different nodes
         assert a != b, "Predicted link (%s, %s) is a self-loop!" % (a, b)
-        self.elements = (a, b) if a > b else (b, a)
+        self.elements = self._sorted_tuple((a, b))
+
+    @staticmethod
+    def _sorted_tuple(t):
+        a, b = t
+        return (a, b) if a > b else (b, a)
 
     def __eq__(self, other):
-        return self.elements == other.elements
+        try:
+            return self.elements == other.elements
+        except AttributeError:
+            return self.elements == self._sorted_tuple(other)
 
     def __ne__(self, other):
-        return self.elements != other.elements
+        return not self == other
 
     def __lt__(self, other):
-        return self.elements < other.elements
+        try:
+            return self.elements < other.elements
+        except AttributeError:
+
+            return self.elements < self._sorted_tuple(other)
 
     def __gt__(self, other):
-        return self.elements > other.elements
+        try:
+            return self.elements > other.elements
+        except AttributeError:
+            return self.elements > self._sorted_tuple(other)
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return self > other or self == other
 
     def __getitem__(self, idx):
         return self.elements[idx]

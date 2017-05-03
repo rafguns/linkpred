@@ -22,7 +22,10 @@ def for_comparison(G, exclude=None):
     In practice this means we return it as a set of Pairs.
 
     """
-    exclude = set(Pair(u, v) for u, v in exclude) if exclude else set()
+    if not exclude:
+        return set(G.edges_iter())
+
+    exclude = set(Pair(u, v) for u, v in exclude)
     return set(Pair(u, v) for u, v in G.edges_iter()) - exclude
 
 
