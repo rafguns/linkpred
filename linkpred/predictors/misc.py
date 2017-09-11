@@ -66,7 +66,7 @@ class Copy(Predictor):
 
         """
         if weight is None:
-            return Scoresheet.fromkeys(self.G.edges_iter(), 1)
+            return Scoresheet.fromkeys(self.G.edges(), 1)
         return Scoresheet(((u, v), d[weight]) for u, v, d in
                           self.G.edges(data=True))
 

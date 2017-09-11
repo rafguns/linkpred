@@ -1,6 +1,8 @@
 import logging
 log = logging.getLogger(__name__)
 
+import networkx as nx
+
 
 def without_low_degree_nodes(G, minimum=1, eligible=None):
     """Return a copy of the graph without nodes with degree below minimum
@@ -19,9 +21,9 @@ def without_low_degree_nodes(G, minimum=1, eligible=None):
     def low_degree(G, threshold):
         """Get eligible nodes whose degree is below the threshold"""
         if eligible is None:
-            return [n for n, d in G.degree_iter() if d < threshold]
+            return [n for n, d in G.degree() if d < threshold]
         else:
-            return [n for n, d in G.degree_iter()
+            return [n for n, d in G.degree()
                     if d < threshold and G.node[n][eligible]]
 
     to_remove = low_degree(G, minimum)
@@ -58,9 +60,9 @@ def without_uncommon_nodes(networks, eligible=None):
     def items_outside(G, nbunch):
         """Get eligible nodes outside nbunch"""
         if eligible is None:
-            return [n for n in G.nodes_iter() if n not in nbunch]
+            return [n for n in G.nodes() if n not in nbunch]
         else:
-            return [n for n in G.nodes_iter()
+            return [n for n in G.nodes()
                     if G.node[n][eligible] and n not in nbunch]
 
     common = set.intersection(*[set(G) for G in networks])
@@ -77,12 +79,12 @@ def without_uncommon_nodes(networks, eligible=None):
 
 def without_selfloops(G):
     """return copy of G without selfloop edges"""
-    loops = G.selfloop_edges()
     H = G.copy()
+    num_loops = nx.number_of_selfloops(G)
 
-    if loops:
+    if num_loops:
         log.warning("Network contains {} self-loops. "
-                    "Removing...".format(len(loops)))
-        H.remove_edges_from(loops)
+                    "Removing...".format(num_loops))
+        H.remove_edges_from(nx.selfloop_edges(G))
 
     return H

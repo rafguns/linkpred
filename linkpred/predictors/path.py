@@ -1,6 +1,5 @@
 from __future__ import division
 import networkx as nx
-import six
 
 from ..evaluation import Scoresheet
 from ..util import progressbar
@@ -46,13 +45,13 @@ class GraphDistance(Predictor):
             # We assume that edge weights denote proximities
             G = nx.Graph()
             G.add_weighted_edges_from((u, v, 1 / d[weight] ** alpha) for
-                                      u, v, d in self.G.edges_iter(data=True))
+                                      u, v, d in self.G.edges(data=True))
 
         dist = nx.shortest_path_length(G, weight=weight)
-        for a, others in six.iteritems(dist):
+        for a, others in dist:
             if not self.eligible_node(a):
                 continue
-            for b, length in six.iteritems(others):
+            for b, length in others.items():
                 if a == b or not self.eligible_node(b):
                     continue
                 w = 1 / length
@@ -92,7 +91,7 @@ class Katz(Predictor):
             import numpy
             dtype = numpy.int32
 
-        nodelist = self.G.nodes()
+        nodelist = list(self.G.nodes)
         adj = nx.to_scipy_sparse_matrix(
             self.G, dtype=dtype, weight=weight)
         res = Scoresheet()

@@ -121,7 +121,7 @@ class Predictor(object):
             consists of all nodes that are two links away)
 
         """
-        for a in self.G.nodes_iter():
+        for a in self.G.nodes():
             if not self.eligible_node(a):
                 continue
             for b in neighbourhood(self.G, a, k):

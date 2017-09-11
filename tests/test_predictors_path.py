@@ -18,7 +18,7 @@ def test_katz():
     for weight in ('weight', None):
         katz = Katz(G).predict(beta=beta, weight=weight)
 
-        nodes = G.nodes()
+        nodes = list(G.nodes())
         M = nx.to_numpy_matrix(G, nodelist=nodes, weight=weight)
         K = (I - beta * M) ** -1 - I
 

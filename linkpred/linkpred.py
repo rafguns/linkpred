@@ -23,10 +23,10 @@ def for_comparison(G, exclude=None):
 
     """
     if not exclude:
-        return set(G.edges_iter())
+        return set(G.edges())
 
     exclude = set(Pair(u, v) for u, v in exclude)
-    return set(Pair(u, v) for u, v in G.edges_iter()) - exclude
+    return set(Pair(u, v) for u, v in G.edges()) - exclude
 
 
 def pretty_print(name, params=None):
@@ -141,7 +141,7 @@ class LinkPred(object):
         if not exclude:
             return set()  # No nodes are excluded
         elif exclude == 'old':
-            return set(self.training.edges_iter())
+            return set(self.training.edges())
         elif exclude == 'new':
             return set(nx.non_edges(self.training))
         raise LinkPredError("Value '{}' for exclude is unexpected. Use either "
