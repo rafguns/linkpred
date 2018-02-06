@@ -1,9 +1,7 @@
+import platform
 from setuptools import setup
 
 long_description = open('README.rst').read()
-
-# Platform specific stuff
-import platform
 
 scripts = ['scripts/linkpred']
 if platform.system() == "Windows":
@@ -11,18 +9,18 @@ if platform.system() == "Windows":
 
 setup(
     name='linkpred',
-    version='0.1',
+    version='0.2',
     url='http://github.com/rafguns/linkpred/',
     license='New BSD License',
     author='Raf Guns',
     tests_require=['nose'],
     install_requires=[
-        'matplotlib>=1.1',
-        'networkx==2.0b2',
-        'numpy>=1.6',
+        'matplotlib>=2.1',
+        'networkx==2.1',
+        'numpy>=1.14',
         'pyyaml>=3.0',
-        'scipy>=0.10',
-        'six>=1.9.0',
+        'scipy>=1.0',
+        'six>=1.11',
         'smokesignal==0.7',
     ],
     author_email='raf.guns@uantwerpen.be',
