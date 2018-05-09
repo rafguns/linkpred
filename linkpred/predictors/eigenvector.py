@@ -84,7 +84,7 @@ class SimRank(Predictor):
 
         """
         res = Scoresheet()
-        nodelist = self.G.nodes()
+        nodelist = list(self.G.nodes)
         sim = simrank(self.G, nodelist, c, num_iterations, weight)
         (m, n) = sim.shape
         assert m == n
