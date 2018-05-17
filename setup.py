@@ -9,7 +9,7 @@ if platform.system() == "Windows":
 
 setup(
     name='linkpred',
-    version='0.2',
+    version='0.3',
     url='http://github.com/rafguns/linkpred/',
     license='New BSD License',
     author='Raf Guns',
