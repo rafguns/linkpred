@@ -1,7 +1,6 @@
 from nose.tools import assert_equal, assert_raises, raises
 
 import linkpred.util as u
-import six
 
 
 def test_all_pairs():
@@ -29,7 +28,7 @@ def test_interpolate():
 
 
 def test_itersubclasses():
-    class A(object):
+    class A:
         pass
 
     class Aa(A):
@@ -41,15 +40,8 @@ def test_itersubclasses():
     class Aaa(Aa):
         pass
 
-    class OldStyleClass:
-        pass
-
     name = lambda x: x.__name__
     assert_equal(list(map(name, u.itersubclasses(A))), ['Aa', 'Aaa', 'Ab'])
-
-    if six.PY2:
-        with assert_raises(TypeError):
-            list(u.itersubclasses(OldStyleClass))
 
 
 # This is silly but hey... 100% test coverage for this file :-)

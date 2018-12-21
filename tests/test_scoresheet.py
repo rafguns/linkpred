@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import six
 import networkx as nx
 
 from linkpred.evaluation.scoresheet import BaseScoresheet, Pair, Scoresheet
@@ -75,21 +74,17 @@ class TestScoresheetFile:
 
 
 def test_pair():
-    # We cannot use six.u since it expects a string literal as argument and
-    # we're passing an object.
-    u = unicode if six.PY2 else str
-
     t = ('a', 'b')
     pair = Pair(t)
     assert_equal(pair, Pair(*t))
     assert_equal(pair, t)
     assert_equal(pair, Pair('b', 'a'))
     assert_equal(pair, eval(repr(pair)))
-    assert_equal(u(pair), "b - a")
+    assert_equal(str(pair), "b - a")
 
     # Test unicode (C4 87 -> latin small letter C with acute)
     pair = Pair("a", "\xc4\x87")
-    assert_equal(u(pair), "\xc4\x87 - a")
+    assert_equal(str(pair), "\xc4\x87 - a")
 
 
 @raises(AssertionError)

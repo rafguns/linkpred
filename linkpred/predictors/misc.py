@@ -1,5 +1,3 @@
-import six
-
 from ..evaluation import Scoresheet
 from ..util import all_pairs
 from .base import Predictor
@@ -10,7 +8,7 @@ __all__ = ["Community",
 
 
 class Community(Predictor):
-    def predict(self):
+    def predict(self):  # pylint:disable=E0202
         """Predict using community structure
 
         If two nodes belong to the same community, they are predicted to form
@@ -38,9 +36,9 @@ class Community(Predictor):
             communities = defaultdict(list)
             weight = len(dendogram) - i  # Lower i, smaller communities
 
-            for n, com in six.iteritems(partition):
+            for n, com in partition.items():
                 communities[com].append(n)
-            for nodes in six.itervalues(communities):
+            for nodes in communities.values():
                 for u, v in all_pairs(nodes):
                     if not self.eligible(u, v):
                         continue
@@ -49,7 +47,7 @@ class Community(Predictor):
 
 
 class Copy(Predictor):
-    def predict(self, weight=None):
+    def predict(self, weight=None):  # pylint:disable=E0202
         """Predict by copying the training network
 
         If weights are used, the likelihood score is equal to the link weight.
@@ -72,7 +70,7 @@ class Copy(Predictor):
 
 
 class Random(Predictor):
-    def predict(self):
+    def predict(self):  # pylint:disable=E0202
         """Predict randomly
 
         This predictor can be used as a baseline.

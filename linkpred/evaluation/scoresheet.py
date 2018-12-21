@@ -1,7 +1,6 @@
 from __future__ import print_function, unicode_literals
 
 import logging
-import six
 import networkx as nx
 
 from collections import defaultdict
@@ -60,7 +59,7 @@ class BaseScoresheet(defaultdict):
         # ranking, even in case of ties.
         # We use the tmp structure because it is much faster than
         # itemgetter(1, 0).
-        tmp = ((score, key) for key, score in six.iteritems(self))
+        tmp = ((score, key) for key, score in self.items())
         ranked_data = sorted(tmp, reverse=True)
 
         for score, key in ranked_data[:threshold]:
@@ -97,7 +96,6 @@ class BaseScoresheet(defaultdict):
                     key, score, delimiter).encode(encoding))
 
 
-@six.python_2_unicode_compatible
 class Pair(object):
     """An unsorted pair of things.
 
@@ -200,7 +198,7 @@ class Scoresheet(BaseScoresheet):
 
     def process_data(self, data, weight='weight'):
         if isinstance(data, dict):
-            return {Pair(k): float(v) for k, v in six.iteritems(data)}
+            return {Pair(k): float(v) for k, v in data.items()}
         if isinstance(data, nx.Graph):
             return {Pair(u, v): float(d[weight]) for u, v, d
                     in data.edges(data=True)}
