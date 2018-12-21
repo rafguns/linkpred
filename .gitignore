@@ -41,3 +41,6 @@ nosetests.xml
 .project
 .pydevproject
 .idea
+.vscode
+
+.mypy_cache
