@@ -38,7 +38,9 @@ A good starting point is ``linkpred --help``, which lists all the available opti
 
     $ linkpred examples/inf1990-2004.net -p CommonNeighbours --output cache-predictions
 
-where ``examples/inf1990-2004.net`` is a network file in Pajek format. Other supported formats include GML and GraphML. The full output looks like this::
+where ``examples/inf1990-2004.net`` is a network file in Pajek format. Other supported formats include GML and GraphML. The full output looks like this:
+
+.. code:: console
 
     $ linkpred examples/inf1990-2004.net -p CommonNeighbours --output cache-predictions
     16:43:13 - INFO - Reading file 'examples/inf1990-2004.net'...
@@ -66,7 +68,7 @@ where ``examples/inf1990-2004.net`` is a network file in Pajek format. Other sup
 Example usage within Python
 ---------------------------
 
-::
+.. code:: pycon
 
     >>> import linkpred
     >>> G = linkpred.read_network("examples/training.net")
