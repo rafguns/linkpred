@@ -1,13 +1,5 @@
 sudo: false
 
-addons:
-    apt:
-        packages:
-        - libatlas-dev
-        - libatlas-base-dev
-        - liblapack-dev
-        - gfortran
-
 language: python
 
 python:
@@ -34,8 +26,8 @@ install:
     - pip install --upgrade coverage coveralls nose
 
 script:
-    - printenv PWD
     - pip install .
     - nosetests --with-doctest --with-coverage --cover-package=linkpred
+
 after_success:
     coveralls
