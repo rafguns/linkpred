@@ -1,4 +1,3 @@
-from __future__ import division
 from math import log, sqrt
 from utils import assert_dict_almost_equal
 import networkx as nx
