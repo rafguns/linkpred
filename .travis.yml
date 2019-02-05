@@ -1,26 +1,18 @@
 sudo: false
 language: python
+dist: xenial
 python:
 - '3.4'
 - '3.5'
 - '3.6'
+- '3.7'
 cache: pip
 before_install:
-- wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-- bash miniconda.sh -b -p $HOME/miniconda
-- export PATH="$HOME/miniconda/bin:$PATH"
-- hash -r
-- conda info -a
-- conda config --set always_yes yes --set changeps1 no
 - pip install --upgrade pip
 install:
-- DEPS="networkx numpy scipy matplotlib pyyaml"
-- conda create -n test-environment python=$TRAVIS_PYTHON_VERSION $DEPS
-- source activate test-environment
-- pip install smokesignal
 - pip install --upgrade coverage coveralls nose
-script:
 - pip install .
+script:
 - nosetests --with-doctest --with-coverage --cover-package=linkpred
 after_success: coveralls
 deploy:
