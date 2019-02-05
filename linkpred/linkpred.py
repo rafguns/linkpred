@@ -1,5 +1,4 @@
 """linkpred main module"""
-from __future__ import division, unicode_literals
 import logging
 import networkx as nx
 import os

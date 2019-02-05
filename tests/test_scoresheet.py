@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import networkx as nx
 
 from linkpred.evaluation.scoresheet import BaseScoresheet, Pair, Scoresheet

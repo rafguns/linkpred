@@ -4,18 +4,18 @@ long_description = open('README.rst').read()
 
 setup(
     name='linkpred',
-    version='0.3',
+    version='0.4',
     url='http://github.com/rafguns/linkpred/',
     license='New BSD License',
     author='Raf Guns',
     tests_require=['nose'],
     install_requires=[
         'matplotlib>=2.1',
-        'networkx==2.1',
+        'networkx>=2.1',
         'numpy>=1.14',
         'pyyaml>=3.0',
         'scipy>=1.0',
-        'smokesignal==0.7',
+        'smokesignal>=0.7',
     ],
     author_email='raf.guns@uantwerpen.be',
     description='Python package for link prediction',

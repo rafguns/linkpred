@@ -1,4 +1,3 @@
-from __future__ import division
 import networkx as nx
 
 from ..evaluation import Scoresheet

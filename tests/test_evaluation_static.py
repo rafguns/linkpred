@@ -1,5 +1,3 @@
-from __future__ import division
-
 from nose.tools import *
 from utils import assert_array_equal, temp_file
 
