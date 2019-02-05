@@ -19,7 +19,7 @@ While some predictors are fairly straightforward (e.g., if two people have a lar
 Installation
 ------------
 
-**linkpred** works under Python 3.4, 3.5, and 3.6. It depends on:
+**linkpred** works under Python 3.4, 3.5, 3.6, and 3.7. It depends on:
 
 - matplotlib
 - networkx
@@ -28,7 +28,7 @@ Installation
 - scipy
 - smokesignal
 
-Most of these are included in the `Anaconda distribution <https://www.continuum.io/downloads>`_. Assuming you have Anaconda installed, the package can be installed by ``pip install linkpred``.
+You should be able to install linkpred and its dependencies using pip (``pip install linkpred`` or ``python -m pip install linkpred``). If youdo not yet have Python installed, I recommend starting with `Anaconda <https://www.continuum.io/downloads>`_, which includes optimized versions of packages like numpy.
 
 
 Example usage as command-line tool
