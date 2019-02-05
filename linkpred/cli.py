@@ -5,6 +5,7 @@ import logging
 import sys
 
 from .exceptions import LinkPredError
+from .linkpred import LinkPred
 from .predictors import all_predictors
 
 log = logging.getLogger('linkpred')
@@ -116,3 +117,17 @@ def handle_arguments(args=None):
 
     # Return as plain dictionary
     return vars(results)
+
+
+def main(args=None):
+    """Main function
+
+    This gets called if one invokes linkpred from the command-line
+    """
+    config = get_config(args)
+    setup_logger()
+    linkpred = LinkPred(config)
+    linkpred.preprocess()
+    linkpred.predict_all()
+    linkpred.setup_output()
+    linkpred.process_predictions()

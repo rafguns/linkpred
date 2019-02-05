@@ -1,4 +1,6 @@
-from __future__ import unicode_literals
+# Should be at start of file
+import matplotlib
+matplotlib.use('Agg')
 
 from nose.tools import (assert_equal, raises, assert_raises,
                         assert_in, assert_is_instance)
@@ -176,8 +178,6 @@ class TestLinkpred:
     def test_setup_output(self):
         # Make sure this also works is $DISPLAY is not set.
         # Should probably mock this out...
-        import matplotlib
-        matplotlib.use('Agg')
 
         for name, klass in (('recall-precision', RecallPrecisionPlotter),
                             ('f-score', FScorePlotter),

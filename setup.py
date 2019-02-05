@@ -1,11 +1,6 @@
-import platform
 from setuptools import setup
 
 long_description = open('README.rst').read()
-
-scripts = ['scripts/linkpred']
-if platform.system() == "Windows":
-    scripts.append('scripts/linkpred.bat')
 
 setup(
     name='linkpred',
@@ -51,5 +46,7 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
     ],
-    scripts=scripts
+    entry_points={
+        'console_scripts': ['linkpred=linkpred.cli:main'],
+    },
 )

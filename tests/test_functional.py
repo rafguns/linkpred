@@ -1,15 +1,16 @@
+# Should be at start of file
+import matplotlib
+matplotlib.use('Agg')
+
 import os
-import subprocess
+from linkpred.cli import main
 
 from nose.tools import assert_equal
 
 
 def test_simple_run():
+    # TODO do this test in a temp directory and clean up afterwards
     num_files = len(os.listdir('examples'))
-
-    os.putenv('MPLBACKEND', 'Agg')
-    subprocess.check_call(
-        'python scripts/linkpred examples/inf1990-2004.net '
-        'examples/inf2005-2009.net -p CommonNeighbours --quiet'.split())
-
+    main('examples/inf1990-2004.net examples/inf2005-2009.net'
+         ' -p CommonNeighbours --quiet'.split())
     assert_equal(len(os.listdir('examples')), num_files + 1)
