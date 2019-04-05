@@ -1,8 +1,8 @@
-from nose.tools import *
+from nose.tools import assert_dict_equal, assert_equal, assert_less_equal
 import networkx as nx
 
 from linkpred.evaluation import Pair
-from linkpred.predictors.misc import *
+from linkpred.predictors.misc import Community, Copy, Random
 
 
 class TestCopy:
@@ -20,7 +20,9 @@ class TestCopy:
 
 
 def test_community():
-    pass
+    G = nx.erdos_renyi_graph(20, 0.1)
+    prediction = Community(G).predict()
+    assert_less_equal(len(prediction), 190)
 
 
 def test_random():

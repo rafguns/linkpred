@@ -25,17 +25,17 @@ class Community(Predictor):
 
         """
         try:
-            from community import generate_dendogram, partition_at_level
+            import community
         except ImportError:
             raise ImportError("Module 'community' could not be found. "
                               "Please install linkpred as follows:\n"
                               "$ pip install linkpred[community]")
 
         res = Scoresheet()
-        dendogram = generate_dendogram(self.G)
+        dendogram = community.generate_dendrogram(self.G)
 
         for i in range(len(dendogram)):
-            partition = partition_at_level(dendogram, i)
+            partition = community.partition_at_level(dendogram, i)
             communities = defaultdict(list)
             weight = len(dendogram) - i  # Lower i, smaller communities
 
