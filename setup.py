@@ -26,6 +26,7 @@ setup(
         'linkpred.network',
         'linkpred.predictors',
     ],
+    extras_require={'community': ['python-louvain']},
     platforms='any',
     classifiers=[
         'Intended Audience :: Science/Research',
