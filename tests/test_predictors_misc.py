@@ -25,6 +25,18 @@ def test_community():
     assert_less_equal(len(prediction), 190)
 
 
+def test_community_exclude_noneligible():
+    G = nx.erdos_renyi_graph(20, 0.1)
+    G.add_nodes_from(range(10), eligible=True)
+    G.add_nodes_from(range(10, 20), eligible=False)
+
+    prediction = Community(G, eligible='eligible').predict()
+    assert_less_equal(len(prediction), 45)
+    for pair in prediction:
+        for v in pair:
+            assert v in range(10)
+
+
 def test_random():
     G = nx.Graph()
     G.add_nodes_from(range(10), eligible=True)
