@@ -90,6 +90,11 @@ def test_pair_identical_elements():
     Pair('a', 'a')
 
 
+def test_pair_different_types():
+    # Should not raise an error
+    assert_equal(Pair('a', 1), Pair(1, 'a'))
+
+
 def test_scoresheet():
     sheet = Scoresheet()
     t = ('a', 'b')

@@ -130,7 +130,12 @@ class Pair(object):
     @staticmethod
     def _sorted_tuple(t):
         a, b = t
-        return (a, b) if a > b else (b, a)
+        try:
+            return (a, b) if a > b else (b, a)
+        except TypeError:
+            # Different node types. This does not hande all possible edge
+            # cases but should be enough for most real-world scenarios.
+            return (a, b) if str(a) > str(b) else (b, a)
 
     def __eq__(self, other):
         try:
@@ -145,7 +150,6 @@ class Pair(object):
         try:
             return self.elements < other.elements
         except AttributeError:
-
             return self.elements < self._sorted_tuple(other)
 
     def __gt__(self, other):
