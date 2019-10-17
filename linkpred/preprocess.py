@@ -24,7 +24,7 @@ def without_low_degree_nodes(G, minimum=1, eligible=None):
             return [n for n, d in G.degree() if d < threshold]
         else:
             return [n for n, d in G.degree()
-                    if d < threshold and G.node[n][eligible]]
+                    if d < threshold and G.nodes[n][eligible]]
 
     to_remove = low_degree(G, minimum)
     H = G.copy()
@@ -63,7 +63,7 @@ def without_uncommon_nodes(networks, eligible=None):
             return [n for n in G.nodes() if n not in nbunch]
         else:
             return [n for n in G.nodes()
-                    if G.node[n][eligible] and n not in nbunch]
+                    if G.nodes[n][eligible] and n not in nbunch]
 
     common = set.intersection(*[set(G) for G in networks])
     new_networks = []

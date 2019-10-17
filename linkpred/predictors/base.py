@@ -100,7 +100,7 @@ class Predictor(object):
         """
         if self.eligible_attr is None:
             return True
-        return self.G.node[v][self.eligible_attr]
+        return self.G.nodes[v][self.eligible_attr]
 
     def eligible_nodes(self):
         """Get list of eligible nodes

@@ -19,7 +19,8 @@ While some predictors are fairly straightforward (e.g., if two people have a lar
 Installation
 ------------
 
-**linkpred** works under Python 3.4, 3.5, 3.6, and 3.7. It depends on:
+**linkpred** (on master) works under Python 3.6 and 3.7. Version 0.4.1 was the last to support versions 3.4 and 3.5.
+It depends on:
 
 - matplotlib
 - networkx

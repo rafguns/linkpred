@@ -25,7 +25,7 @@ def test_bipartite_common_neighbour():
 
 def test_bipartite_common_neighbours_equivalent_projection():
     B = nx.bipartite.random_graph(30, 50, 0.1)
-    nodes = [v for v in B if B.node[v]['bipartite']]
+    nodes = [v for v in B if B.nodes[v]['bipartite']]
     G = nx.bipartite.weighted_projected_graph(B, nodes)
 
     expected = CommonNeighbours(B, eligible='bipartite')()
