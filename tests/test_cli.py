@@ -1,17 +1,17 @@
-from nose.tools import assert_equal, assert_dict_equal, raises, assert_raises
-
 import os
 import sys
 import tempfile
-from linkpred.cli import load_profile, get_config, handle_arguments
 from contextlib import contextmanager
+
+import pytest
+from linkpred.cli import get_config, handle_arguments, load_profile
 
 
 @contextmanager
 def temp_empty_file():
     fh = tempfile.NamedTemporaryFile("r", delete=False)
     yield fh.name
-    assert_equal(fh.read(), "")
+    assert fh.read() == ""
     fh.close()
 
 
@@ -42,7 +42,7 @@ class TestProfileFile:
 - name: Cosine
 interpolation: true""")
         profile = load_profile(self.yaml_fname)
-        assert_dict_equal(profile, self.expected)
+        assert profile == self.expected
 
     def test_load_profile_json(self):
         with open(self.json_fname, "w") as fh:
@@ -52,17 +52,17 @@ interpolation: true""")
                 {"name": "Cosine"}],
                 "interpolation": true}""")
         profile = load_profile(self.json_fname)
-        assert_dict_equal(profile, self.expected)
+        assert profile == self.expected
 
     def test_load_profile_error(self):
         with open(self.json_fname, "w") as fh:
             fh.write("foobar")
-        with assert_raises(Exception):
+        with pytest.raises(Exception):
             load_profile(self.json_fname)
 
         with open(self.yaml_fname, "w") as fh:
             fh.write("{foobar")
-        with assert_raises(Exception):
+        with pytest.raises(Exception):
             load_profile(self.yaml_fname)
 
     def test_get_config(self):
@@ -77,27 +77,25 @@ interpolation: true""")
         with temp_empty_file() as training:
             config = get_config([training, "-P", self.yaml_fname])
             for k, v in self.expected.items():
-                assert_equal(config[k], v)
+                assert config[k] == v
 
         with temp_empty_file() as training:
             config = get_config([fh.name, "-P", self.yaml_fname, "-p",
                                  "Katz", "-i"])
             # Profile gets priority
             for k, v in self.expected.items():
-                assert_equal(config[k], v)
+                assert config[k] == v
         fh.close()
 
 
-@raises(SystemExit)
 def test_no_training_file():
-    sys.stderr = sys.stdout  # Suppress nose output to stderr
-    handle_arguments([])
+    with pytest.raises(SystemExit):
+        handle_arguments([])
 
 
-@raises(SystemExit)
 def test_nonexisting_predictor():
-    sys.stderr = sys.stdout  # Suppress nose output to stderr
-    handle_arguments(["some-network", "-p", "Aargh"])
+    with pytest.raises(SystemExit):
+        handle_arguments(["some-network", "-p", "Aargh"])
 
 
 def test_handle_arguments():
@@ -115,12 +113,12 @@ def test_handle_arguments():
 
     args = handle_arguments(['training'])
     for k, v in expected.items():
-        assert_equal(args[k], v)
+        assert args[k] == v
 
     args = handle_arguments(['training', 'test'])
     for k, v in expected.items():
-        assert_equal(args[k], v)
-    assert_equal(args["test-file"], "test")
+        assert args[k] == v
+    assert args["test-file"] == "test"
 
     argstr = "-p CommonNeighbours Cosine -o fmax " \
         "recall-precision -- training"
@@ -128,16 +126,16 @@ def test_handle_arguments():
     expected_special = {"predictors": ["CommonNeighbours", "Cosine"],
                         "output": ["fmax", "recall-precision"]}
     for k, v in expected_special.items():
-        assert_equal(args[k], v)
+        assert args[k] == v
 
     args = handle_arguments(["training", "-i"])
-    assert_equal(args["interpolation"], False)
+    assert args["interpolation"] is False
 
     args = handle_arguments(["training", "-a"])
-    assert_equal(args["exclude"], "")
+    assert args["exclude"] == ""
 
     args = handle_arguments(["training", "-P", "foo.json"])
-    assert_equal(args["profile"], "foo.json")
+    assert args["profile"] == "foo.json"
 
     args = handle_arguments(["training", "-f", "eps"])
-    assert_equal(args["chart_filetype"], "eps")
+    assert args["chart_filetype"] == "eps"

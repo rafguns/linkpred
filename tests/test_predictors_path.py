@@ -1,10 +1,8 @@
-from nose.tools import assert_almost_equal
-from utils import assert_dict_almost_equal
 import networkx as nx
 import numpy as np
-
-from linkpred.predictors.path import *
+import pytest
 from linkpred.evaluation import Scoresheet
+from linkpred.predictors.path import *
 
 
 def test_katz():
@@ -26,7 +24,7 @@ def test_katz():
             if i == j:
                 continue
             u, v = nodes[i], nodes[j]
-            assert_almost_equal(K[i, j], katz[(u, v)])
+            assert K[i, j] == pytest.approx(katz[(u, v)], abs=1e-5)
 
 
 class TestGraphDistance:
@@ -41,10 +39,10 @@ class TestGraphDistance:
                  (3, 4): 1 / 3}
         known = Scoresheet(known)
         graph_distance = GraphDistance(self.G).predict(weight=None)
-        assert_dict_almost_equal(graph_distance, known)
+        assert graph_distance == pytest.approx(known)
 
         graph_distance = GraphDistance(self.G).predict(alpha=0)
-        assert_dict_almost_equal(graph_distance, known)
+        assert graph_distance == pytest.approx(known)
 
     def test_weighted(self):
         known = {(0, 1): 1, (0, 2): 3, (1, 2): 1, (1, 3): 2, (2, 4): 1,
@@ -52,7 +50,7 @@ class TestGraphDistance:
                  (3, 4): 0.4}
         known = Scoresheet(known)
         graph_distance = GraphDistance(self.G).predict()
-        assert_dict_almost_equal(graph_distance, known)
+        assert graph_distance == pytest.approx(known)
 
     def test_weighted_alpha(self):
         from math import sqrt
@@ -63,4 +61,4 @@ class TestGraphDistance:
                  (2, 3): 1 / (1 + 1 / sqrt(2)), (3, 4):  1 / (2 + 1 / sqrt(2))}
         known = Scoresheet(known)
         graph_distance = GraphDistance(self.G).predict(alpha=0.5)
-        assert_dict_almost_equal(graph_distance, known)
+        assert graph_distance == pytest.approx(known)

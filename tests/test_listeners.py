@@ -1,32 +1,31 @@
-from nose.tools import (assert_equal, assert_is_instance,
-                        assert_regexp_matches)
-from utils import assert_array_equal
-
 import os
+import re
 
 import smokesignal
 from linkpred.evaluation import BaseScoresheet, EvaluationSheet
 from linkpred.evaluation.listeners import *
 from linkpred.evaluation.listeners import _timestamped_filename
 
+from utils import assert_array_equal
+
 
 def test_timestamped_filename():
     fname = _timestamped_filename("test")
-    assert_regexp_matches(fname, r"test_\d{4}-\d{2}-\d{2}_\d{2}.\d{2}.txt")
+    assert re.match(r"test_\d{4}-\d{2}-\d{2}_\d{2}.\d{2}.txt", fname)
     fname = _timestamped_filename("test", "foo")
-    assert_regexp_matches(fname, r"test_\d{4}-\d{2}-\d{2}_\d{2}.\d{2}.foo")
+    assert re.match(r"test_\d{4}-\d{2}-\d{2}_\d{2}.\d{2}.foo", fname)
 
 
 def test_EvaluatingListener():
     @smokesignal.on('evaluation_finished')
     def t(evaluation, dataset, predictor):
-        assert_equal(dataset, 'dataset')
-        assert_is_instance(evaluation, EvaluationSheet)
+        assert dataset == 'dataset'
+        assert isinstance(evaluation, EvaluationSheet)
         assert_array_equal(evaluation.tp, [1, 1, 2, 2])
         assert_array_equal(evaluation.fp, [0, 1, 1, 2])
         assert_array_equal(evaluation.fn, [1, 1, 0, 0])
         assert_array_equal(evaluation.tn, [2, 1, 1, 0])
-        assert_equal(predictor, 'predictor')
+        assert predictor == 'predictor'
         t.called = True
 
     t.called = False
@@ -47,8 +46,7 @@ def test_CachePredictionListener():
 
     with open(l.fname) as fh:
         # Line endings may be different across platforms
-        assert_equal(fh.read().replace("\r\n", "\n"),
-                     "1\t10\n2\t5\n3\t2\n4\t1\n")
+        assert fh.read().replace("\r\n", "\n") == "1\t10\n2\t5\n3\t2\n4\t1\n"
     smokesignal.clear_all()
     os.unlink(l.fname)
 

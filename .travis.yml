@@ -9,11 +9,11 @@ cache: pip
 before_install:
 - pip install --upgrade pip
 install:
-- pip install --upgrade coverage coveralls nose
+- pip install --upgrade coverage coveralls pytest pytest-cov
 - pip install python-louvain
 - pip install .
 script:
-- nosetests --with-doctest --with-coverage --cover-package=linkpred
+- python -m pytest --cov=linkpred
 after_success: coveralls
 deploy:
   provider: pypi

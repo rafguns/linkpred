@@ -1,9 +1,9 @@
-from nose.tools import *
-from utils import assert_array_equal, temp_file
-
 import numpy as np
-from linkpred.evaluation import (StaticEvaluation, EvaluationSheet,
-                                 Scoresheet, BaseScoresheet, UndefinedError)
+import pytest
+from linkpred.evaluation import (BaseScoresheet, EvaluationSheet, Scoresheet,
+                                 StaticEvaluation, UndefinedError)
+
+from utils import assert_array_equal, temp_file
 
 
 class TestStaticEvaluation:
@@ -16,77 +16,82 @@ class TestStaticEvaluation:
 
     def test_init(self):
         e = StaticEvaluation(self.ret, self.rel, self.universe)
-        assert_equal(len(e.tp), 2)
-        assert_equal(len(e.fp), 3)
-        assert_equal(len(e.tn), 13)
-        assert_equal(len(e.fn), 2)
+        assert len(e.tp) == 2
+        assert len(e.fp) == 3
+        assert len(e.tn) == 13
+        assert len(e.fn) == 2
 
         e_no_universe = StaticEvaluation(self.ret, self.rel)
-        assert_equal(len(e.tp), len(e_no_universe.tp))
-        assert_equal(len(e.fp), len(e_no_universe.fp))
-        assert_equal(len(e.fn), len(e_no_universe.fn))
-        assert_equal(e_no_universe.tn, None)
+        assert len(e.tp) == len(e_no_universe.tp)
+        assert len(e.fp) == len(e_no_universe.fp)
+        assert len(e.fn) == len(e_no_universe.fn)
+        assert e_no_universe.tn == None
 
         e_num_universe = StaticEvaluation(
             self.ret, self.rel, self.num_universe)
-        assert_equal(len(e_num_universe.tp), 2)
-        assert_equal(len(e_num_universe.fp), 3)
-        assert_equal(len(e_num_universe.fn), 2)
-        assert_equal(len(e_num_universe.tp), e_num_universe.num_tp)
-        assert_equal(len(e_num_universe.fp), e_num_universe.num_fp)
-        assert_equal(len(e_num_universe.fn), e_num_universe.num_fn)
-        assert_equal(e_num_universe.num_tn, 13)
+        assert len(e_num_universe.tp) == 2
+        assert len(e_num_universe.fp) == 3
+        assert len(e_num_universe.fn) == 2
+        assert len(e_num_universe.tp) == e_num_universe.num_tp
+        assert len(e_num_universe.fp) == e_num_universe.num_fp
+        assert len(e_num_universe.fn) == e_num_universe.num_fn
+        assert e_num_universe.num_tn == 13
 
     def test_update_retrieved(self):
         e = StaticEvaluation(self.ret, self.rel, self.universe)
         e.update_retrieved([6, 7])
-        assert_equal(len(e.tp), 3)
-        assert_equal(len(e.fp), 4)
-        assert_equal(len(e.tn), 12)
-        assert_equal(len(e.fn), 1)
+        assert len(e.tp) == 3
+        assert len(e.fp) == 4
+        assert len(e.tn) == 12
+        assert len(e.fn) == 1
 
-        assert_raises(ValueError, e.update_retrieved, [1])  # fp
-        assert_raises(ValueError, e.update_retrieved, [3])  # tp
-        assert_raises(ValueError, e.update_retrieved, ['a'])
+        with pytest.raises(ValueError):
+            e.update_retrieved([1])  # fp
+        with pytest.raises(ValueError):
+            e.update_retrieved([3])  # tp
+        with pytest.raises(ValueError):
+            e.update_retrieved(['a'])
 
     def test_update_retrieved_num_universe(self):
         e = StaticEvaluation(self.ret, self.rel, self.num_universe)
         e.update_retrieved([6, 7])
-        assert_equal(len(e.tp), 3)
-        assert_equal(len(e.fp), 4)
-        assert_equal(len(e.fn), 1)
-        assert_equal(e.num_tp, 3)
-        assert_equal(e.num_fp, 4)
-        assert_equal(e.num_tn, 12)
-        assert_equal(e.num_fn, 1)
+        assert len(e.tp) == 3
+        assert len(e.fp) == 4
+        assert len(e.fn) == 1
+        assert e.num_tp == 3
+        assert e.num_fp == 4
+        assert e.num_tn == 12
+        assert e.num_fn == 1
 
-        assert_raises(ValueError, e.update_retrieved, [1])  # fp
-        assert_raises(ValueError, e.update_retrieved, [3])  # tp
+        with pytest.raises(ValueError):
+            e.update_retrieved([1])  # fp
+        with pytest.raises(ValueError):
+            e.update_retrieved([3])  # tp
 
     def test_update_retrieved_full(self):
         e = StaticEvaluation(relevant=range(5), universe=20)
         e.update_retrieved(range(10))
         e.update_retrieved(range(10, 20))
-        assert_equal(e.num_tp, 5)
-        assert_equal(e.num_fp, 15)
-        assert_equal(e.num_fn, 0)
-        assert_equal(e.num_tn, 0)
+        assert e.num_tp == 5
+        assert e.num_fp == 15
+        assert e.num_fn == 0
+        assert e.num_tn == 0
 
-    @raises(ValueError)
     def test_ret_no_universe_subset(self):
-        StaticEvaluation([1, 2, 'a'], [2, 3], range(10))
+        with pytest.raises(ValueError):
+            StaticEvaluation([1, 2, 'a'], [2, 3], range(10))
 
-    @raises(ValueError)
     def test_rel_no_universe_subset(self):
-        StaticEvaluation([1, 2], [2, 3, 'a'], range(10))
+        with pytest.raises(ValueError):
+            StaticEvaluation([1, 2], [2, 3, 'a'], range(10))
 
-    @raises(ValueError)
     def test_ret_larger_than_universe(self):
-        StaticEvaluation(range(11), [2, 3], 10)
+        with pytest.raises(ValueError):
+            StaticEvaluation(range(11), [2, 3], 10)
 
-    @raises(ValueError)
     def test_rel_larger_than_universe(self):
-        StaticEvaluation([1, 2], range(11), 10)
+        with pytest.raises(ValueError):
+            StaticEvaluation([1, 2], range(11), 10)
 
 
 class TestEvaluationSheet:
@@ -162,10 +167,14 @@ class TestEvaluationSheet:
             assert_array_equal(sheet.accuracy(), expected)
             assert_array_equal(sheet.generality(), 0.2)
 
-        assert_raises(UndefinedError, sheet_no_universe.fallout)
-        assert_raises(UndefinedError, sheet_no_universe.miss)
-        assert_raises(UndefinedError, sheet_no_universe.accuracy)
-        assert_raises(UndefinedError, sheet_no_universe.generality)
+        with pytest.raises(UndefinedError):
+            sheet_no_universe.fallout()
+        with pytest.raises(UndefinedError):
+            sheet_no_universe.miss()
+        with pytest.raises(UndefinedError):
+            sheet_no_universe.accuracy()
+        with pytest.raises(UndefinedError):
+            sheet_no_universe.generality()
 
     def test_measures_with_empty_rel_and_ret(self):
         sheet1 = EvaluationSheet(Scoresheet(), [], [])
@@ -173,13 +182,10 @@ class TestEvaluationSheet:
         sheet3 = EvaluationSheet(Scoresheet(), [])
 
         for sheet in (sheet1, sheet2, sheet3):
-            assert_raises(UndefinedError, sheet.precision)
-            assert_raises(UndefinedError, sheet.recall)
-            assert_raises(UndefinedError, sheet.f_score)
-            assert_raises(UndefinedError, sheet.fallout)
-            assert_raises(UndefinedError, sheet.miss)
-            assert_raises(UndefinedError, sheet.accuracy)
-            assert_raises(UndefinedError, sheet.generality)
+            for method in ['precision', 'recall', 'f_score', 'fallout', 'miss', 'accuracy', 'generality']:
+                with pytest.raises(UndefinedError):
+                    getattr(sheet, method)()
+
 
     def test_f_score(self):
         sheet = EvaluationSheet(self.scores, relevant=self.rel)

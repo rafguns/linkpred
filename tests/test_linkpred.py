@@ -1,16 +1,17 @@
 # Should be at start of file
-import matplotlib
-matplotlib.use('Agg')
+import io
 
-from nose.tools import (assert_equal, raises, assert_raises,
-                        assert_in, assert_is_instance)
+import linkpred
+import matplotlib
+import networkx as nx
+import pytest
+import smokesignal
 from linkpred.evaluation.listeners import *
+
 from utils import temp_file
 
-import io
-import linkpred
-import networkx as nx
-import smokesignal
+matplotlib.use('Agg')
+
 
 
 def test_imports():
@@ -29,30 +30,30 @@ def test_for_comparison():
     G = nx.path_graph(10)
     expected = {(0, 1), (1, 2), (2, 3), (3, 4), (4, 5),
                 (5, 6), (6, 7), (7, 8), (8, 9)}
-    assert_equal(for_comparison(G), expected)
+    assert for_comparison(G) == expected
 
     to_delete = [Pair(2, 3), Pair(8, 9)]
     expected = {Pair(t) for t in expected}
     expected = expected.difference(to_delete)
-    assert_equal(for_comparison(G, exclude=to_delete), expected)
+    assert for_comparison(G, exclude=to_delete) == expected
 
 
 def test_pretty_print():
     from linkpred.linkpred import pretty_print
 
     name = "foo"
-    assert_equal(pretty_print(name), "foo")
+    assert pretty_print(name) == "foo"
     params = {"bar": 0.1, "baz": 5}
 
     # 2 possibilities because of hash randomization
-    assert_in(pretty_print(name, params), ["foo (baz = 5, bar = 0.1)",
-                                           "foo (bar = 0.1, baz = 5)"])
+    assert pretty_print(name, params) in ["foo (baz = 5, bar = 0.1)",
+                                          "foo (bar = 0.1, baz = 5)"]
 
 
-@raises(linkpred.exceptions.LinkPredError)
 def test_read_unknown_network_type():
     with temp_file(suffix=".foo") as fname:
-        linkpred.read_network(fname)
+        with pytest.raises(linkpred.exceptions.LinkPredError):
+            linkpred.read_network(fname)
 
 
 def test_read_network():
@@ -68,11 +69,11 @@ def test_read_network():
         expected.add_edges_from([("A", "B"), ("B", "A")])
 
         G = linkpred.read_network(fname)
-        assert_equal(set(G.edges()), set(expected.edges()))
+        assert set(G.edges()) == set(expected.edges())
 
         with open(fname) as fh:
             G = linkpred.read_network(fname)
-            assert_equal(set(G.edges()), set(expected.edges()))
+            assert set(G.edges()) == set(expected.edges())
 
 
 def test_read_pajek():
@@ -90,8 +91,8 @@ def test_read_pajek():
         expected.add_edges_from([("A", "B")])
 
         G = _read_pajek(fname)
-        assert_is_instance(G, nx.DiGraph)
-        assert_equal(sorted(G.edges()), sorted(expected.edges()))
+        assert isinstance(G, nx.DiGraph)
+        assert sorted(G.edges()) == sorted(expected.edges())
 
         with open(fname, "w") as fh:
             fh.write("""*vertices 2
@@ -104,13 +105,13 @@ def test_read_pajek():
         expected.add_edges_from([("A", "B")])
 
         G = _read_pajek(fname)
-        assert_is_instance(G, nx.Graph)
-        assert_equal(sorted(G.edges()), sorted(expected.edges()))
+        assert isinstance(G, nx.Graph)
+        assert sorted(G.edges()) == sorted(expected.edges())
 
 
-@raises(linkpred.exceptions.LinkPredError)
 def test_LinkPred_without_predictors():
-    linkpred.LinkPred()
+    with pytest.raises(linkpred.exceptions.LinkPredError):
+        linkpred.LinkPred()
 
 
 class TestLinkpred:
@@ -139,13 +140,13 @@ class TestLinkpred:
 
     def test_init(self):
         lp = linkpred.LinkPred(self.config_file())
-        assert_equal(lp.config['label'], 'testing')
+        assert lp.config['label'] == 'testing'
         assert lp.training is None
 
         lp = linkpred.LinkPred(self.config_file(training=True))
-        assert_is_instance(lp.training, nx.Graph)
-        assert_equal(len(lp.training.nodes()), 3)
-        assert_equal(len(lp.training.edges()), 1)
+        assert isinstance(lp.training, nx.Graph)
+        assert len(lp.training.nodes()) == 3
+        assert len(lp.training.edges()) == 1
         assert lp.test is None
 
     def test_excluded(self):
@@ -154,26 +155,26 @@ class TestLinkpred:
                                     {('B', 'C'), ('A', 'C')})):
             lp = linkpred.LinkPred(self.config_file(training=True,
                                                     exclude=value))
-            assert_equal({tuple(sorted(p)) for p in lp.excluded}, expected)
-        with assert_raises(linkpred.exceptions.LinkPredError):
+            assert {tuple(sorted(p)) for p in lp.excluded} == expected
+        with pytest.raises(linkpred.exceptions.LinkPredError):
             lp = linkpred.LinkPred(self.config_file(exclude='bla'))
             lp.excluded
 
     def test_preprocess_only_training(self):
         lp = linkpred.LinkPred(self.config_file(training=True))
         lp.preprocess()
-        assert_equal(set(lp.training.nodes()), set("AB"))
+        assert set(lp.training.nodes()) == set("AB")
 
     def test_preprocess_training_and_test(self):
         lp = linkpred.LinkPred(self.config_file(training=True, test=True))
         lp.preprocess()
-        assert_equal(set(lp.training.nodes()), {"B"})
-        assert_equal(set(lp.test.nodes()), {"B"})
+        assert set(lp.training.nodes()) == {"B"}
+        assert set(lp.test.nodes()) == {"B"}
 
-    @raises(linkpred.exceptions.LinkPredError)
     def test_setup_output_evaluating_without_test(self):
         lp = linkpred.LinkPred(self.config_file(training=True))
-        lp.setup_output()
+        with pytest.raises(linkpred.exceptions.LinkPredError):
+            lp.setup_output()
 
     def test_setup_output(self):
         # Make sure this also works is $DISPLAY is not set.
@@ -188,12 +189,12 @@ class TestLinkpred:
             config = self.config_file(training=True, test=True, output=[name])
             lp = linkpred.LinkPred(config)
             lp.setup_output()
-            assert_is_instance(lp.listeners[0], klass)
+            assert isinstance(lp.listeners[0], klass)
             smokesignal.clear_all()
         # Has an evaluator been set up?
-        assert_equal(len(lp.evaluator.params['relevant']), 1)
-        assert_equal(lp.evaluator.params['universe'], 2)
-        assert_is_instance(lp.evaluator.params['universe'], int)
+        assert len(lp.evaluator.params['relevant']) == 1
+        assert lp.evaluator.params['universe'] == 2
+        assert isinstance(lp.evaluator.params['universe'], int)
 
     def test_predict_all(self):
         # Mock out linkpred.predictors
@@ -216,20 +217,19 @@ class TestLinkpred:
             {'name': 'B', 'displayname': 'prettyB'}]
         lp = linkpred.LinkPred(config)
         results = list(lp.predict_all())
-        assert_equal(results, [('A', 'scoresheet'),
-                               ('B', 'scoresheet')])
+        assert results == [('A', 'scoresheet'), ('B', 'scoresheet')]
 
     def test_process_predictions(self):
         @smokesignal.on('prediction_finished')
         def a(scoresheet, dataset, predictor):
             assert scoresheet.startswith('scoresheet')
             assert predictor.startswith('pred')
-            assert_equal(dataset, 'testing')
+            assert dataset == 'testing'
             a.called = True
 
         @smokesignal.on('dataset_finished')
         def b(dataset):
-            assert_equal(dataset, 'testing')
+            assert dataset == 'testing'
             b.called = True
 
         @smokesignal.on('run_finished')

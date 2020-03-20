@@ -1,4 +1,3 @@
-from nose.tools import assert_dict_equal, assert_equal, assert_less_equal
 import networkx as nx
 
 from linkpred.evaluation import Pair
@@ -12,17 +11,17 @@ class TestCopy:
 
     def test_copy_unweighted(self):
         expected = {Pair(0, 1): 1, Pair(1, 2): 1}
-        assert_dict_equal(Copy(self.G).predict(), expected)
+        assert Copy(self.G).predict() == expected
 
     def test_copy_weighted(self):
         expected = {Pair(0, 1): 3.0, Pair(1, 2): 7.5}
-        assert_dict_equal(Copy(self.G).predict(weight="weight"), expected)
+        assert Copy(self.G).predict(weight="weight") == expected
 
 
 def test_community():
     G = nx.erdos_renyi_graph(20, 0.1)
     prediction = Community(G).predict()
-    assert_less_equal(len(prediction), 190)
+    assert len(prediction) <= 190
 
 
 def test_community_exclude_noneligible():
@@ -31,7 +30,7 @@ def test_community_exclude_noneligible():
     G.add_nodes_from(range(10, 20), eligible=False)
 
     prediction = Community(G, eligible='eligible').predict()
-    assert_less_equal(len(prediction), 45)
+    assert len(prediction) <= 45
     for pair in prediction:
         for v in pair:
             assert v in range(10)
@@ -41,7 +40,7 @@ def test_random():
     G = nx.Graph()
     G.add_nodes_from(range(10), eligible=True)
     prediction = Random(G).predict()
-    assert_equal(len(prediction), 45)
+    assert len(prediction) == 45
 
 
 def test_random_exclude_noneligible():
@@ -49,7 +48,7 @@ def test_random_exclude_noneligible():
     G.add_nodes_from(range(5), eligible=True)
     G.add_nodes_from(range(5, 10), eligible=False)
     prediction = Random(G, eligible='eligible').predict()
-    assert_equal(len(prediction), 10)
+    assert len(prediction) == 10
     for i in range(5):
         for j in range(5):
             if i != j:

@@ -8,7 +8,7 @@ setup(
     url='http://github.com/rafguns/linkpred/',
     license='New BSD License',
     author='Raf Guns',
-    tests_require=['nose'],
+    tests_require=['pytest', 'pytest-cov'],
     install_requires=[
         'matplotlib>=2.1',
         'networkx>=2.4',
