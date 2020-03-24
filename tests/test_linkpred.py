@@ -6,9 +6,15 @@ import matplotlib
 import networkx as nx
 import pytest
 import smokesignal
-from linkpred.evaluation.listeners import *
+from linkpred.evaluation.listeners import (
+    CacheEvaluationListener,
+    FMaxListener,
+    FScorePlotter,
+    RecallPrecisionPlotter,
+    ROCPlotter,
+)
 
-from utils import temp_file
+from .utils import temp_file
 
 matplotlib.use("Agg")
 

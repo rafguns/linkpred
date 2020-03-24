@@ -8,7 +8,7 @@ from linkpred.evaluation import (
     UndefinedError,
 )
 
-from utils import assert_array_equal, temp_file
+from .utils import assert_array_equal, temp_file
 
 
 class TestStaticEvaluation:

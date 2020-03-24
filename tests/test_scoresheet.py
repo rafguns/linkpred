@@ -2,7 +2,7 @@ import networkx as nx
 import pytest
 
 from linkpred.evaluation.scoresheet import BaseScoresheet, Pair, Scoresheet
-from utils import temp_file
+from .utils import temp_file
 
 
 class TestBaseScoresheet:

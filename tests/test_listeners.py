@@ -3,10 +3,14 @@ import re
 
 import smokesignal
 from linkpred.evaluation import BaseScoresheet, EvaluationSheet
-from linkpred.evaluation.listeners import *
-from linkpred.evaluation.listeners import _timestamped_filename
+from linkpred.evaluation.listeners import (
+    CacheEvaluationListener,
+    CachePredictionListener,
+    EvaluatingListener,
+    _timestamped_filename,
+)
 
-from utils import assert_array_equal
+from .utils import assert_array_equal
 
 
 def test_timestamped_filename():
