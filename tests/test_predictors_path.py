@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 import pytest
 from linkpred.evaluation import Scoresheet
-from linkpred.predictors.path import *
+from linkpred.predictors.path import GraphDistance, Katz
 
 
 def test_katz():
@@ -16,8 +16,8 @@ def test_katz():
         katz = Katz(G).predict(beta=beta, weight=weight)
 
         nodes = list(G.nodes())
-        M = nx.to_numpy_matrix(G, nodelist=nodes, weight=weight)
-        K = (I - beta * M) ** -1 - I
+        M = nx.to_numpy_array(G, nodelist=nodes, weight=weight)
+        K = np.linalg.matrix_power(I - beta * M, -1) - I
 
         x, y = np.asarray(K).nonzero()
         for i, j in zip(x, y):

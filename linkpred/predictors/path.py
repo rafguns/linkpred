@@ -83,16 +83,11 @@ class Katz(Predictor):
             the edge weight.  If None then treat as unweighted.
 
         dtype : a data type
-            data type of edge weights (default numpy.int32)
+            data type of edge weights
 
         """
-        if dtype is None:
-            import numpy
-            dtype = numpy.int32
-
         nodelist = list(self.G.nodes)
-        adj = nx.to_scipy_sparse_matrix(
-            self.G, dtype=dtype, weight=weight)
+        adj = nx.to_scipy_sparse_matrix(self.G, dtype=dtype, weight=weight)
         res = Scoresheet()
 
         for k in progressbar(range(1, max_power + 1),

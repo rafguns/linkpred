@@ -1,5 +1,7 @@
 import logging
-import networkx
+
+import networkx as nx
+import numpy as np
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +38,7 @@ def rooted_pagerank(G, root, alpha=0.85, beta=0, weight='weight'):
     personalization = dict.fromkeys(G, beta)
     personalization[root] = 1 - beta
 
-    return networkx.pagerank_scipy(G, alpha, personalization, weight=weight)
+    return nx.pagerank_scipy(G, alpha, personalization, weight=weight)
 
 
 def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
@@ -68,23 +70,20 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
         Otherwise holds the name of the edge attribute used as weight.
 
     """
-    import numpy as np
     n = len(G)
     M = raw_google_matrix(G, nodelist=nodelist, weight=weight)
     sim = np.identity(n, dtype=np.float32)
     for i in range(num_iterations):
         log.debug("Starting SimRank iteration %d", i)
-        temp = c * M.T * sim * M
+        temp = c * M.T @ sim @ M
         sim = temp + np.identity(n) - np.diag(np.diag(temp))
     return sim
 
 
 def raw_google_matrix(G, nodelist=None, weight='weight'):
     """Calculate the raw Google matrix (stochastic without teleportation)"""
-    import numpy as np
-
-    M = networkx.to_numpy_matrix(G, nodelist=nodelist, dtype=np.float32,
-                                 weight=weight)
+    M = nx.to_numpy_array(G, nodelist=nodelist, dtype=np.float32,
+                          weight=weight)
     n, m = M.shape  # should be square
     assert n == m and n > 0
     # Find 'dangling' nodes, i.e. nodes whose row's sum = 0
