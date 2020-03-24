@@ -5,9 +5,7 @@ from ..evaluation import Scoresheet
 from ..util import all_pairs
 from .base import Predictor
 
-__all__ = ["Community",
-           "Copy",
-           "Random"]
+__all__ = ["Community", "Copy", "Random"]
 
 
 class Community(Predictor):
@@ -27,9 +25,11 @@ class Community(Predictor):
         try:
             import community
         except ImportError:
-            raise ImportError("Module 'community' could not be found. "
-                              "Please install linkpred as follows:\n"
-                              "$ pip install linkpred[community]")
+            raise ImportError(
+                "Module 'community' could not be found. "
+                "Please install linkpred as follows:\n"
+                "$ pip install linkpred[community]"
+            )
 
         res = Scoresheet()
         dendogram = community.generate_dendrogram(self.G)
@@ -68,8 +68,7 @@ class Copy(Predictor):
         """
         if weight is None:
             return Scoresheet.fromkeys(self.G.edges(), 1)
-        return Scoresheet(((u, v), d[weight]) for u, v, d in
-                          self.G.edges(data=True))
+        return Scoresheet(((u, v), d[weight]) for u, v, d in self.G.edges(data=True))
 
 
 class Random(Predictor):

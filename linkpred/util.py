@@ -18,8 +18,8 @@ def progressbar(it, prefix="", size=60):
     def _show(_i):
         x = int(size * _i / count)
         sys.stdout.write(
-            "%s[%s%s] %i/%i\r" % (prefix, "#" * x, "." * (size - x),
-                                  _i, count))
+            "%s[%s%s] %i/%i\r" % (prefix, "#" * x, "." * (size - x), _i, count)
+        )
         sys.stdout.flush()
 
     _show(0)
@@ -37,7 +37,7 @@ def load_function(full_functionname):
 
     """
     try:
-        modulename, functionname = full_functionname.rsplit('.', 1)
+        modulename, functionname = full_functionname.rsplit(".", 1)
     except ValueError:
         raise ValueError("No module name given in " + full_functionname)
     # Dynamically load module and function
@@ -49,7 +49,7 @@ def load_function(full_functionname):
 
 def interpolate(curve):
     """Make curve decrease."""
-    for i in range(-1, -len(curve), - 1):
+    for i in range(-1, -len(curve), -1):
         if curve[i] > curve[i - 1]:
             curve[i - 1] = curve[i]
     return curve
@@ -63,8 +63,9 @@ def itersubclasses(cls, _seen=None):
 
     """
     if not isinstance(cls, type):
-        raise TypeError('itersubclasses must be called with '
-                        'new-style classes, not %.100r' % cls)
+        raise TypeError(
+            "itersubclasses must be called with " "new-style classes, not %.100r" % cls
+        )
     if _seen is None:
         _seen = set()
     try:

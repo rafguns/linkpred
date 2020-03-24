@@ -1,6 +1,8 @@
-from linkpred.preprocess import (without_low_degree_nodes,
-                                 without_uncommon_nodes,
-                                 without_selfloops)
+from linkpred.preprocess import (
+    without_low_degree_nodes,
+    without_uncommon_nodes,
+    without_selfloops,
+)
 import networkx as nx
 
 
@@ -17,11 +19,11 @@ def test_without_uncommon_nodes():
         G = nx.Graph()
         G.add_nodes_from(nodes)
         for n in G:
-            G.nodes[n]['eligible'] = n % 2 == 0
+            G.nodes[n]["eligible"] = n % 2 == 0
         graphs.append(G)
 
     for G in without_uncommon_nodes(graphs):
-        assert sorted(n for n in G if G.nodes[n]['eligible']) == [2, 4]
+        assert sorted(n for n in G if G.nodes[n]["eligible"]) == [2, 4]
 
 
 def test_without_low_degree_nodes():
@@ -34,9 +36,9 @@ def test_without_low_degree_nodes():
     G = nx.Graph()
     G.add_edges_from(edges)
     for n in G:
-        G.nodes[n]['eligible'] = n % 2 == 0
+        G.nodes[n]["eligible"] = n % 2 == 0
     G = without_low_degree_nodes(G, minimum=2)
-    assert sorted(n for n in G if G.nodes[n]['eligible']) == [0, 2]
+    assert sorted(n for n in G if G.nodes[n]["eligible"]) == [0, 2]
 
 
 def test_without_selfloops():

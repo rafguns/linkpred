@@ -25,6 +25,7 @@ class BaseScoresheet(defaultdict):
     c-a: 0.2
 
     """
+
     def __init__(self, data=None):
         defaultdict.__init__(self, float)
         if data:
@@ -67,17 +68,17 @@ class BaseScoresheet(defaultdict):
         return dict(self.ranked_items(threshold=n))
 
     @staticmethod
-    def from_record(line, delimiter='\t'):
-        line = line.rstrip('\n')
-        return line.rstrip('\n').split(delimiter)
+    def from_record(line, delimiter="\t"):
+        line = line.rstrip("\n")
+        return line.rstrip("\n").split(delimiter)
 
     @staticmethod
-    def to_record(key, value, delimiter='\t'):
+    def to_record(key, value, delimiter="\t"):
         key, value = map(make_qstr, (key, value))
         return u"{}{}{}\n".format(key, delimiter, value)
 
     @classmethod
-    def from_file(cls, fname, delimiter='\t', encoding='utf-8'):
+    def from_file(cls, fname, delimiter="\t", encoding="utf-8"):
         """Create new instance from CSV file *fname*"""
         d = cls()
         with open(fname, "rb") as fh:
@@ -86,12 +87,11 @@ class BaseScoresheet(defaultdict):
                 d[key] = score
         return d
 
-    def to_file(self, fname, delimiter='\t', encoding='utf-8'):
+    def to_file(self, fname, delimiter="\t", encoding="utf-8"):
         """Save to CSV file *fname*"""
         with open(fname, "wb") as fh:
             for key, score in self.ranked_items():
-                fh.write(self.to_record(
-                    key, score, delimiter).encode(encoding))
+                fh.write(self.to_record(key, score, delimiter).encode(encoding))
 
 
 class Pair(object):
@@ -109,6 +109,7 @@ class Pair(object):
     True
 
     """
+
     def __init__(self, *args):
         if len(args) == 1:
             key = args[0]
@@ -121,8 +122,7 @@ class Pair(object):
         elif len(args) == 2:
             a, b = args
         else:
-            raise TypeError(
-                "__init__() takes 1 or 2 arguments in addition to self")
+            raise TypeError("__init__() takes 1 or 2 arguments in addition to self")
         # For link prediction, a and b are two different nodes
         assert a != b, "Predicted link (%s, %s) is a self-loop!" % (a, b)
         self.elements = self._sorted_tuple((a, b))
@@ -189,6 +189,7 @@ class Scoresheet(BaseScoresheet):
     Scoresheet's keys are always Pairs.
 
     """
+
     def __getitem__(self, key):
         return BaseScoresheet.__getitem__(self, Pair(key))
 
@@ -198,22 +199,21 @@ class Scoresheet(BaseScoresheet):
     def __delitem__(self, key):
         return dict.__delitem__(self, Pair(key))
 
-    def process_data(self, data, weight='weight'):
+    def process_data(self, data, weight="weight"):
         if isinstance(data, dict):
             return {Pair(k): float(v) for k, v in data.items()}
         if isinstance(data, nx.Graph):
-            return {Pair(u, v): float(d[weight]) for u, v, d
-                    in data.edges(data=True)}
+            return {Pair(u, v): float(d[weight]) for u, v, d in data.edges(data=True)}
         # We assume that data is some sort of iterable, like a list or tuple
         return {Pair(k): float(v) for k, v in data}
 
     @staticmethod
-    def from_record(line, delimiter='\t'):
-        u, v, score = line.rstrip('\n').split(delimiter)
+    def from_record(line, delimiter="\t"):
+        u, v, score = line.rstrip("\n").split(delimiter)
         return (u, v), score
 
     @staticmethod
-    def to_record(key, value, delimiter='\t'):
+    def to_record(key, value, delimiter="\t"):
         u, v = key
         u, v, score = map(make_qstr, (u, v, value))
         return u"{0}{3}{1}{3}{2}\n".format(u, v, score, delimiter)

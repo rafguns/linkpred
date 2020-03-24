@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 __all__ = ["rooted_pagerank", "simrank"]
 
 
-def rooted_pagerank(G, root, alpha=0.85, beta=0, weight='weight'):
+def rooted_pagerank(G, root, alpha=0.85, beta=0, weight="weight"):
     """Return the rooted PageRank of all nodes with respect to node `root`
 
     Parameters
@@ -41,7 +41,7 @@ def rooted_pagerank(G, root, alpha=0.85, beta=0, weight='weight'):
     return nx.pagerank_scipy(G, alpha, personalization, weight=weight)
 
 
-def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
+def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight="weight"):
     r"""Calculate SimRank matrix for nodes in nodelist
 
     SimRank is defined as:
@@ -80,10 +80,9 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight='weight'):
     return sim
 
 
-def raw_google_matrix(G, nodelist=None, weight='weight'):
+def raw_google_matrix(G, nodelist=None, weight="weight"):
     """Calculate the raw Google matrix (stochastic without teleportation)"""
-    M = nx.to_numpy_array(G, nodelist=nodelist, dtype=np.float32,
-                          weight=weight)
+    M = nx.to_numpy_array(G, nodelist=nodelist, dtype=np.float32, weight=weight)
     n, m = M.shape  # should be square
     assert n == m and n > 0
     # Find 'dangling' nodes, i.e. nodes whose row's sum = 0

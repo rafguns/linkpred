@@ -17,15 +17,15 @@ def test_timestamped_filename():
 
 
 def test_EvaluatingListener():
-    @smokesignal.on('evaluation_finished')
+    @smokesignal.on("evaluation_finished")
     def t(evaluation, dataset, predictor):
-        assert dataset == 'dataset'
+        assert dataset == "dataset"
         assert isinstance(evaluation, EvaluationSheet)
         assert_array_equal(evaluation.tp, [1, 1, 2, 2])
         assert_array_equal(evaluation.fp, [0, 1, 1, 2])
         assert_array_equal(evaluation.fn, [1, 1, 0, 0])
         assert_array_equal(evaluation.tn, [2, 1, 1, 0])
-        assert predictor == 'predictor'
+        assert predictor == "predictor"
         t.called = True
 
     t.called = False
@@ -33,8 +33,12 @@ def test_EvaluatingListener():
     universe = {1, 2, 3, 4}
     scoresheet = BaseScoresheet({1: 10, 3: 5, 2: 2, 4: 1})
     EvaluatingListener(relevant=relevant, universe=universe)
-    smokesignal.emit('prediction_finished', scoresheet=scoresheet,
-                     dataset='dataset', predictor='predictor')
+    smokesignal.emit(
+        "prediction_finished",
+        scoresheet=scoresheet,
+        dataset="dataset",
+        predictor="predictor",
+    )
     assert t.called
     smokesignal.clear_all()
 
@@ -42,7 +46,7 @@ def test_EvaluatingListener():
 def test_CachePredictionListener():
     l = CachePredictionListener()
     scoresheet = BaseScoresheet({1: 10, 2: 5, 3: 2, 4: 1})
-    smokesignal.emit('prediction_finished', scoresheet, 'd', 'p')
+    smokesignal.emit("prediction_finished", scoresheet, "d", "p")
 
     with open(l.fname) as fh:
         # Line endings may be different across platforms
@@ -55,7 +59,7 @@ def test_CacheEvaluationListener():
     l = CacheEvaluationListener()
     scores = BaseScoresheet({1: 10, 2: 5})
     ev = EvaluationSheet(scores, {1})
-    smokesignal.emit('evaluation_finished', ev, 'd', 'p')
+    smokesignal.emit("evaluation_finished", ev, "d", "p")
 
     ev2 = EvaluationSheet.from_file(l.fname)
     assert_array_equal(ev.data, ev2.data)

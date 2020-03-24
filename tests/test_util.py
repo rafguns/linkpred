@@ -10,12 +10,13 @@ def test_all_pairs():
 
 def test_load_function():
     import os
-    assert u.load_function('os.path.join') == os.path.join
+
+    assert u.load_function("os.path.join") == os.path.join
 
 
 def test_load_function_no_modulename():
     with pytest.raises(ValueError):
-        u.load_function('join')
+        u.load_function("join")
 
 
 def test_interpolate():
@@ -40,7 +41,7 @@ def test_itersubclasses():
         pass
 
     name = lambda x: x.__name__
-    assert list(map(name, u.itersubclasses(A))) == ['Aa', 'Aaa', 'Ab']
+    assert list(map(name, u.itersubclasses(A))) == ["Aa", "Aaa", "Ab"]
 
 
 # This is silly but hey... 100% test coverage for this file :-)

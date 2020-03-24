@@ -1,7 +1,6 @@
 from .util import neighbourhood
 
-__all__ = ["Predictor",
-           "all_predictors"]
+__all__ = ["Predictor", "all_predictors"]
 
 
 class Predictor(object):
@@ -68,6 +67,7 @@ class Predictor(object):
                     except KeyError:
                         pass
                 return scoresheet
+
             predict_and_postprocess.__name__ = func.__name__
             predict_and_postprocess.__doc__ = func.__doc__
             predict_and_postprocess.__dict__.update(func.__dict__)
@@ -135,6 +135,7 @@ def all_predictors():
     from ..util import itersubclasses
     from operator import itemgetter
 
-    predictors = sorted(((s, s.__name__) for s in itersubclasses(Predictor)),
-                        key=itemgetter(1))
+    predictors = sorted(
+        ((s, s.__name__) for s in itersubclasses(Predictor)), key=itemgetter(1)
+    )
     return list(zip(*predictors))[0]

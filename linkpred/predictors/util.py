@@ -17,11 +17,9 @@ def neighbourhood_intersection_size(G, a, b, weight=None, k=1):
     to the vector-based interpretation (dot product of the two vectors).
 
     """
-    common_neighbours = set(neighbourhood(G, a, k)) &\
-        set(neighbourhood(G, b, k))
+    common_neighbours = set(neighbourhood(G, a, k)) & set(neighbourhood(G, b, k))
     if weight:
-        w = sum(G[a][n][weight] * G[b][n][weight]
-                for n in common_neighbours)
+        w = sum(G[a][n][weight] * G[b][n][weight] for n in common_neighbours)
     else:
         w = len(common_neighbours)
     return w
@@ -51,10 +49,13 @@ def neighbourhood_union_size(G, a, b, weight=None, k=1, pow=2):
     a_neighbours = set(neighbourhood(G, a, k))
     b_neighbours = set(neighbourhood(G, b, k))
     if weight:
-        w = sum(G[a][n][weight] ** pow for n in a_neighbours) +\
-            sum(G[b][n][weight] ** pow for n in b_neighbours) -\
-            sum(G[a][n][weight] * G[b][n][weight]
-                for n in a_neighbours & b_neighbours)
+        w = (
+            sum(G[a][n][weight] ** pow for n in a_neighbours)
+            + sum(G[b][n][weight] ** pow for n in b_neighbours)
+            - sum(
+                G[a][n][weight] * G[b][n][weight] for n in a_neighbours & b_neighbours
+            )
+        )
     else:
         w = len(a_neighbours | b_neighbours)
     return w

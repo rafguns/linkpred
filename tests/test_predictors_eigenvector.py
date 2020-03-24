@@ -11,6 +11,7 @@ class TestEigenvectorRuns:
     that at least run the code are better than nothing.
 
     """
+
     def setup(self):
         self.n = 20
         self.G = nx.gnm_random_graph(self.n, self.n * 3)
@@ -25,7 +26,6 @@ class TestEigenvectorRuns:
 
 
 class TestEigenVector:
-
     def test_rooted_pagerank(self):
         pass
 

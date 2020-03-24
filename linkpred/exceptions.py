@@ -3,4 +3,3 @@
 
 class LinkPredError(Exception):
     """Link prediction error"""
-

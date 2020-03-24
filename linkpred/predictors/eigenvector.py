@@ -7,8 +7,7 @@ from .base import Predictor
 
 
 class RootedPageRank(Predictor):
-    def predict(self, nbunch=None, alpha=0.85, beta=0, weight='weight',
-                k=None):
+    def predict(self, nbunch=None, alpha=0.85, beta=0, weight="weight", k=None):
         """Predict using rooted PageRank.
 
         Parameters
@@ -60,7 +59,7 @@ class RootedPageRank(Predictor):
 
 
 class SimRank(Predictor):
-    def predict(self, c=0.8, num_iterations=10, weight='weight'):
+    def predict(self, c=0.8, num_iterations=10, weight="weight"):
         r"""Predict using SimRank
 
         .. math ::

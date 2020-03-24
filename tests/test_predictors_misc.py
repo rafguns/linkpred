@@ -29,7 +29,7 @@ def test_community_exclude_noneligible():
     G.add_nodes_from(range(10), eligible=True)
     G.add_nodes_from(range(10, 20), eligible=False)
 
-    prediction = Community(G, eligible='eligible').predict()
+    prediction = Community(G, eligible="eligible").predict()
     assert len(prediction) <= 45
     for pair in prediction:
         for v in pair:
@@ -47,7 +47,7 @@ def test_random_exclude_noneligible():
     G = nx.Graph()
     G.add_nodes_from(range(5), eligible=True)
     G.add_nodes_from(range(5, 10), eligible=False)
-    prediction = Random(G, eligible='eligible').predict()
+    prediction = Random(G, eligible="eligible").predict()
     assert len(prediction) == 10
     for i in range(5):
         for j in range(5):

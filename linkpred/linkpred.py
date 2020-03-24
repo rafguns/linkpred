@@ -7,8 +7,11 @@ import smokesignal
 from . import predictors
 from .evaluation import Pair, listeners as l
 from .exceptions import LinkPredError
-from .preprocess import (without_low_degree_nodes, without_uncommon_nodes,
-                         without_selfloops)
+from .preprocess import (
+    without_low_degree_nodes,
+    without_uncommon_nodes,
+    without_selfloops,
+)
 
 log = logging.getLogger(__name__)
 
@@ -43,8 +46,7 @@ def pretty_print(name, params=None):
     if not params:
         return name
 
-    pretty_params = ", ".join("%s = %s" % (k, str(v))
-                              for k, v in params.items())
+    pretty_params = ", ".join("%s = %s" % (k, str(v)) for k, v in params.items())
     return "%s (%s)" % (name, pretty_params)
 
 
@@ -60,12 +62,14 @@ def _read_pajek(*args, **kwargs):
         return nx.Graph(G)
 
 
-FILETYPE_READERS = {'.net': _read_pajek,
-                    '.gml': nx.read_gml,
-                    '.graphml': nx.read_graphml,
-                    '.gexf': nx.read_gexf,
-                    '.edgelist': nx.read_edgelist,
-                    '.adjlist': nx.read_adjlist}
+FILETYPE_READERS = {
+    ".net": _read_pajek,
+    ".gml": nx.read_gml,
+    ".graphml": nx.read_graphml,
+    ".gexf": nx.read_gexf,
+    ".edgelist": nx.read_edgelist,
+    ".adjlist": nx.read_adjlist,
+}
 
 
 def read_network(fh):
@@ -90,8 +94,11 @@ def read_network(fh):
         network = read(fh)
         log.info("Successfully read file.")
     except KeyError:
-        raise LinkPredError("File '%s' is of an unknown type. Known types "
-                            "are: %s.", fname, ", ".join(FILETYPE_READERS))
+        raise LinkPredError(
+            "File '%s' is of an unknown type. Known types " "are: %s.",
+            fname,
+            ", ".join(FILETYPE_READERS),
+        )
 
     return network
 
@@ -108,44 +115,47 @@ class LinkPred(object):
     def __init__(self, config=None):
         # default config
         self.config = {
-            'chart_filetype': 'pdf',
-            'eligible':       None,
-            'interpolation':  False,
-            'label':          '',
-            'min_degree':     1,
-            'exclude':        'old',
-            'output':         ['recall-precision'],
-            'predictors':     [],
-            'test-file':      None,
-            'training-file':  None
+            "chart_filetype": "pdf",
+            "eligible": None,
+            "interpolation": False,
+            "label": "",
+            "min_degree": 1,
+            "exclude": "old",
+            "output": ["recall-precision"],
+            "predictors": [],
+            "test-file": None,
+            "training-file": None,
         }
         if config:
             self.config.update(config)
         log.debug("Config: %s", self.config)
 
-        if not self.config['predictors']:
+        if not self.config["predictors"]:
             raise LinkPredError("No predictor specified. Aborting...")
 
-        self.label = self.config['label'] or \
-            os.path.splitext(self.config['training-file'])[0]
-        self.training = self.network('training-file')
-        self.test = self.network('test-file')
+        self.label = (
+            self.config["label"] or os.path.splitext(self.config["training-file"])[0]
+        )
+        self.training = self.network("training-file")
+        self.test = self.network("test-file")
         self.evaluator = None
         self.listeners = []
 
     @property
     def excluded(self):
         """Get set of links that should not be predicted"""
-        exclude = self.config['exclude']
+        exclude = self.config["exclude"]
         if not exclude:
             return set()  # No nodes are excluded
-        elif exclude == 'old':
+        elif exclude == "old":
             return set(self.training.edges())
-        elif exclude == 'new':
+        elif exclude == "new":
             return set(nx.non_edges(self.training))
-        raise LinkPredError("Value '{}' for exclude is unexpected. Use either "
-                            "'old', 'new' or empty string '' (for no "
-                            "exclusions)".format(exclude))
+        raise LinkPredError(
+            "Value '{}' for exclude is unexpected. Use either "
+            "'old', 'new' or empty string '' (for no "
+            "exclusions)".format(exclude)
+        )
 
     def network(self, key):
         """Get network for given key"""
@@ -162,7 +172,8 @@ class LinkPred(object):
         log.info("Starting preprocessing...")
 
         preprocessed = lambda G: without_low_degree_nodes(
-            without_selfloops(G), minimum=self.config['min_degree'])
+            without_selfloops(G), minimum=self.config["min_degree"]
+        )
 
         if self.test:
             networks = [preprocessed(G) for G in (self.training, self.test)]
@@ -174,39 +185,35 @@ class LinkPred(object):
 
     def setup_output(self):
         """Configure listeners"""
-        filetype = self.config['chart_filetype']
-        interpolation = self.config['interpolation']
+        filetype = self.config["chart_filetype"]
+        interpolation = self.config["interpolation"]
 
         listeners = {
-            'cache-predictions': (
-                l.CachePredictionListener, False, {}),
-            'recall-precision': (
+            "cache-predictions": (l.CachePredictionListener, False, {}),
+            "recall-precision": (
                 l.RecallPrecisionPlotter,
                 True,
-                dict(name=self.label, filetype=filetype,
-                     interpolation=interpolation)),
-            'f-score': (
+                dict(name=self.label, filetype=filetype, interpolation=interpolation),
+            ),
+            "f-score": (
                 l.FScorePlotter,
                 True,
-                dict(name=self.label, filetype=filetype)),
-            'roc': (
-                l.ROCPlotter,
-                True,
-                dict(name=self.label, filetype=filetype)),
-            'fmax': (
-                l.FMaxListener, True, {'name': self.label}),
-            'cache-evaluations': (
-                l.CacheEvaluationListener, True, {})
+                dict(name=self.label, filetype=filetype),
+            ),
+            "roc": (l.ROCPlotter, True, dict(name=self.label, filetype=filetype)),
+            "fmax": (l.FMaxListener, True, {"name": self.label}),
+            "cache-evaluations": (l.CacheEvaluationListener, True, {}),
         }
 
-        for output in self.config['output']:
+        for output in self.config["output"]:
             name = output.lower()
             listener, evaluating, kwargs = listeners[name]
 
             if evaluating:
                 if not self.test:
-                    raise LinkPredError("Cannot evaluate (%s) without "
-                                        "test network" % output)
+                    raise LinkPredError(
+                        "Cannot evaluate (%s) without " "test network" % output
+                    )
 
                 # Set up an 'evaluator': a listener that routes predictions
                 # and turns them into evaluations
@@ -218,7 +225,8 @@ class LinkPred(object):
                     # Make sure we get an int here.
                     num_universe = n * (n - 1) // 2 - len(self.excluded)
                     self.evaluator = l.EvaluatingListener(
-                        relevant=test_set, universe=num_universe)
+                        relevant=test_set, universe=num_universe
+                    )
 
             self.listeners.append(listener(**kwargs))
             log.debug("Added listener for '%s'", output)
@@ -233,17 +241,16 @@ class LinkPred(object):
             a Scoresheet (actual predictions)
 
         """
-        for predictor_profile in self.config['predictors']:
-            params = predictor_profile.get('parameters', {})
-            name = predictor_profile['name']
+        for predictor_profile in self.config["predictors"]:
+            params = predictor_profile.get("parameters", {})
+            name = predictor_profile["name"]
             predictor_class = getattr(predictors, name)
-            label = predictor_profile.get('displayname',
-                                          pretty_print(name, params))
+            label = predictor_profile.get("displayname", pretty_print(name, params))
 
             log.info("Executing %s...", label)
-            predictor = predictor_class(self.training,
-                                        eligible=self.config['eligible'],
-                                        excluded=self.excluded)
+            predictor = predictor_class(
+                self.training, eligible=self.config["eligible"], excluded=self.excluded
+            )
             scoresheet = predictor.predict(**params)
             log.info("Finished executing %s.", label)
 
@@ -265,13 +272,16 @@ class LinkPred(object):
 
         # The following loop actually executes the predictors
         for predictorname, scoresheet in self.predictions:
-            log.debug("Predictor '%s' yields %d predictions",
-                      predictorname, len(scoresheet))
-            smokesignal.emit('prediction_finished',
-                             scoresheet=scoresheet,
-                             dataset=self.label,
-                             predictor=predictorname)
+            log.debug(
+                "Predictor '%s' yields %d predictions", predictorname, len(scoresheet)
+            )
+            smokesignal.emit(
+                "prediction_finished",
+                scoresheet=scoresheet,
+                dataset=self.label,
+                predictor=predictorname,
+            )
 
-        smokesignal.emit('dataset_finished', dataset=self.label)
-        smokesignal.emit('run_finished')
+        smokesignal.emit("dataset_finished", dataset=self.label)
+        smokesignal.emit("run_finished")
         log.info("Prediction run finished")

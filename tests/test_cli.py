@@ -21,36 +21,41 @@ class TestProfileFile:
         self.json_fd, self.json_fname = tempfile.mkstemp(suffix=".json")
         self.expected = {
             "predictors": [
-                {"name": "CommonNeighbours",
-                 "displayname": "Common neighbours"},
+                {"name": "CommonNeighbours", "displayname": "Common neighbours"},
                 {"name": "Cosine"},
             ],
-            "interpolation": True
+            "interpolation": True,
         }
 
     def teardown(self):
-        for fd, fname in ((self.yaml_fd, self.yaml_fname),
-                          (self.json_fd, self.json_fname)):
+        for fd, fname in (
+            (self.yaml_fd, self.yaml_fname),
+            (self.json_fd, self.json_fname),
+        ):
             os.close(fd)
             os.unlink(fname)
 
     def test_load_profile_yaml(self):
         with open(self.yaml_fname, "w") as fh:
-            fh.write("""predictors:
+            fh.write(
+                """predictors:
 - name: CommonNeighbours
   displayname: Common neighbours
 - name: Cosine
-interpolation: true""")
+interpolation: true"""
+            )
         profile = load_profile(self.yaml_fname)
         assert profile == self.expected
 
     def test_load_profile_json(self):
         with open(self.json_fname, "w") as fh:
-            fh.write("""{"predictors":
+            fh.write(
+                """{"predictors":
                 [{"name": "CommonNeighbours",
                 "displayname": "Common neighbours"},
                 {"name": "Cosine"}],
-                "interpolation": true}""")
+                "interpolation": true}"""
+            )
         profile = load_profile(self.json_fname)
         assert profile == self.expected
 
@@ -67,11 +72,13 @@ interpolation: true""")
 
     def test_get_config(self):
         with open(self.yaml_fname, "w") as fh:
-            fh.write("""predictors:
+            fh.write(
+                """predictors:
 - name: CommonNeighbours
   displayname: Common neighbours
 - name: Cosine
-interpolation: true""")
+interpolation: true"""
+            )
 
         fh = tempfile.NamedTemporaryFile("r", delete=False)
         with temp_empty_file() as training:
@@ -80,8 +87,7 @@ interpolation: true""")
                 assert config[k] == v
 
         with temp_empty_file() as training:
-            config = get_config([fh.name, "-P", self.yaml_fname, "-p",
-                                 "Katz", "-i"])
+            config = get_config([fh.name, "-P", self.yaml_fname, "-p", "Katz", "-i"])
             # Profile gets priority
             for k, v in self.expected.items():
                 assert config[k] == v
@@ -108,23 +114,24 @@ def test_handle_arguments():
         "predictors": [],
         "exclude": "old",
         "profile": None,
-        "training-file": "training"
+        "training-file": "training",
     }
 
-    args = handle_arguments(['training'])
+    args = handle_arguments(["training"])
     for k, v in expected.items():
         assert args[k] == v
 
-    args = handle_arguments(['training', 'test'])
+    args = handle_arguments(["training", "test"])
     for k, v in expected.items():
         assert args[k] == v
     assert args["test-file"] == "test"
 
-    argstr = "-p CommonNeighbours Cosine -o fmax " \
-        "recall-precision -- training"
+    argstr = "-p CommonNeighbours Cosine -o fmax " "recall-precision -- training"
     args = handle_arguments(argstr.split())
-    expected_special = {"predictors": ["CommonNeighbours", "Cosine"],
-                        "output": ["fmax", "recall-precision"]}
+    expected_special = {
+        "predictors": ["CommonNeighbours", "Cosine"],
+        "output": ["fmax", "recall-precision"],
+    }
     for k, v in expected_special.items():
         assert args[k] == v
 

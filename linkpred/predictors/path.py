@@ -8,7 +8,7 @@ __all__ = ["GraphDistance", "Katz"]
 
 
 class GraphDistance(Predictor):
-    def predict(self, weight='weight', alpha=1):
+    def predict(self, weight="weight", alpha=1):
         r"""Predict by graph distance
 
         This is based on the dissimilarity measures of Egghe & Rousseau (2003):
@@ -43,8 +43,9 @@ class GraphDistance(Predictor):
         else:
             # We assume that edge weights denote proximities
             G = nx.Graph()
-            G.add_weighted_edges_from((u, v, 1 / d[weight] ** alpha) for
-                                      u, v, d in self.G.edges(data=True))
+            G.add_weighted_edges_from(
+                (u, v, 1 / d[weight] ** alpha) for u, v, d in self.G.edges(data=True)
+            )
 
         dist = nx.shortest_path_length(G, weight=weight)
         for a, others in dist:
@@ -59,7 +60,7 @@ class GraphDistance(Predictor):
 
 
 class Katz(Predictor):
-    def predict(self, beta=0.001, max_power=5, weight='weight', dtype=None):
+    def predict(self, beta=0.001, max_power=5, weight="weight", dtype=None):
         """Predict by Katz (1953) measure
 
         Let `A` be an adjacency matrix for the directed network `G`.
@@ -90,8 +91,7 @@ class Katz(Predictor):
         adj = nx.to_scipy_sparse_matrix(self.G, dtype=dtype, weight=weight)
         res = Scoresheet()
 
-        for k in progressbar(range(1, max_power + 1),
-                             "Computing matrix powers: "):
+        for k in progressbar(range(1, max_power + 1), "Computing matrix powers: "):
             # The below method is found to be fastest for iterating through a
             # sparse matrix, see
             # http://stackoverflow.com/questions/4319014/

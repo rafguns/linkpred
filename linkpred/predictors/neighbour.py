@@ -3,20 +3,26 @@ import math
 from ..evaluation import Scoresheet
 from ..util import all_pairs
 from .base import Predictor
-from .util import neighbourhood, neighbourhood_size,\
-    neighbourhood_intersection_size, neighbourhood_union_size
+from .util import (
+    neighbourhood,
+    neighbourhood_size,
+    neighbourhood_intersection_size,
+    neighbourhood_union_size,
+)
 
-__all__ = ["AdamicAdar",
-           "AssociationStrength",
-           "CommonNeighbours",
-           "Cosine",
-           "DegreeProduct",
-           "Jaccard",
-           "MaxOverlap",
-           "MinOverlap",
-           "NMeasure",
-           "Pearson",
-           "ResourceAllocation"]
+__all__ = [
+    "AdamicAdar",
+    "AssociationStrength",
+    "CommonNeighbours",
+    "Cosine",
+    "DegreeProduct",
+    "Jaccard",
+    "MaxOverlap",
+    "MinOverlap",
+    "NMeasure",
+    "Pearson",
+    "ResourceAllocation",
+]
 
 
 class AdamicAdar(Predictor):
@@ -32,16 +38,14 @@ class AdamicAdar(Predictor):
         """
         res = Scoresheet()
         for a, b in self.likely_pairs():
-            intersection = set(neighbourhood(self.G, a)) & \
-                set(neighbourhood(self.G, b))
+            intersection = set(neighbourhood(self.G, a)) & set(neighbourhood(self.G, b))
             w = 0
             for c in intersection:
                 if weight is not None:
                     numerator = self.G[a][c][weight] * self.G[b][c][weight]
                 else:
                     numerator = 1
-                w += numerator / \
-                    math.log(neighbourhood_size(self.G, c, weight))
+                w += numerator / math.log(neighbourhood_size(self.G, c, weight))
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -60,9 +64,10 @@ class AssociationStrength(Predictor):
         """
         res = Scoresheet()
         for a, b in self.likely_pairs():
-            w = neighbourhood_intersection_size(self.G, a, b, weight) / \
-                (neighbourhood_size(self.G, a, weight) *
-                 neighbourhood_size(self.G, b, weight))
+            w = neighbourhood_intersection_size(self.G, a, b, weight) / (
+                neighbourhood_size(self.G, a, weight)
+                * neighbourhood_size(self.G, b, weight)
+            )
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -96,12 +101,10 @@ class CommonNeighbours(Predictor):
             if weight is None or alpha == 0.0:
                 w = neighbourhood_intersection_size(self.G, a, b, weight=None)
             elif alpha == 1.0:
-                w = neighbourhood_intersection_size(
-                    self.G, a, b, weight=weight)
+                w = neighbourhood_intersection_size(self.G, a, b, weight=weight)
             else:
                 k = neighbourhood_intersection_size(self.G, a, b, weight=None)
-                s = neighbourhood_intersection_size(
-                    self.G, a, b, weight=weight)
+                s = neighbourhood_intersection_size(self.G, a, b, weight=weight)
                 w = (k ** (1.0 - alpha)) * (s ** alpha)
             if w > 0:
                 res[(a, b)] = w
@@ -121,9 +124,10 @@ class Cosine(Predictor):
         """
         res = Scoresheet()
         for a, b in self.likely_pairs():
-            w = neighbourhood_intersection_size(self.G, a, b, weight) / \
-                math.sqrt(neighbourhood_size(self.G, a, weight) *
-                          neighbourhood_size(self.G, b, weight))
+            w = neighbourhood_intersection_size(self.G, a, b, weight) / math.sqrt(
+                neighbourhood_size(self.G, a, weight)
+                * neighbourhood_size(self.G, b, weight)
+            )
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -146,8 +150,9 @@ class DegreeProduct(Predictor):
         """
         res = Scoresheet()
         for a, b in all_pairs(self.eligible_nodes()):
-            w = neighbourhood_size(self.G, a, weight) *\
-                neighbourhood_size(self.G, b, weight)
+            w = neighbourhood_size(self.G, a, weight) * neighbourhood_size(
+                self.G, b, weight
+            )
             if w >= minimum:
                 res[(a, b)] = w
         return res
@@ -190,10 +195,14 @@ class NMeasure(Predictor):
         """
         res = Scoresheet()
         for a, b in self.likely_pairs():
-            w = math.sqrt(2) *\
-                neighbourhood_intersection_size(self.G, a, b, weight) / \
-                math.sqrt(neighbourhood_size(self.G, a, weight) ** 2 +
-                          neighbourhood_size(self.G, b, weight) ** 2)
+            w = (
+                math.sqrt(2)
+                * neighbourhood_intersection_size(self.G, a, b, weight)
+                / math.sqrt(
+                    neighbourhood_size(self.G, a, weight) ** 2
+                    + neighbourhood_size(self.G, b, weight) ** 2
+                )
+            )
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -204,8 +213,10 @@ def _predict_overlap(predictor, function, weight=None):
     for a, b in predictor.likely_pairs():
         # Best performance: weighted numerator, unweighted denominator.
         numerator = neighbourhood_intersection_size(predictor.G, a, b, weight)
-        denominator = function(neighbourhood_size(predictor.G, a, weight),
-                               neighbourhood_size(predictor.G, b, weight))
+        denominator = function(
+            neighbourhood_size(predictor.G, a, weight),
+            neighbourhood_size(predictor.G, b, weight),
+        )
         w = numerator / denominator
         if w > 0:
             res[(a, b)] = w
@@ -264,8 +275,9 @@ class Pearson(Predictor):
             intersect = neighbourhood_intersection_size(self.G, a, b, weight)
 
             numerator = (n * intersect) - (a_l1norm * b_l1norm)
-            denominator = math.sqrt(n * a_l2norm - a_l1norm ** 2) * \
-                math.sqrt(n * b_l2norm - b_l1norm ** 2)
+            denominator = math.sqrt(n * a_l2norm - a_l1norm ** 2) * math.sqrt(
+                n * b_l2norm - b_l1norm ** 2
+            )
 
             w = numerator / denominator
             if w > 0:
@@ -289,13 +301,11 @@ class ResourceAllocation(Predictor):
         """
         res = Scoresheet()
         for a, b in self.likely_pairs():
-            intersection = set(neighbourhood(self.G, a)) & \
-                set(neighbourhood(self.G, b))
+            intersection = set(neighbourhood(self.G, a)) & set(neighbourhood(self.G, b))
             w = 0
             for c in intersection:
                 if weight is not None:
-                    numerator = float(self.G[a][c][weight] *
-                                      self.G[b][c][weight])
+                    numerator = float(self.G[a][c][weight] * self.G[b][c][weight])
                 else:
                     numerator = 1
                 w += numerator / neighbourhood_size(self.G, c, weight)
