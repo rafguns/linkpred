@@ -82,15 +82,15 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight="weight"):
 
 def raw_google_matrix(G, nodelist=None, weight="weight"):
     """Calculate the raw Google matrix (stochastic without teleportation)"""
-    M = nx.to_numpy_array(G, nodelist=nodelist, dtype=np.float32, weight=weight)
-    n, m = M.shape  # should be square
-    assert n == m and n > 0
-    # Find 'dangling' nodes, i.e. nodes whose row's sum = 0
+    M = nx.to_numpy_array(G, nodelist=nodelist, weight=weight)
+
+    n = len(M)
+    # Find 'dangling' nodes, i.e. nodes whose row's sum = 0,
+    # and add constant to dangling nodes' row
     dangling = np.where(M.sum(axis=1) == 0)
-    # add constant to dangling nodes' row
     for d in dangling[0]:
         M[d] = 1.0 / n
+
     # Normalize. We now have the 'raw' Google matrix (cf. example on p. 11 of
     # Langville & Meyer (2006)).
-    M = M / M.sum(axis=1)
-    return M
+    return M / M.sum(axis=1)[:, None]
