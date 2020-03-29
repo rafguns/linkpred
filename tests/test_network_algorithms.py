@@ -8,6 +8,10 @@ from .utils import assert_array_equal
 
 @pytest.fixture
 def langville_meyer_graph():
+    """Network on p. 32 of Langville & Meyer's book
+
+    See https://books.google.be/books?id=KsHTl_2Pfl8C&lpg=PA38&ots=rNlWZp97RF&dq=raw%20google%20matrix%20langville&hl=nl&pg=PA32#v=onepage&q&f=false
+    """
     G = nx.DiGraph()
     G.add_edges_from(
         [

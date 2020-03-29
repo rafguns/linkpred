@@ -88,8 +88,7 @@ def raw_google_matrix(G, nodelist=None, weight="weight"):
     # Find 'dangling' nodes, i.e. nodes whose row's sum = 0,
     # and add constant to dangling nodes' row
     dangling = np.where(M.sum(axis=1) == 0)
-    for d in dangling[0]:
-        M[d] = 1.0 / n
+    M[dangling[0]] = 1 / n
 
     # Normalize. We now have the 'raw' Google matrix (cf. example on p. 11 of
     # Langville & Meyer (2006)).
