@@ -2,6 +2,7 @@ import logging
 
 import networkx as nx
 import numpy as np
+from networkx.algorithms.link_analysis import google_matrix
 
 log = logging.getLogger(__name__)
 
@@ -82,14 +83,6 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight="weight"):
 
 def raw_google_matrix(G, nodelist=None, weight="weight"):
     """Calculate the raw Google matrix (stochastic without teleportation)"""
-    M = nx.to_numpy_array(G, nodelist=nodelist, weight=weight)
-
-    n = len(M)
-    # Find 'dangling' nodes, i.e. nodes whose row's sum = 0,
-    # and add constant to dangling nodes' row
-    dangling = np.where(M.sum(axis=1) == 0)
-    M[dangling[0]] = 1 / n
-
-    # Normalize. We now have the 'raw' Google matrix (cf. example on p. 11 of
-    # Langville & Meyer (2006)).
-    return M / M.sum(axis=1)[:, None]
+    # With alpha = 1.0, we get the raw Google matrix as described on p. 11 of
+    # Langville & Meyer (2006).
+    return google_matrix(G, alpha=1.0, nodelist=nodelist, weight=weight)
