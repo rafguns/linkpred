@@ -19,7 +19,7 @@ While some predictors are fairly straightforward (e.g., if two people have a lar
 Installation
 ------------
 
-**linkpred** (on master) works under Python 3.6 and 3.7. Version 0.4.1 was the last to support versions 3.4 and 3.5.
+**linkpred** (v0.5 and later) works under Python 3.6, 3.7, and 3.8. Version 0.4.1 was the last to support versions 3.4 and 3.5.
 It depends on:
 
 - matplotlib
@@ -29,7 +29,7 @@ It depends on:
 - scipy
 - smokesignal
 
-You should be able to install linkpred and its dependencies using pip (``pip install linkpred`` or ``python -m pip install linkpred``). If youdo not yet have Python installed, I recommend starting with `Anaconda <https://www.continuum.io/downloads>`_, which includes optimized versions of packages like numpy.
+You should be able to install linkpred and its dependencies using pip (``pip install linkpred`` or ``python -m pip install linkpred``). If you do not yet have Python installed, I recommend starting with `Anaconda <https://www.continuum.io/downloads>`_, which includes optimized versions of packages like numpy. If you want to use the Community predictor, which relies on community structure of the network, make sure you also have the `python-louvain <https://github.com/taynaud/python-louvain>`_ package by installing with ``pip install linkpred[all]``.
 
 
 Example usage as command-line tool
