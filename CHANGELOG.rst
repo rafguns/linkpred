@@ -3,8 +3,10 @@ Changelog
 
 **Note**: I only started keeping this changelog from version 0.5 onwards.
 
-Version 0.5
------------
+Version 0.5.1
+-------------
+
+(I botched the release of v0.5, hence 0.5.1)
 
 - Python 3.8 officially supported!
 
