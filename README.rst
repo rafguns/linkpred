@@ -1,3 +1,7 @@
+⚠️ **Note: This package is in maintenance mode**.
+Critical bugs will continue to be resolved,
+but no new features will be implemented (`more information <https://github.com/rafguns/linkpred/issues/35>`_).
+
 linkpred
 ========
 
@@ -29,7 +33,11 @@ It depends on:
 - scipy
 - smokesignal
 
-You should be able to install linkpred and its dependencies using pip (``pip install linkpred`` or ``python -m pip install linkpred``). If you do not yet have Python installed, I recommend starting with `Anaconda <https://www.continuum.io/downloads>`_, which includes optimized versions of packages like numpy. If you want to use the Community predictor, which relies on community structure of the network, make sure you also have the `python-louvain <https://github.com/taynaud/python-louvain>`_ package by installing with ``pip install linkpred[all]``.
+You should be able to install linkpred and its dependencies using pip (``pip install linkpred`` or ``python -m pip install linkpred``).
+If you do not yet have Python installed, I recommend starting with `Anaconda <https://www.continuum.io/downloads>`_,
+which includes optimized versions of packages like numpy.
+If you want to use the Community predictor, which relies on community structure of the network,
+make sure you also have the `python-louvain <https://github.com/taynaud/python-louvain>`_ package by installing with ``pip install linkpred[all]``.
 
 
 Example usage as command-line tool
