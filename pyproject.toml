@@ -1,0 +1,41 @@
+[tool.ruff]
+target-version = "py38"
+# See https://beta.ruff.rs/docs/rules/
+select = [
+    "A", # builtin shadowing
+    "ARG", # unsued arguments
+    "B", # bugbear
+    "C4", # comprehensions
+    "C90", # mccabe complexity
+    "E", # style errors
+    "EM", # error messages
+    "F", # flakes
+    "FBT", # boolean trap
+    "G", # logging format
+    "I", # import sorting
+    "ISC", # string concatenation
+    "N", # naming
+    "PGH", # pygrep-hooks
+    "PIE", # miscellaneous
+    "PL", # pylint
+    "PT", # pytest style
+    "Q", # quotes
+    "RET", # return
+    "RSE", # raise
+    "RUF", # Ruff
+    "SIM", # simplify
+    "T20", # print
+    "UP", # upgrade
+    "W", # style warnings
+    "YTT", # sys.version
+]
+
+ignore = [
+    "N803", # Argument name `G` should be lowercase
+    "N806", # "Variable `G` in function should be lowercase"
+    "PLR0913", # Too many arguments to function call
+]
+
+[tool.ruff.per-file-ignores]
+# Ignore unused imports in __init__.py
+"__init__.py" = ["F401", "F403"]

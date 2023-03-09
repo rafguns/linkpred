@@ -2,6 +2,7 @@ import os
 import re
 
 import smokesignal
+
 from linkpred.evaluation import BaseScoresheet, EvaluationSheet
 from linkpred.evaluation.listeners import (
     CacheEvaluationListener,

@@ -1,9 +1,9 @@
 import os
-import sys
 import tempfile
 from contextlib import contextmanager
 
 import pytest
+
 from linkpred.cli import get_config, handle_arguments, load_profile
 
 

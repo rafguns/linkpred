@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from linkpred.evaluation import (
     BaseScoresheet,
     EvaluationSheet,
@@ -29,7 +30,7 @@ class TestStaticEvaluation:
         assert len(e.tp) == len(e_no_universe.tp)
         assert len(e.fp) == len(e_no_universe.fp)
         assert len(e.fn) == len(e_no_universe.fn)
-        assert e_no_universe.tn == None
+        assert e_no_universe.tn is None
 
         e_num_universe = StaticEvaluation(self.ret, self.rel, self.num_universe)
         assert len(e_num_universe.tp) == 2

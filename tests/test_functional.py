@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import os
+
 from linkpred.cli import main
 
 

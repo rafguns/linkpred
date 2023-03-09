@@ -1,5 +1,6 @@
-import linkpred.util as u
 import pytest
+
+import linkpred.util as u
 
 
 def test_all_pairs():
@@ -40,7 +41,9 @@ def test_itersubclasses():
     class Aaa(Aa):
         pass
 
-    name = lambda x: x.__name__
+    def name(x):
+        return x.__name__
+
     assert list(map(name, u.itersubclasses(A))) == ["Aa", "Aaa", "Ab"]
 
 

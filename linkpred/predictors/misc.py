@@ -24,12 +24,12 @@ class Community(Predictor):
         """
         try:
             import community
-        except ImportError:
-            raise ImportError(
-                "Module 'community' could not be found. "
-                "Please install linkpred as follows:\n"
+        except ImportError as err:
+            msg = (
+                "Module 'community' could not be found. Please install linkpred with: "
                 "$ pip install linkpred[community]"
             )
+            raise ImportError(msg) from err
 
         res = Scoresheet()
         dendogram = community.generate_dendrogram(self.G)

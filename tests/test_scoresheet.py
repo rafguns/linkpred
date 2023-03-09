@@ -2,6 +2,7 @@ import networkx as nx
 import pytest
 
 from linkpred.evaluation.scoresheet import BaseScoresheet, Pair, Scoresheet
+
 from .utils import temp_file
 
 
@@ -49,8 +50,8 @@ class TestBaseScoresheet:
 class TestScoresheetFile:
     def setup_method(self):
         self.sheet = Scoresheet()
-        self.sheet[(u"a", u"b")] = 2.0
-        self.sheet[(u"b", u"\xe9")] = 1.0
+        self.sheet[("a", "b")] = 2.0
+        self.sheet[("b", "\xe9")] = 1.0
         self.expected = b"b\ta\t2.0\n\xc3\xa9\tb\t1.0\n"
 
     def test_to_file(self):

@@ -1,8 +1,9 @@
 from math import log, sqrt
 
-import linkpred.predictors.neighbour as nbr
 import networkx as nx
 import pytest
+
+import linkpred.predictors.neighbour as nbr
 from linkpred.evaluation import Scoresheet
 
 

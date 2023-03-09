@@ -1,6 +1,7 @@
 import logging
-import networkx as nx
 import random
+
+import networkx as nx
 
 log = logging.getLogger(__name__)
 
@@ -9,7 +10,8 @@ __all__ = ["add_random_edges", "remove_random_edges", "add_remove_random_edges"]
 
 def assert_is_percentage(pct):
     if not 0 <= pct <= 1:
-        raise ValueError("Percentage should be float between 0 and 1")
+        msg = "Percentage should be float between 0 and 1"
+        raise ValueError(msg)
 
 
 def add_random_edges(G, pct):

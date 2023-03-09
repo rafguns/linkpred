@@ -10,7 +10,7 @@ def all_pairs(iterable):
 def progressbar(it, prefix="", size=60):
     """Show progress bar
 
-    Taken from http://code.activestate.com/recipes/576986-progress-bar-for-console-programs-as-iterator/
+    http://code.activestate.com/recipes/576986-progress-bar-for-console-programs-as-iterator/
 
     """
     count = len(it)
@@ -39,12 +39,13 @@ def load_function(full_functionname):
     try:
         modulename, functionname = full_functionname.rsplit(".", 1)
     except ValueError:
-        raise ValueError("No module name given in " + full_functionname)
+        msg = f"No module name given in {full_functionname}"
+        raise ValueError(msg) from None
+
     # Dynamically load module and function
     __import__(modulename)
     module = sys.modules[modulename]
-    function = getattr(module, functionname)
-    return function
+    return getattr(module, functionname)
 
 
 def interpolate(curve):
@@ -58,14 +59,10 @@ def interpolate(curve):
 def itersubclasses(cls, _seen=None):
     """Generator over all subclasses of a given class, in depth first order.
 
-    Source:
+    Based on:
     http://code.activestate.com/recipes/576949-find-all-subclasses-of-a-given-class/
 
     """
-    if not isinstance(cls, type):
-        raise TypeError(
-            "itersubclasses must be called with " "new-style classes, not %.100r" % cls
-        )
     if _seen is None:
         _seen = set()
     try:
@@ -76,5 +73,5 @@ def itersubclasses(cls, _seen=None):
         if sub not in _seen:
             _seen.add(sub)
             yield sub
-            for sub in itersubclasses(sub, _seen):
-                yield sub
+            for sub2 in itersubclasses(sub, _seen):
+                yield sub2

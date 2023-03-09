@@ -1,9 +1,11 @@
+import contextlib
+
 from .util import neighbourhood
 
 __all__ = ["Predictor", "all_predictors"]
 
 
-class Predictor(object):
+class Predictor:
     """
     Predictor based on graph structure
 
@@ -62,10 +64,8 @@ class Predictor(object):
             def predict_and_postprocess(*args, **kwargs):
                 scoresheet = func(*args, **kwargs)
                 for u, v in self.excluded:
-                    try:
+                    with contextlib.suppress(KeyError):
                         del scoresheet[(u, v)]
-                    except KeyError:
-                        pass
                 return scoresheet
 
             predict_and_postprocess.__name__ = func.__name__
@@ -132,8 +132,9 @@ class Predictor(object):
 
 def all_predictors():
     """Returns a list of all predictors"""
-    from ..util import itersubclasses
     from operator import itemgetter
+
+    from ..util import itersubclasses
 
     predictors = sorted(
         ((s, s.__name__) for s in itersubclasses(Predictor)), key=itemgetter(1)

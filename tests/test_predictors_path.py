@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import pytest
+
 from linkpred.evaluation import Scoresheet
 from linkpred.predictors.path import GraphDistance, Katz
 

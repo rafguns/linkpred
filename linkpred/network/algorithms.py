@@ -82,9 +82,12 @@ def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight="weight"):
 
 def raw_google_matrix(G, nodelist=None, weight="weight"):
     """Calculate the raw Google matrix (stochastic without teleportation)"""
+    n = len(G)
+    if n == 0:
+        msg = "Empty network, cannot calculate Google matrix"
+        raise ValueError(msg)
     M = nx.to_numpy_array(G, nodelist=nodelist, dtype=np.float32, weight=weight)
-    n, m = M.shape  # should be square
-    assert n == m and n > 0
+
     # Find 'dangling' nodes, i.e. nodes whose row's sum = 0
     dangling = np.where(M.sum(axis=1) == 0)
     # add constant to dangling nodes' row

@@ -1,4 +1,5 @@
 import logging
+
 import numpy as np
 
 from .scoresheet import BaseScoresheet
@@ -12,7 +13,7 @@ class UndefinedError(Exception):
     """Raised when the method's result is undefined"""
 
 
-class StaticEvaluation(object):
+class StaticEvaluation:
     """Static evaluation of IR"""
 
     def __init__(self, retrieved=None, relevant=None, universe=None):
@@ -58,16 +59,14 @@ class StaticEvaluation(object):
         elif isinstance(universe, int):
             self.tn = None
             self.num_universe = universe
-            if len(retrieved) > self.num_universe:
-                raise ValueError("Retrieved cannot be larger than universe.")
-            if len(relevant) > self.num_universe:
-                raise ValueError("Retrieved cannot be larger than universe.")
+            if len(retrieved) > self.num_universe or len(relevant) > self.num_universe:
+                msg = "Retrieved cannot be larger than universe."
+                raise ValueError(msg)
         else:
             universe = set(universe)
             if not (retrieved <= universe and relevant <= universe):
-                raise ValueError(
-                    "Retrieved and relevant should be " "subsets of universe."
-                )
+                msg = "Retrieved and relevant should be subsets of universe."
+                raise ValueError(msg)
             self.num_universe = len(universe)
             self.tn = universe - retrieved - relevant
             del universe
@@ -92,9 +91,8 @@ class StaticEvaluation(object):
         new = set(new)
 
         if not (new.isdisjoint(self.tp) and new.isdisjoint(self.fp)):
-            raise ValueError(
-                "One or more elements in `new` have " "already been retrieved."
-            )
+            msg = "One or more elements in `new` have already been retrieved."
+            raise ValueError(msg)
 
         relevant_new = new & self.fn
         nonrelevant_new = new - relevant_new
@@ -103,10 +101,11 @@ class StaticEvaluation(object):
         self.fp |= nonrelevant_new
         if self.tn:
             if not new <= self.fn | self.tn:
-                raise ValueError(
+                msg = (
                     "Newly retrieved items should be a subset "
                     "of currently unretrieved items."
                 )
+                raise ValueError(msg)
             self.tn -= nonrelevant_new
         self.fn -= relevant_new
         self.update_counts()
@@ -115,9 +114,8 @@ class StaticEvaluation(object):
 def ensure_defined(func):
     def _wrapper(self, *args, **kwargs):
         if self.data.shape[0] == 0:
-            raise UndefinedError(
-                "Measure is undefined if there are no " "relevant or retrieved items"
-            )
+            msg = "Measure is undefined if there are no relevant or retrieved items"
+            raise UndefinedError(msg)
         return func(self, *args, **kwargs)
 
     return _wrapper
@@ -127,20 +125,22 @@ def ensure_universe_known(func):
     def _wrapper(self, *args, **kwargs):
         # If tn is -1 somewhere, we know that universe is not defined.
         if np.where(self.tn == -1, True, False).any():
-            raise UndefinedError("Measure is undefined if universe is unknown")
+            msg = "Measure is undefined if universe is unknown"
+            raise UndefinedError(msg)
         return func(self, *args, **kwargs)
 
     return _wrapper
 
 
-class EvaluationSheet(object):
+class EvaluationSheet:
     def __init__(self, data=None, relevant=None, universe=None):
         if isinstance(data, BaseScoresheet):
             if relevant is None:
-                raise TypeError(
+                msg = (
                     "Cannot create evaluation sheet from "
                     "scoresheet without set of relevant items"
                 )
+                raise TypeError(msg)
             log.debug("Counting for evaluation sheet...")
             static = StaticEvaluation(relevant=relevant, universe=universe)
             # Initialize empty array of right dimensions
@@ -158,10 +158,8 @@ class EvaluationSheet(object):
         elif isinstance(data, np.ndarray):
             self.data = data
         else:
-            raise TypeError(
-                "Cannot create evaluation sheet from "
-                "unknown data type {}".format(type(data))
-            )
+            msg = f"Cannot create evaluation sheet from unknown data type {type(data)}."
+            raise TypeError(msg)
 
     def __len__(self):
         return len(self.data)
@@ -231,7 +229,7 @@ class EvaluationSheet(object):
         precision is emphasized over recall.
 
         """
-        beta2 = beta ** 2
+        beta2 = beta**2
         beta2_tp = (beta2 + 1) * self.tp
         return beta2_tp / (beta2_tp + beta2 * self.fn + self.fp)
 

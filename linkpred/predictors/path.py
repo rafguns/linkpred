@@ -95,13 +95,13 @@ class Katz(Predictor):
             # The below method is found to be fastest for iterating through a
             # sparse matrix, see
             # http://stackoverflow.com/questions/4319014/
-            matrix = (adj ** k).tocoo()
+            matrix = (adj**k).tocoo()
             for i, j, d in zip(matrix.row, matrix.col, matrix.data):
                 if i == j:
                     continue
                 u, v = nodelist[i], nodelist[j]
                 if self.eligible(u, v):
-                    w = d * (beta ** k)
+                    w = d * (beta**k)
                     res[(u, v)] += w
 
         # We count double in case of undirected networks ((i, j) and (j, i))

@@ -1,9 +1,10 @@
+import networkx as nx
+
 from linkpred.preprocess import (
     without_low_degree_nodes,
-    without_uncommon_nodes,
     without_selfloops,
+    without_uncommon_nodes,
 )
-import networkx as nx
 
 
 def test_without_uncommon_nodes():

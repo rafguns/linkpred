@@ -46,11 +46,9 @@ class RootedPageRank(Predictor):
         for u in progressbar(nbunch):
             if not self.eligible_node(u):
                 continue
-            if k is None:
-                G = self.G
-            else:
-                # Restrict to the k-neighbourhood subgraph
-                G = nx.ego_graph(self.G, u, radius=k)
+            # Restrict to the k-neighbourhood subgraph if k is defined
+            G = self.G if k is None else nx.ego_graph(self.G, u, radius=k)
+
             pagerank_scores = rooted_pagerank(G, u, alpha, beta, weight)
             for v, w in pagerank_scores.items():
                 if w > 0 and u != v and self.eligible_node(v):

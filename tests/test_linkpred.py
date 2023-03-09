@@ -1,11 +1,12 @@
 # Should be at start of file
 import io
 
-import linkpred
 import matplotlib
 import networkx as nx
 import pytest
 import smokesignal
+
+import linkpred
 from linkpred.evaluation.listeners import (
     CacheEvaluationListener,
     FMaxListener,
@@ -29,8 +30,8 @@ def test_imports():
 
 
 def test_for_comparison():
-    from linkpred.linkpred import for_comparison
     from linkpred.evaluation import Pair
+    from linkpred.linkpred import for_comparison
 
     G = nx.path_graph(10)
     expected = {(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)}
@@ -153,7 +154,7 @@ class TestLinkpred:
                 fh.name = fname
                 fh.write(data)
                 fh.seek(0)
-                config["{}-file".format(name)] = fh
+                config[f"{name}-file"] = fh
 
         config.update(kwargs)
         return config
