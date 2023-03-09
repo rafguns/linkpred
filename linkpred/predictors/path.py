@@ -59,6 +59,17 @@ class GraphDistance(Predictor):
         return res
 
 
+def matrix_power(arr, n):
+    """Matrix power: perform matrix multiplication n times"""
+    if n < 1:
+        msg = "Expected power equal to 1 or higher"
+        raise ValueError(msg)
+    if n == 1:
+        return arr
+
+    return arr @ matrix_power(arr, n - 1)
+
+
 class Katz(Predictor):
     def predict(self, beta=0.001, max_power=5, weight="weight", dtype=None):
         """Predict by Katz (1953) measure
@@ -88,14 +99,14 @@ class Katz(Predictor):
 
         """
         nodelist = list(self.G.nodes)
-        adj = nx.to_scipy_sparse_matrix(self.G, dtype=dtype, weight=weight)
+        adj = nx.to_scipy_sparse_array(self.G, dtype=dtype, weight=weight)
         res = Scoresheet()
 
         for k in progressbar(range(1, max_power + 1), "Computing matrix powers: "):
             # The below method is found to be fastest for iterating through a
             # sparse matrix, see
             # http://stackoverflow.com/questions/4319014/
-            matrix = (adj**k).tocoo()
+            matrix = matrix_power(adj, k).tocoo()
             for i, j, d in zip(matrix.row, matrix.col, matrix.data):
                 if i == j:
                     continue

@@ -31,7 +31,7 @@ def add_random_edges(G, pct):
     log.debug("Will add %d edges to %d (%f)", to_add, m, pct)
 
     new_edges = set(nx.non_edges(G))
-    G.add_edges_from(random.sample(new_edges, to_add), weight=1)
+    G.add_edges_from(random.sample(list(new_edges), to_add), weight=1)
 
 
 def remove_random_edges(G, pct):
@@ -51,7 +51,7 @@ def remove_random_edges(G, pct):
     to_remove = int(m * pct)
 
     log.debug("Will remove %d edges of %d (%f)", to_remove, m, pct)
-    G.remove_edges_from(random.sample(edges, to_remove))
+    G.remove_edges_from(random.sample(list(edges), to_remove))
 
 
 def add_remove_random_edges(G, pct_add, pct_remove):
@@ -84,5 +84,5 @@ def add_remove_random_edges(G, pct_add, pct_remove):
     )
 
     new_edges = set(nx.non_edges(G))
-    G.remove_edges_from(random.sample(edges, to_remove))
-    G.add_edges_from(random.sample(new_edges, to_add))
+    G.remove_edges_from(random.sample(list(edges), to_remove))
+    G.add_edges_from(random.sample(list(new_edges), to_add))

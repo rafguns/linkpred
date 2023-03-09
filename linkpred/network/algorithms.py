@@ -38,7 +38,7 @@ def rooted_pagerank(G, root, alpha=0.85, beta=0, weight="weight"):
     personalization = dict.fromkeys(G, beta)
     personalization[root] = 1 - beta
 
-    return nx.pagerank_scipy(G, alpha, personalization, weight=weight)
+    return nx.pagerank(G, alpha, personalization, weight=weight)
 
 
 def simrank(G, nodelist=None, c=0.8, num_iterations=10, weight="weight"):

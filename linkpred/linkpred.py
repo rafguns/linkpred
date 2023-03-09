@@ -82,11 +82,11 @@ def read_network(fh):
         file handle or file name
 
     """
-    if nx.utils.is_string_like(fh):
-        fname = fh
-    else:
-        # We assume that fh is a file handle
+    try:
         fname = fh.name
+    except AttributeError:
+        # fh is a string or path
+        fname = fh
 
     ext = os.path.splitext(fname.lower())[1]
     try:
