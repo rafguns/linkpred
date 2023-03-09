@@ -12,7 +12,7 @@ from .utils import assert_array_equal, temp_file
 
 
 class TestStaticEvaluation:
-    def setup(self):
+    def setup_method(self):
         self.ret = range(5)
         self.rel = [3, 4, 5, 6]
         self.num_universe = 20
@@ -98,7 +98,7 @@ class TestStaticEvaluation:
 
 
 class TestEvaluationSheet:
-    def setup(self):
+    def setup_method(self):
         self.rel = [3, 4, 5, 6]
         self.scores = BaseScoresheet(
             {7: 0.9, 4: 0.8, 6: 0.7, 1: 0.6, 3: 0.5, 5: 0.2, 2: 0.1}

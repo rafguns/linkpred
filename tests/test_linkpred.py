@@ -127,7 +127,7 @@ def test_LinkPred_without_predictors():
 
 
 class TestLinkpred:
-    def teardown(self):
+    def teardown_method(self):
         smokesignal.clear_all()
 
     def config_file(self, training=False, test=False, **kwargs):

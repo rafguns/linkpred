@@ -6,7 +6,7 @@ from .utils import temp_file
 
 
 class TestBaseScoresheet:
-    def setup(self):
+    def setup_method(self):
         self.scoresheet = BaseScoresheet(zip("abcdefghijklmnopqrstuvwx", range(24)))
 
     def test_ranked_items(self):
@@ -47,7 +47,7 @@ class TestBaseScoresheet:
 
 
 class TestScoresheetFile:
-    def setup(self):
+    def setup_method(self):
         self.sheet = Scoresheet()
         self.sheet[(u"a", u"b")] = 2.0
         self.sheet[(u"b", u"\xe9")] = 1.0

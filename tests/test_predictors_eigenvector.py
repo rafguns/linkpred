@@ -12,7 +12,7 @@ class TestEigenvectorRuns:
 
     """
 
-    def setup(self):
+    def setup_method(self):
         self.n = 20
         self.G = nx.gnm_random_graph(self.n, self.n * 3)
 

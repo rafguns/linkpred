@@ -16,7 +16,7 @@ def temp_empty_file():
 
 
 class TestProfileFile:
-    def setup(self):
+    def setup_method(self):
         self.yaml_fd, self.yaml_fname = tempfile.mkstemp(suffix=".yaml")
         self.json_fd, self.json_fname = tempfile.mkstemp(suffix=".json")
         self.expected = {
@@ -27,7 +27,7 @@ class TestProfileFile:
             "interpolation": True,
         }
 
-    def teardown(self):
+    def teardown_method(self):
         for fd, fname in (
             (self.yaml_fd, self.yaml_fname),
             (self.json_fd, self.json_fname),

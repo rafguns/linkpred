@@ -5,7 +5,7 @@ from linkpred.predictors.misc import Community, Copy, Random
 
 
 class TestCopy:
-    def setup(self):
+    def setup_method(self):
         self.G = nx.Graph()
         self.G.add_weighted_edges_from([(0, 1, 3.0), (1, 2, 7.5)])
 
