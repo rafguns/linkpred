@@ -9,21 +9,15 @@ linkpred
 
 While some predictors are fairly straightforward (e.g., if two people have a large number of mutual friends, it seems likely that eventually they will meet and become friends), others are more involved.
 
-
-.. image:: https://travis-ci.org/rafguns/linkpred.svg?branch=master
-    :target: https://travis-ci.org/rafguns/linkpred
-
-.. image:: https://coveralls.io/repos/rafguns/linkpred/badge.svg?branch=master
-    :target: https://coveralls.io/r/rafguns/linkpred?branch=master
-
-
+.. image:: https://codecov.io/gh/rafguns/linkpred/branch/master/graph/badge.svg?token=JVZIVHWJXY 
+ :target: https://codecov.io/gh/rafguns/linkpred
 **linkpred** can both be used as a command-line tool and as a Python library in your own code.
 
 
 Installation
 ------------
 
-**linkpred** (v0.5 and later) works under Python 3.6, 3.7, and 3.8. Version 0.4.1 was the last to support versions 3.4 and 3.5.
+**linkpred** (v0.6 and later) works under Python 3.8 to 3.11.
 It depends on:
 
 - matplotlib
@@ -37,7 +31,7 @@ You should be able to install linkpred and its dependencies using pip (``pip ins
 If you do not yet have Python installed, I recommend starting with `Anaconda <https://www.continuum.io/downloads>`_,
 which includes optimized versions of packages like numpy.
 If you want to use the Community predictor, which relies on community structure of the network,
-make sure you also have the `python-louvain <https://github.com/taynaud/python-louvain>`_ package by installing with ``pip install linkpred[all]``.
+make sure you also have the `python-louvain <https://github.com/taynaud/python-louvain>`_ package by installing with ``pip install linkpred[community]``.
 
 
 Example usage as command-line tool
