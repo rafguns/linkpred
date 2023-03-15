@@ -1,16 +1,19 @@
 """linkpred main module"""
+import contextlib
 import logging
-import networkx as nx
 import os
+
+import networkx as nx
 import smokesignal
 
 from . import predictors
-from .evaluation import Pair, listeners as l
+from .evaluation import Pair
+from .evaluation import listeners as l
 from .exceptions import LinkPredError
 from .preprocess import (
     without_low_degree_nodes,
-    without_uncommon_nodes,
     without_selfloops,
+    without_uncommon_nodes,
 )
 
 log = logging.getLogger(__name__)
@@ -27,8 +30,8 @@ def for_comparison(G, exclude=None):
     if not exclude:
         return set(G.edges())
 
-    exclude = set(Pair(u, v) for u, v in exclude)
-    return set(Pair(u, v) for u, v in G.edges()) - exclude
+    exclude = {Pair(u, v) for u, v in exclude}
+    return {Pair(u, v) for u, v in G.edges()} - exclude
 
 
 def pretty_print(name, params=None):
@@ -46,8 +49,8 @@ def pretty_print(name, params=None):
     if not params:
         return name
 
-    pretty_params = ", ".join("%s = %s" % (k, str(v)) for k, v in params.items())
-    return "%s (%s)" % (name, pretty_params)
+    pretty_params = ", ".join(f"{k} = {str(v)}" for k, v in params.items())
+    return f"{name} ({pretty_params})"
 
 
 def _read_pajek(*args, **kwargs):
@@ -56,10 +59,8 @@ def _read_pajek(*args, **kwargs):
     edges = G.edges()
     if len(set(edges)) < len(edges):  # multiple edges
         log.warning("Network contains multiple edges. These will be ignored.")
-    if G.is_directed():
-        return nx.DiGraph(G)
-    else:
-        return nx.Graph(G)
+
+    return nx.DiGraph(G) if G.is_directed() else nx.Graph(G)
 
 
 FILETYPE_READERS = {
@@ -81,11 +82,11 @@ def read_network(fh):
         file handle or file name
 
     """
-    if nx.utils.is_string_like(fh):
-        fname = fh
-    else:
-        # We assume that fh is a file handle
+    try:
         fname = fh.name
+    except AttributeError:
+        # fh is a string or path
+        fname = fh
 
     ext = os.path.splitext(fname.lower())[1]
     try:
@@ -93,17 +94,17 @@ def read_network(fh):
         log.info("Reading file '%s'...", fname)
         network = read(fh)
         log.info("Successfully read file.")
-    except KeyError:
-        raise LinkPredError(
-            "File '%s' is of an unknown type. Known types " "are: %s.",
-            fname,
-            ", ".join(FILETYPE_READERS),
+    except KeyError as err:
+        msg = (
+            f"File '{fname}' is of an unknown type. "
+            f"Known types are: {', '.join(FILETYPE_READERS)}."
         )
+        raise LinkPredError(msg) from err
 
     return network
 
 
-class LinkPred(object):
+class LinkPred:
 
     """linkpred main object
 
@@ -131,7 +132,8 @@ class LinkPred(object):
         log.debug("Config: %s", self.config)
 
         if not self.config["predictors"]:
-            raise LinkPredError("No predictor specified. Aborting...")
+            msg = "No predictor specified. Aborting..."
+            raise LinkPredError(msg)
 
         self.label = (
             self.config["label"] or os.path.splitext(self.config["training-file"])[0]
@@ -147,33 +149,34 @@ class LinkPred(object):
         exclude = self.config["exclude"]
         if not exclude:
             return set()  # No nodes are excluded
-        elif exclude == "old":
+        if exclude == "old":
             return set(self.training.edges())
-        elif exclude == "new":
+        if exclude == "new":
             return set(nx.non_edges(self.training))
-        raise LinkPredError(
-            "Value '{}' for exclude is unexpected. Use either "
-            "'old', 'new' or empty string '' (for no "
-            "exclusions)".format(exclude)
+
+        msg = (
+            f"Value '{exclude}' for exclude is unexpected. Use either 'old', 'new' or "
+            "empty string '' (for no exclusions)"
         )
+        raise LinkPredError(msg)
 
     def network(self, key):
         """Get network for given key"""
-        try:
+        with contextlib.suppress(KeyError):
             network_file = self.config[key]
-        except KeyError:
-            pass
         if network_file:
             return read_network(network_file)
+        return None
 
     def preprocess(self):
         """Preprocess all networks according to configuration"""
 
         log.info("Starting preprocessing...")
 
-        preprocessed = lambda G: without_low_degree_nodes(
-            without_selfloops(G), minimum=self.config["min_degree"]
-        )
+        def preprocessed(G):
+            return without_low_degree_nodes(
+                without_selfloops(G), minimum=self.config["min_degree"]
+            )
 
         if self.test:
             networks = [preprocessed(G) for G in (self.training, self.test)]
@@ -193,14 +196,18 @@ class LinkPred(object):
             "recall-precision": (
                 l.RecallPrecisionPlotter,
                 True,
-                dict(name=self.label, filetype=filetype, interpolation=interpolation),
+                {
+                    "name": self.label,
+                    "filetype": filetype,
+                    "interpolation": interpolation,
+                },
             ),
             "f-score": (
                 l.FScorePlotter,
                 True,
-                dict(name=self.label, filetype=filetype),
+                {"name": self.label, "filetype": filetype},
             ),
-            "roc": (l.ROCPlotter, True, dict(name=self.label, filetype=filetype)),
+            "roc": (l.ROCPlotter, True, {"name": self.label, "filetype": filetype}),
             "fmax": (l.FMaxListener, True, {"name": self.label}),
             "cache-evaluations": (l.CacheEvaluationListener, True, {}),
         }
@@ -211,9 +218,8 @@ class LinkPred(object):
 
             if evaluating:
                 if not self.test:
-                    raise LinkPredError(
-                        "Cannot evaluate (%s) without " "test network" % output
-                    )
+                    msg = f"Cannot evaluate ({output}) without test network"
+                    raise LinkPredError(msg)
 
                 # Set up an 'evaluator': a listener that routes predictions
                 # and turns them into evaluations

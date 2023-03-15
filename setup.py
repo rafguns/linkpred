@@ -1,6 +1,6 @@
 from setuptools import setup
 
-long_description = open("README.rst").read()
+long_description = open("README.rst", encoding="utf-8").read()
 
 setup(
     name="linkpred",
@@ -10,11 +10,11 @@ setup(
     author="Raf Guns",
     tests_require=["pytest", "pytest-cov"],
     install_requires=[
-        "matplotlib>=2.1",
-        "networkx>=2.4",
-        "numpy>=1.14",
+        "matplotlib>=3.5",
+        "networkx>=3.0",
+        "numpy>=1.23",
         "pyyaml>=3.0",
-        "scipy>=1.0",
+        "scipy>=1.10",
         "smokesignal>=0.7",
     ],
     author_email="raf.guns@uantwerpen.be",
@@ -32,9 +32,10 @@ setup(
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
         "License :: OSI Approved",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Software Development",
         "Topic :: Scientific/Engineering",
         "Development Status :: 4 - Beta",

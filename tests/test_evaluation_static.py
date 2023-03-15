@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from linkpred.evaluation import (
     BaseScoresheet,
     EvaluationSheet,
@@ -12,7 +13,7 @@ from .utils import assert_array_equal, temp_file
 
 
 class TestStaticEvaluation:
-    def setup(self):
+    def setup_method(self):
         self.ret = range(5)
         self.rel = [3, 4, 5, 6]
         self.num_universe = 20
@@ -29,7 +30,7 @@ class TestStaticEvaluation:
         assert len(e.tp) == len(e_no_universe.tp)
         assert len(e.fp) == len(e_no_universe.fp)
         assert len(e.fn) == len(e_no_universe.fn)
-        assert e_no_universe.tn == None
+        assert e_no_universe.tn is None
 
         e_num_universe = StaticEvaluation(self.ret, self.rel, self.num_universe)
         assert len(e_num_universe.tp) == 2
@@ -98,7 +99,7 @@ class TestStaticEvaluation:
 
 
 class TestEvaluationSheet:
-    def setup(self):
+    def setup_method(self):
         self.rel = [3, 4, 5, 6]
         self.scores = BaseScoresheet(
             {7: 0.9, 4: 0.8, 6: 0.7, 1: 0.6, 3: 0.5, 5: 0.2, 2: 0.1}

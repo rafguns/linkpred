@@ -1,9 +1,10 @@
 import networkx as nx
 import pytest
+
 from linkpred.network.addremove import (
     add_random_edges,
-    remove_random_edges,
     add_remove_random_edges,
+    remove_random_edges,
 )
 
 

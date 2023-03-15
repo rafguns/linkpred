@@ -5,8 +5,8 @@ from ..util import all_pairs
 from .base import Predictor
 from .util import (
     neighbourhood,
-    neighbourhood_size,
     neighbourhood_intersection_size,
+    neighbourhood_size,
     neighbourhood_union_size,
 )
 
@@ -105,7 +105,7 @@ class CommonNeighbours(Predictor):
             else:
                 k = neighbourhood_intersection_size(self.G, a, b, weight=None)
                 s = neighbourhood_intersection_size(self.G, a, b, weight=weight)
-                w = (k ** (1.0 - alpha)) * (s ** alpha)
+                w = (k ** (1.0 - alpha)) * (s**alpha)
             if w > 0:
                 res[(a, b)] = w
         return res
@@ -270,13 +270,13 @@ class Pearson(Predictor):
             n = len(self.G)
             a_l2norm = neighbourhood_size(self.G, a, weight)
             b_l2norm = neighbourhood_size(self.G, b, weight)
-            a_l1norm = neighbourhood_size(self.G, a, weight, pow=1)
-            b_l1norm = neighbourhood_size(self.G, b, weight, pow=1)
+            a_l1norm = neighbourhood_size(self.G, a, weight, power=1)
+            b_l1norm = neighbourhood_size(self.G, b, weight, power=1)
             intersect = neighbourhood_intersection_size(self.G, a, b, weight)
 
             numerator = (n * intersect) - (a_l1norm * b_l1norm)
-            denominator = math.sqrt(n * a_l2norm - a_l1norm ** 2) * math.sqrt(
-                n * b_l2norm - b_l1norm ** 2
+            denominator = math.sqrt(n * a_l2norm - a_l1norm**2) * math.sqrt(
+                n * b_l2norm - b_l1norm**2
             )
 
             w = numerator / denominator

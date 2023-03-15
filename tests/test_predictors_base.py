@@ -1,7 +1,7 @@
 import networkx as nx
 
 from linkpred.evaluation import Pair
-from linkpred.predictors import all_predictors, CommonNeighbours, Copy, Predictor
+from linkpred.predictors import CommonNeighbours, Copy, Predictor, all_predictors
 
 
 def test_bipartite_common_neighbour():

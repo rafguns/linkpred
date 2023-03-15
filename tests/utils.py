@@ -6,7 +6,7 @@ import tempfile
 def assert_array_equal(a1, a2):
     try:
         if not (a1 == a2).all():
-            raise AssertionError("{} != {}".format(a1, a2))
+            raise AssertionError(f"{a1} != {a2}")
     except AttributeError:  # a1 and a2 are lists or empty ndarrays
         assert a1 == a2
 

@@ -1,11 +1,11 @@
 import copy
 import logging
-import smokesignal
-
 from time import localtime, strftime
 
-from .static import EvaluationSheet
+import smokesignal
+
 from ..util import interpolate
+from .static import EvaluationSheet
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ def _timestamped_filename(basename, ext="txt"):
     return basename + strftime("_%Y-%m-%d_%H.%M.", localtime()) + ext
 
 
-class Listener(object):
+class Listener:
     def __init__(self):
         smokesignal.on("dataset_finished", self.on_dataset_finished)
         smokesignal.on("run_finished", self.on_run_finished)
@@ -45,7 +45,7 @@ class EvaluatingListener(Listener):
         smokesignal.on("prediction_finished", self.on_prediction_finished)
         self.params = kwargs
 
-        super(EvaluatingListener, self).__init__()
+        super().__init__()
 
     def on_prediction_finished(self, scoresheet, dataset, predictor):
         evaluation = EvaluationSheet(scoresheet, **self.params)
@@ -60,21 +60,21 @@ class EvaluatingListener(Listener):
 class CachePredictionListener(Listener):
     def __init__(self):
         smokesignal.on("prediction_finished", self.on_prediction_finished)
-        super(CachePredictionListener, self).__init__()
+        super().__init__()
         self.encoding = "utf-8"
 
     def on_prediction_finished(self, scoresheet, dataset, predictor):
-        self.fname = _timestamped_filename("%s-%s-predictions" % (dataset, predictor))
+        self.fname = _timestamped_filename(f"{dataset}-{predictor}-predictions")
         scoresheet.to_file(self.fname)
 
 
 class CacheEvaluationListener(Listener):
     def __init__(self):
         smokesignal.on("evaluation_finished", self.on_evaluation_finished)
-        super(CacheEvaluationListener, self).__init__()
+        super().__init__()
 
     def on_evaluation_finished(self, evaluation, dataset, predictor):
-        self.fname = _timestamped_filename("%s-%s-predictions" % (dataset, predictor))
+        self.fname = _timestamped_filename(f"{dataset}-{predictor}-predictions")
         evaluation.to_file(self.fname)
 
 
@@ -84,16 +84,16 @@ class FMaxListener(Listener):
         self.fname = _timestamped_filename("%s-Fmax" % name)
 
         smokesignal.on("evaluation_finished", self.on_evaluation_finished)
-        super(FMaxListener, self).__init__()
+        super().__init__()
 
     def on_evaluation_finished(self, evaluation, dataset, predictor):
         fmax = evaluation.f_score(self.beta).max()
 
-        status = "%s\t%s\t%.4f\n" % (dataset, predictor, fmax)
+        status = f"{dataset}\t{predictor}\t{fmax:.4f}\n"
 
         with open(self.fname, "a") as f:
             f.write(status)
-        print(status)
+        log.info("Evaluation finished: %s", status)
 
 
 class PrecisionAtKListener(Listener):
@@ -102,15 +102,15 @@ class PrecisionAtKListener(Listener):
         self.fname = _timestamped_filename("%s-precision-at-%d" % (name, self.k))
 
         smokesignal.on("evaluation_finished", self.on_evaluation_finished)
-        super(PrecisionAtKListener, self).__init__()
+        super().__init__()
 
     def on_evaluation_finished(self, evaluation, dataset, predictor):
         precision = evaluation.precision()[self.k]
 
-        status = "%s\t%s\t%.4f\n" % (dataset, predictor, precision)
+        status = f"{dataset}\t{predictor}\t{precision:.4f}\n"
         with open(self.fname, "a") as f:
             f.write(status)
-        print(status)
+        log.info("Evaluation finished: %s", status)
 
 
 GENERIC_CHART_LOOKS = [
@@ -157,14 +157,14 @@ class Plotter(Listener):
         self._y = []
 
         smokesignal.on("evaluation_finished", self.on_evaluation_finished)
-        super(Plotter, self).__init__()
+        super().__init__()
 
     def add_line(self, predictor=""):
         ax = self.fig.axes[0]
         ax.plot(self._x, self._y, self.chart_look(), label=predictor)
 
         log.debug(
-            "Added line with %d points: " "start = (%.2f, %.2f), end = (%.2f, %.2f)",
+            "Added line with %d points: start = (%.2f, %.2f), end = (%.2f, %.2f)",
             len(self._x),
             self._x[0],
             self._y[0],
@@ -190,16 +190,16 @@ class Plotter(Listener):
 
         # Save to file
         self.fname = _timestamped_filename(
-            "%s-%s" % (self.name, self._charttype), self.filetype
+            f"{self.name}-{self._charttype}", self.filetype
         )
         self.fig.savefig(self.fname)
 
 
 class RecallPrecisionPlotter(Plotter):
     def __init__(
-        self, name, xlabel="Recall", ylabel="Precision", interpolation=True, **kwargs
+        self, name, xlabel="Recall", ylabel="Precision", *, interpolation=True, **kwargs
     ):
-        super(RecallPrecisionPlotter, self).__init__(name, xlabel, ylabel, **kwargs)
+        super().__init__(name, xlabel, ylabel, **kwargs)
         self._charttype = "recall-precision"
         self.interpolation = interpolation
 
@@ -215,7 +215,7 @@ class RecallPrecisionPlotter(Plotter):
 
 class FScorePlotter(Plotter):
     def __init__(self, name, xlabel="#", ylabel="F-score", beta=1, **kwargs):
-        super(FScorePlotter, self).__init__(name, xlabel, ylabel, **kwargs)
+        super().__init__(name, xlabel, ylabel, **kwargs)
         self._charttype = "F-Score"
         self.beta = beta
 
@@ -228,7 +228,7 @@ class ROCPlotter(Plotter):
     def __init__(
         self, name, xlabel="False pos. rate", ylabel="True pos. rate", **kwargs
     ):
-        super(ROCPlotter, self).__init__(name, xlabel, ylabel, **kwargs)
+        super().__init__(name, xlabel, ylabel, **kwargs)
         self._charttype = "ROC"
 
     def setup_coords(self, evaluation):
@@ -238,7 +238,7 @@ class ROCPlotter(Plotter):
 
 class MarkednessPlotter(Plotter):
     def __init__(self, name, xlabel="Miss", ylabel="Precision", **kwargs):
-        super(MarkednessPlotter, self).__init__(name, xlabel, ylabel, **kwargs)
+        super().__init__(name, xlabel, ylabel, **kwargs)
         self._charttype = "Markedness"
         self._legend_props["loc"] = "upper left"
 

@@ -1,7 +1,7 @@
 import logging
-import networkx as nx
-
 from collections import defaultdict
+
+import networkx as nx
 from networkx.readwrite.pajek import make_qstr
 
 log = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class BaseScoresheet(defaultdict):
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, float(val))
 
-    def process_data(self, data, *args, **kwargs):
+    def process_data(self, data):
         """Can be overridden by child classes"""
         return data
 
@@ -75,7 +75,7 @@ class BaseScoresheet(defaultdict):
     @staticmethod
     def to_record(key, value, delimiter="\t"):
         key, value = map(make_qstr, (key, value))
-        return u"{}{}{}\n".format(key, delimiter, value)
+        return f"{key}{delimiter}{value}\n"
 
     @classmethod
     def from_file(cls, fname, delimiter="\t", encoding="utf-8"):
@@ -94,7 +94,7 @@ class BaseScoresheet(defaultdict):
                 fh.write(self.to_record(key, score, delimiter).encode(encoding))
 
 
-class Pair(object):
+class Pair:
     """An unsorted pair of things.
 
     We could probably also use frozenset for this, but a Pair class opens
@@ -122,9 +122,10 @@ class Pair(object):
         elif len(args) == 2:
             a, b = args
         else:
-            raise TypeError("__init__() takes 1 or 2 arguments in addition to self")
+            msg = "__init__() takes 1 or 2 arguments in addition to self"
+            raise TypeError(msg)
         # For link prediction, a and b are two different nodes
-        assert a != b, "Predicted link (%s, %s) is a self-loop!" % (a, b)
+        assert a != b, f"Predicted link ({a}, {b}) is a self-loop!"
         self.elements = self._sorted_tuple((a, b))
 
     @staticmethod
@@ -216,4 +217,4 @@ class Scoresheet(BaseScoresheet):
     def to_record(key, value, delimiter="\t"):
         u, v = key
         u, v, score = map(make_qstr, (u, v, value))
-        return u"{0}{3}{1}{3}{2}\n".format(u, v, score, delimiter)
+        return f"{u}{delimiter}{v}{delimiter}{score}\n"

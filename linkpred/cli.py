@@ -4,6 +4,8 @@ import json
 import logging
 import sys
 
+import yaml
+
 from .exceptions import LinkPredError
 from .linkpred import LinkPred
 from .predictors import all_predictors
@@ -26,17 +28,12 @@ def load_profile(fname):
     """Load the JSON or YAML profile with the given filename"""
     try:
         with open(fname) as f:
-            if fname.endswith(".yaml") or fname.endswith(".yml"):
-                import yaml
-
+            if fname.endswith((".yaml", ".yml")):
                 return yaml.safe_load(f)
-            else:
-                return json.load(f)
-    except Exception as e:
-        raise LinkPredError(
-            "Encountered error while loading profile '%s'. "
-            "Error message: '%s'" % (fname, e)
-        )
+            return json.load(f)
+    except Exception as err:
+        msg = f"Encountered error while loading profile '{fname}'. "
+        raise LinkPredError(msg) from err
 
 
 def get_config(args=None):
@@ -142,7 +139,7 @@ def handle_arguments(args=None):
         metavar="PREDICTOR",
     )
 
-    all_help = "Predict all links, " "including ones present in the training network"
+    all_help = "Predict all links, including ones present in the training network"
     parser.add_argument(
         "-a",
         "--all",

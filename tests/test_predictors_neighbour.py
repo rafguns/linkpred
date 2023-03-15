@@ -1,13 +1,14 @@
 from math import log, sqrt
 
-import linkpred.predictors.neighbour as nbr
 import networkx as nx
 import pytest
+
+import linkpred.predictors.neighbour as nbr
 from linkpred.evaluation import Scoresheet
 
 
 class TestUnweighted:
-    def setup(self):
+    def setup_method(self):
         self.G = nx.Graph()
         self.G.add_edges_from([(1, 2), (1, 3), (2, 4), (3, 4), (3, 5)])
 
@@ -94,7 +95,7 @@ class TestUnweighted:
 
 
 class TestWeighted:
-    def setup(self):
+    def setup_method(self):
         self.G = nx.Graph()
         self.G.add_weighted_edges_from(
             [(1, 2, 1), (1, 3, 5), (2, 4, 2), (3, 4, 1), (3, 5, 2)]

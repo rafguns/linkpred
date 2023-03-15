@@ -19,13 +19,12 @@ def neighbourhood_intersection_size(G, a, b, weight=None, k=1):
     """
     common_neighbours = set(neighbourhood(G, a, k)) & set(neighbourhood(G, b, k))
     if weight:
-        w = sum(G[a][n][weight] * G[b][n][weight] for n in common_neighbours)
-    else:
-        w = len(common_neighbours)
-    return w
+        return sum(G[a][n][weight] * G[b][n][weight] for n in common_neighbours)
+
+    return len(common_neighbours)
 
 
-def neighbourhood_size(G, u, weight=None, k=1, pow=2):
+def neighbourhood_size(G, u, weight=None, k=1, power=2):
     """Get the weight of the neighbours of u
 
     If weighted, we use the sum of the squared edge weight for compatibility
@@ -37,25 +36,22 @@ def neighbourhood_size(G, u, weight=None, k=1, pow=2):
         return len(G[u])
     # The slow route for everything else
     neighbours = neighbourhood(G, u, k)
-    if weight:
-        w = sum(G[u][v][weight] ** pow for v in neighbours)
-    else:
-        w = len(neighbours)
-    return w
+    return (
+        sum(G[u][v][weight] ** power for v in neighbours) if weight else len(neighbours)
+    )
 
 
-def neighbourhood_union_size(G, a, b, weight=None, k=1, pow=2):
+def neighbourhood_union_size(G, a, b, weight=None, k=1, power=2):
     """Get the weight of the neighbours union of a and b"""
     a_neighbours = set(neighbourhood(G, a, k))
     b_neighbours = set(neighbourhood(G, b, k))
     if weight:
-        w = (
-            sum(G[a][n][weight] ** pow for n in a_neighbours)
-            + sum(G[b][n][weight] ** pow for n in b_neighbours)
+        return (
+            sum(G[a][n][weight] ** power for n in a_neighbours)
+            + sum(G[b][n][weight] ** power for n in b_neighbours)
             - sum(
                 G[a][n][weight] * G[b][n][weight] for n in a_neighbours & b_neighbours
             )
         )
-    else:
-        w = len(a_neighbours | b_neighbours)
-    return w
+
+    return len(a_neighbours | b_neighbours)

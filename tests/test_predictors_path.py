@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import pytest
+
 from linkpred.evaluation import Scoresheet
 from linkpred.predictors.path import GraphDistance, Katz
 
@@ -29,7 +30,7 @@ def test_katz():
 
 
 class TestGraphDistance:
-    def setup(self):
+    def setup_method(self):
         self.G = nx.Graph()
         self.G.add_weighted_edges_from(
             [(0, 1, 1), (0, 2, 3), (1, 2, 1), (1, 3, 2), (2, 4, 1)]
