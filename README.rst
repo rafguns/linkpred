@@ -2,29 +2,25 @@
 Critical bugs will continue to be resolved,
 but no new features will be implemented (`more information <https://github.com/rafguns/linkpred/issues/35>`_).
 
-linkpred
+Linkpred
 ========
 
-**linkpred** is a Python package for link prediction: given a network, **linkpred** provides a number of heuristics (known as *predictors*) that assess the likelihood of potential links in a future snapshot of the network.
+**Linkpred** is a Python package for link prediction: given a network, Linkpred provides a number of heuristics (known as *predictors*) that assess the likelihood of potential links in a future snapshot of the network.
 
 While some predictors are fairly straightforward (e.g., if two people have a large number of mutual friends, it seems likely that eventually they will meet and become friends), others are more involved.
 
+.. image:: https://img.shields.io/github/actions/workflow/status/rafguns/linkpred/tox.yml
+.. image:: https://img.shields.io/codecov/c/github/rafguns/linkpred/master
 
-.. image:: https://travis-ci.org/rafguns/linkpred.svg?branch=master
-    :target: https://travis-ci.org/rafguns/linkpred
-
-.. image:: https://coveralls.io/repos/rafguns/linkpred/badge.svg?branch=master
-    :target: https://coveralls.io/r/rafguns/linkpred?branch=master
-
-
-**linkpred** can both be used as a command-line tool and as a Python library in your own code.
+Linkpred can both be used as a command-line tool and as a Python library in your own code.
 
 
 Installation
 ------------
 
-**linkpred** (v0.5 and later) works under Python 3.6, 3.7, and 3.8. Version 0.4.1 was the last to support versions 3.4 and 3.5.
-It depends on:
+The latest release version of Linkpred (v0.5.1) works under Python 3.6, 3.7, and 3.8. Current master branch supports Python versions 3.8 to 3.11.
+
+Linkpred depends on:
 
 - matplotlib
 - networkx
@@ -33,7 +29,7 @@ It depends on:
 - scipy
 - smokesignal
 
-You should be able to install linkpred and its dependencies using pip (``pip install linkpred`` or ``python -m pip install linkpred``).
+You should be able to install Linkpred and its dependencies using pip (``pip install linkpred`` or ``python -m pip install linkpred``).
 If you do not yet have Python installed, I recommend starting with `Anaconda <https://www.continuum.io/downloads>`_,
 which includes optimized versions of packages like numpy.
 If you want to use the Community predictor, which relies on community structure of the network,
