@@ -17,7 +17,7 @@ While some predictors are fairly straightforward (e.g., if two people have a lar
 Installation
 ------------
 
-**linkpred** (v0.6 and later) works under Python 3.8 to 3.11.
+**linkpred** (v0.6 and later) works under Python 3.8 to 3.12.
 It depends on:
 
 - matplotlib
