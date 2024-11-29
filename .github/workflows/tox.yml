@@ -3,7 +3,7 @@ name: Test with tox
 on: [push]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
