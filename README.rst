@@ -10,7 +10,8 @@ Linkpred
 While some predictors are fairly straightforward (e.g., if two people have a large number of mutual friends, it seems likely that eventually they will meet and become friends), others are more involved.
 
 .. image:: https://codecov.io/gh/rafguns/linkpred/branch/master/graph/badge.svg?token=JVZIVHWJXY 
- :target: https://codecov.io/gh/rafguns/linkpred
+   :target: https://codecov.io/gh/rafguns/linkpred
+
 **linkpred** can both be used as a command-line tool and as a Python library in your own code.
 
 
