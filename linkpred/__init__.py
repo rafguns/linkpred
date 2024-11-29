@@ -1,4 +1,4 @@
-"""linkpred, a Python module for link prediction"""
+"""linkpred, a Python package for link prediction"""
 from .linkpred import *
 
-__version__ = "0.2"
+__version__ = "0.6"
