@@ -3,6 +3,15 @@ Changelog
 
 **Note**: I only started keeping this changelog from version 0.5 onwards.
 
+Version 0.6
+-----------
+
+- Officially support Python versions 3.8-3.12
+
+- Fix bug where linkpred could no longer be installed on Windows
+
+- General modernization of code and especially infrastructure (CI, packaging etc.)
+
 Version 0.5.1
 -------------
 
