@@ -28,7 +28,7 @@ dependencies = [
         "networkx>=3.0",
         "numpy>=1.23",
         "pyyaml>=3.0",
-        "scipy>=1.10",
+        "scipy>=1.13.1",
         "smokesignal>=0.7",
 ]
 
