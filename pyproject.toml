@@ -24,7 +24,7 @@ classifiers = [
 ]
 requires-python=">=3.8"
 dependencies = [
-        "matplotlib>=3.5",
+        "matplotlib>=3.9.4",
         "networkx>=3.0",
         "numpy>=1.23",
         "pyyaml>=3.0",
