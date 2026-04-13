@@ -27,7 +27,7 @@ dependencies = [
         "matplotlib>=3.5",
         "networkx>=3.0",
         "numpy>=1.23",
-        "pyyaml>=3.0",
+        "pyyaml>=6.0.3",
         "scipy>=1.10",
         "smokesignal>=0.7",
 ]
