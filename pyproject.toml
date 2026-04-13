@@ -26,7 +26,7 @@ requires-python=">=3.8"
 dependencies = [
         "matplotlib>=3.5",
         "networkx>=3.0",
-        "numpy>=1.23",
+        "numpy>=2.0.2",
         "pyyaml>=3.0",
         "scipy>=1.10",
         "smokesignal>=0.7",
