@@ -36,9 +36,9 @@ dependencies = [
 linkpred = "linkpred.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest >=7.1", "pytest-cov", "tox>=4.4"]
+dev = ["pytest >=7.1", "pytest-cov", "tox>=4.30.3"]
 community = ["python-louvain"]
-all = ["pytest >=7.1", "pytest-cov", "tox>=4.4", "python-louvain"]
+all = ["pytest >=7.1", "pytest-cov", "tox>=4.30.3", "python-louvain"]
 
 [project.urls]
 Home = "https://github.com/rafguns/linkpred/"
